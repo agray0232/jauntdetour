@@ -35,7 +35,7 @@ app.get("/test", function(req, res, next) {
 
 app.get("/route", function(req, res, next) {
   routeAPI
-    .getRoute()
+    .getRoute(req.body)
     .then(data => {
       res.status(200).send(JSON.stringify(data));
     })
