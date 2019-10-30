@@ -37,7 +37,6 @@ app.get("/test", function(req, res) {
 });
 
 app.get("/route", function(req, res) {
-  console.log(req);
   console.log(req.query);
   routeAPI
     .getRoute(req.query)
