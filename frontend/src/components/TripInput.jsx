@@ -18,6 +18,7 @@ class TripInput extends React.Component {
         routeRequester.getRoute(origin, destination, "Address")
         .then(data => {
             console.log(data);
+            console.log(data.routes);
           })
           .catch(function(error) {
             console.log("Error: " + error);

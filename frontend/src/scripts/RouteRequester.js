@@ -26,7 +26,12 @@ export default class RouteRequester {
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server
       axios
-        .get("http://localhost:3001/route", { params: parameters })
+        .get("http://localhost:3001/route", {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          params: parameters
+        })
         .then(response => {
           // Decode and send the response
           resolve(response.data);

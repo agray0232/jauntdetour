@@ -51,7 +51,6 @@ module.exports = {
  * @returns - Formatted url call containing origin and destination data
  */
 function createURL(input) {
-  console.log(input);
   // Create the base of the url
   let urlBase = `https://maps.googleapis.com/maps/api/directions/json?`;
 

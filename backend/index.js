@@ -1,5 +1,6 @@
 var express = require("express");
 var session = require("express-session");
+var cors = require("cors");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 const https = require("https");
@@ -11,6 +12,8 @@ app.use(cookieParser());
 // This body parser is needed to access the body of a request cleanly
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+
+app.use(cors());
 
 app.use(
   session({
@@ -34,6 +37,7 @@ app.get("/test", function(req, res) {
 });
 
 app.get("/route", function(req, res) {
+  console.log(req);
   console.log(req.query);
   routeAPI
     .getRoute(req.query)
