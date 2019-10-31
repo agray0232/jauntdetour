@@ -6,8 +6,18 @@ class Main extends React.Component{
     render(){
         return(
         <div className="App">
-            <TripInput></TripInput>
-            <MapContainer></MapContainer>
+            <TripInput 
+                origin = {this.props.origin}
+                destination = {this.props.destination}
+                setOrigin = {this.props.setOrigin}
+                setDestination = {this.props.setDestination}
+                setRoute = {this.props.setRoute}>
+            </TripInput>
+            <MapContainer
+                showRoute = {this.props.showRoute}
+                route = {this.props.route}>
+            </MapContainer>
+           
         </div>
         )
     }

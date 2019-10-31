@@ -7,25 +7,44 @@ class MapContainer extends React.Component {
     super(props);
 
     this.state = {
-      route: [],
       mapStyle: {
-        width: '90%',
-        height: '90%'
+        width: '100%',
+        height: '75%'
       }
     }
   }
 
     render() {
 
-        return (
-            <Map
-              google={this.props.google}
-              zoom={8}
-              style={this.state.mapStyle}
-              initialCenter={{ lat: 33.749, lng: -84.388}}
-            />
-        );
+      if(this.props.showRoute)
+      {
+        var routeCoordinates = this.props.route.overview_polyline.decodedPoints.map(point =>
+          {
+            return {lat: point[0], lng: point[1]}
+          });
       }
+
+      return (
+          <Map
+            google={this.props.google}
+            zoom={9}
+            style={this.state.mapStyle}
+            initialCenter={{ lat: 33.749, lng: -84.388}}
+          >
+            {this.props.showRoute ? (
+              <Polyline
+                    defaultPosition={this.props.center}
+                    path= {routeCoordinates}
+                    geodesic= {true}
+                    strokeColor= {"#007bff"}
+                    strokeOpacity= {1.0}
+                    strokeWeight= {5}
+                />
+            ): (<div></div>)}
+            
+          </Map>
+      );
+    }
 }
 
 export default GoogleApiWrapper({

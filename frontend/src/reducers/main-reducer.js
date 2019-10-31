@@ -2,7 +2,8 @@ let initialState = {
   origin: "",
   destination: "",
   route: [],
-  routeOptions: []
+  routeOptions: [],
+  showRoute: false
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -20,6 +21,7 @@ const mainReducer = (state = initialState, action) => {
     case "SET_ROUTE":
       return {
         ...state,
+        showRoute: true,
         route: action.data.route
       };
     default:
