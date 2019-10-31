@@ -104,6 +104,9 @@ function decodePolylines(data) {
 
   // For each route option that was returned
   decodedData.routes.forEach(function(route) {
+    // Create an empty array to contain the summary
+    var routeSummary = [];
+
     // The route is made of many legs
     route.legs.forEach(function(leg) {
       // Each leg has a series of small steps
@@ -112,6 +115,8 @@ function decodePolylines(data) {
         step.polyline.decodedPoints = polylineEncoder.decode(
           step.polyline.points
         );
+        // Add this leg to the route summary
+        routeSummary.push(step.polyline.decodedPoints);
       });
     });
     // Decode the encoded overview polyline point string

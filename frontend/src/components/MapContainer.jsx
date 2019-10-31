@@ -1,21 +1,27 @@
 import React from 'react';
-import { Map, GoogleApiWrapper } from 'google-maps-react';
+import { Map, Polyline, GoogleApiWrapper } from 'google-maps-react';
 
 class MapContainer extends React.Component {
+  
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      route: [],
+      mapStyle: {
+        width: '90%',
+        height: '90%'
+      }
+    }
+  }
 
     render() {
-
-      const mapStyles = {
-        width: '90%',
-        height: '90%',
-      };
 
         return (
             <Map
               google={this.props.google}
               zoom={8}
-              style={mapStyles}
+              style={this.state.mapStyle}
               initialCenter={{ lat: 33.749, lng: -84.388}}
             />
         );
