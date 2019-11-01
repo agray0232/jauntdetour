@@ -5,6 +5,7 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 const https = require("https");
 const routeAPI = require("./app/modules/routeAPI");
+const placesAPI = require("./app/modules/placesAPI");
 
 var app = express();
 app.use(cookieParser());
@@ -40,6 +41,18 @@ app.get("/route", function(req, res) {
   console.log(req.query);
   routeAPI
     .getRoute(req.query)
+    .then(data => {
+      res.status(200).send(JSON.stringify(data));
+    })
+    .catch(function(error) {
+      console.log("Error: " + error);
+    });
+});
+
+app.get("/places", function(req, res) {
+  console.log(req.query);
+  placesAPI
+    .getPlaces(req.query)
     .then(data => {
       res.status(200).send(JSON.stringify(data));
     })
