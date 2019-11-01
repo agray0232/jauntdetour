@@ -3,7 +3,8 @@ let initialState = {
   destination: "",
   route: [],
   routeOptions: [],
-  showRoute: false
+  showRoute: false,
+  showHikesButton: false
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -22,6 +23,7 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         showRoute: true,
+        showHikesButton: true,
         route: action.data.route
       };
     default:
