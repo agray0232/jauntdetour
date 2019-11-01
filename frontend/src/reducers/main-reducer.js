@@ -3,8 +3,11 @@ let initialState = {
   destination: "",
   route: [],
   routeOptions: [],
+  detourLocation: 0,
+  detourRadius: 0,
   showRoute: false,
-  showHikesButton: false
+  showDetourButton: false,
+  showDetourForm: false
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -23,8 +26,13 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         showRoute: true,
-        showHikesButton: true,
+        showDetourButton: true,
         route: action.data.route
+      };
+    case "GET_DETOUR_FORM":
+      return {
+        ...state,
+        showDetourForm: true
       };
     default:
       return state;

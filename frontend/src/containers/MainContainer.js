@@ -27,6 +27,10 @@ let matchDispatchToProps = dispatch => {
         data: {
           route: route
         }
+      }),
+    getDetourForm: () =>
+      dispatch({
+        type: "GET_DETOUR_FORM"
       })
   };
 };
