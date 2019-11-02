@@ -31,6 +31,20 @@ let matchDispatchToProps = dispatch => {
     getDetourForm: () =>
       dispatch({
         type: "GET_DETOUR_FORM"
+      }),
+    setDetourLocation: detourLocation =>
+      dispatch({
+        type: "SET_DETOUR_LOCATION",
+        data: {
+          detourLocation: detourLocation
+        }
+      }),
+    setDetourRadius: detourRadius =>
+      dispatch({
+        type: "SET_DETOUR_RADIUS",
+        data: {
+          detourRadius: detourRadius
+        }
       })
   };
 };

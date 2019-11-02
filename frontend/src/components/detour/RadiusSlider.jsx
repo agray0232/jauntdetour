@@ -1,16 +1,16 @@
 import React from 'react';
 
-class LocationSlider extends React.Component {
+class RadiusSlider extends React.Component {
     constructor(){
         super();
 
         // Bind 'this' to the updateDetourLocation method
-        this.updateDetourLocation = this.updateDetourLocation.bind(this);
+        this.updateDetourRadius = this.updateDetourRadius.bind(this);
     }
 
-    updateDetourLocation(value)
+    updateDetourRadius(value)
     {
-        this.props.setDetourLocation(value);
+        this.props.setDetourRadius(value);
     }
 
     render(){
@@ -19,14 +19,14 @@ class LocationSlider extends React.Component {
                 <input 
                     type="range" 
                     min="1" 
-                    max="100" 
+                    max="100000" 
                     defaultValue="50"
-                    onChange={(e) => this.updateDetourLocation(e.target.value)}
+                    onChange={(e) => this.updateDetourRadius(e.target.value)}
                     className="slider" 
-                    id="myRange"></input>
+                    id="detourRadius"></input>
             </div>
         )
     }
 }
 
-export default LocationSlider;
+export default RadiusSlider;

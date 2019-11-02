@@ -23,12 +23,18 @@ class Main extends React.Component{
             text = "+ Add Detour">
             </Button>
             {this.props.showDetourForm ? (
-              <DetourForm>
-
+              <DetourForm
+                setDetourLocation = {this.props.setDetourLocation}
+                setDetourRadius = {this.props.setDetourRadius}
+                detourLocation = {this.props.detourLocation}
+                detourRadius = {this.props.detourRadius}>
               </DetourForm>
             ): (<div></div>)}  
             <MapContainer
                 showRoute = {this.props.showRoute}
+                showDetourPoint = {this.props.showDetourPoint}
+                detourLocation = {this.props.detourLocation}
+                detourRadius = {this.props.detourRadius}
                 route = {this.props.route}>
             </MapContainer>
            

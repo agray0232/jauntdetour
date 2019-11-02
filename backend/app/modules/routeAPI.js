@@ -30,6 +30,7 @@ module.exports = {
         .then(response => {
           // Decode and send the response
           var decodedData = decodePolylines(response.data);
+          var mappedData = mapData(decodedData);
           resolve(decodedData);
         })
         .catch(error => {
@@ -126,4 +127,17 @@ function decodePolylines(data) {
   });
 
   return decodedData;
+}
+
+function mapData(data) {
+  // For each route option that was returned
+  data.routes.forEach(function(route) {
+    // Create an empty object to contain the mapped data
+    var routePercentMap = {};
+
+    // Get the total trip distance of the route in meters
+    // Right now each route is completely contained in a single "leg"
+    // Not sure when there will be multiple legs
+    var totalTripDistance = route.legs[0].distance.value;
+  });
 }

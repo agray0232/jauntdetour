@@ -1,5 +1,5 @@
 import React from 'react';
-import { Map, Polyline, GoogleApiWrapper } from 'google-maps-react';
+import { Map, Circle , Polyline, Marker, GoogleApiWrapper } from 'google-maps-react';
 
 class MapContainer extends React.Component {
   
@@ -24,6 +24,13 @@ class MapContainer extends React.Component {
           });
       }
 
+      if(this.props.showDetourPoint && this.props.showRoute)
+      {
+        var detourPoint = {};
+        var routeLength = routeCoordinates.length;
+        var routeIndex = Math.floor(this.props.detourLocation/100 * routeLength);
+        detourPoint = routeCoordinates[routeIndex];
+      }
       return (
           <Map
             google={this.props.google}
@@ -40,6 +47,22 @@ class MapContainer extends React.Component {
                     strokeOpacity= {1.0}
                     strokeWeight= {5}
                 />
+            ): (<div></div>)}
+            {this.props.showDetourPoint ? (
+              <Marker
+                    position={detourPoint}
+                />
+            ): (<div></div>)}
+            {this.props.showDetourPoint ? (
+              <Circle
+              radius={parseFloat(this.props.detourRadius)}
+              center={detourPoint}
+              strokeColor='transparent'
+              strokeOpacity={0}
+              strokeWeight={5}
+              fillColor='#FF0000'
+              fillOpacity={0.2}
+            />
             ): (<div></div>)}
             
           </Map>
