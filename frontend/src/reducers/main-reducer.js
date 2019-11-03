@@ -3,6 +3,7 @@ let initialState = {
   destination: "",
   route: [],
   routeOptions: [],
+  detourOptions: [],
   detourLocation: 0,
   detourRadius: 0,
   showRoute: false,
@@ -45,6 +46,11 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         detourRadius: action.data.detourRadius
+      };
+    case "SET_DETOUR_OPTIONS":
+      return {
+        ...state,
+        detourOptions: action.data.detourOptions
       };
     default:
       return state;

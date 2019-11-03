@@ -19,7 +19,7 @@ class Main extends React.Component{
             disabledCriteria={!this.props.showDetourButton}
             onClick={this.props.getDetourForm}
             className = "main-button"
-            id = "get-hikes-button"
+            id = "add-detour-button"
             text = "+ Add Detour">
             </Button>
             {this.props.showDetourForm ? (
@@ -27,7 +27,8 @@ class Main extends React.Component{
                 setDetourLocation = {this.props.setDetourLocation}
                 setDetourRadius = {this.props.setDetourRadius}
                 detourLocation = {this.props.detourLocation}
-                detourRadius = {this.props.detourRadius}>
+                detourRadius = {this.props.detourRadius}
+                route = {this.props.route}>
               </DetourForm>
             ): (<div></div>)}  
             <MapContainer
