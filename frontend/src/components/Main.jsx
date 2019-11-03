@@ -26,6 +26,7 @@ class Main extends React.Component{
               <DetourForm
                 setDetourLocation = {this.props.setDetourLocation}
                 setDetourRadius = {this.props.setDetourRadius}
+                setDetourOptions = {this.props.setDetourOptions}
                 detourLocation = {this.props.detourLocation}
                 detourRadius = {this.props.detourRadius}
                 route = {this.props.route}>
