@@ -12,6 +12,26 @@ class MapContainer extends React.Component {
         height: '75%'
       }
     }
+
+    this.adjustMap = this.adjustMap.bind(this);
+  }
+
+  adjustMap(mapProps, map) {
+    console.log("Adjusted map");
+    if(this.props.route.legth > 0){
+      const {google, markers} = mapProps;
+      const bounds = new google.maps.LatLngBounds();
+    
+      const ne_lat = this.props.route.bounds.northeast.lat;
+      const ne_lng = this.props.route.bounds.northeast.lng;
+      const sw_lat = this.props.route.bounds.southwest.lat;
+      const sw_lng = this.props.route.bounds.southwest.lng;
+      bounds.extend(new google.maps.LatLng(ne_lat, ne_lng));
+      bounds.extend(new google.maps.LatLng(sw_lat, sw_lng));
+    
+      map.fitBounds(bounds);
+      // map.panToBounds(bounds);
+    }
   }
 
     render() {
@@ -52,6 +72,7 @@ class MapContainer extends React.Component {
             zoom={9}
             style={this.state.mapStyle}
             initialCenter={{ lat: 33.749, lng: -84.388}}
+            onReady={this.adjustMap}
           >
             {this.props.showRoute ? (
               <Polyline

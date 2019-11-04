@@ -52,6 +52,10 @@ let matchDispatchToProps = dispatch => {
         data: {
           detourOptions: detourOptions
         }
+      }),
+    clearDetourOptions: () =>
+      dispatch({
+        type: "CLEAR_DETOUR_OPTIONS"
       })
   };
 };

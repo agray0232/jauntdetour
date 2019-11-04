@@ -54,6 +54,15 @@ const mainReducer = (state = initialState, action) => {
         detourOptions: action.data.detourOptions,
         showDetourOptions: true
       };
+    case "CLEAR_DETOUR_OPTIONS":
+      return {
+        ...state,
+        detourOptions: [],
+        detourRadius: 0,
+        showDetourOptions: false,
+        showDetourForm: false,
+        showDetourOptions: false
+      };
     default:
       return state;
   }

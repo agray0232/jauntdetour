@@ -24,6 +24,7 @@ class DetourOptions extends React.Component {
                      id = {optionId}
                      placeId = {optionPlaceId}
                      setRoute = {this.props.setRoute}
+                     clearDetourOptions = {this.props.clearDetourOptions}
                      >
                     </Detour>
               )
