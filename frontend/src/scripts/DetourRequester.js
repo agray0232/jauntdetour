@@ -10,8 +10,6 @@ export default class DetourRequester {
       radius: radius
     };
 
-    console.log(parameters);
-
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server
       axios

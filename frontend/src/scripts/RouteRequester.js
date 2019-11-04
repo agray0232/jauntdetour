@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default class RouteRequester {
-  getRoute(origin, destination, type) {
+  getRoute(origin, destination, type, opts) {
     // Initialize the parameters to pass in
     var parameters = {};
 
@@ -13,6 +13,9 @@ export default class RouteRequester {
           origin: origin,
           destination: destination
         };
+        if (opts["waypoint"]) {
+          parameters.waypoint = opts.waypoint.placeId;
+        }
         break;
 
       case "Coordinates":
@@ -20,8 +23,6 @@ export default class RouteRequester {
 
       default:
     }
-
-    console.log(parameters);
 
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server

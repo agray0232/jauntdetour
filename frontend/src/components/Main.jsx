@@ -3,6 +3,7 @@ import MapContainer from "./MapContainer";
 import UserInput from "./UserInput";
 import Button from "./Button";
 import DetourForm from "./detour/DetourForm";
+import DetourOptions from "./detour/DetourOptions";
 
 class Main extends React.Component{
     render(){
@@ -32,14 +33,23 @@ class Main extends React.Component{
                 route = {this.props.route}>
               </DetourForm>
             ): (<div></div>)}  
+            {this.props.showDetourOptions ? (
+              <DetourOptions
+                origin = {this.props.origin}
+                destination = {this.props.destination}
+                detourOptions = {this.props.detourOptions}
+                setRoute = {this.props.setRoute}>
+              </DetourOptions>
+            ): (<div></div>)}  
             <MapContainer
                 showRoute = {this.props.showRoute}
                 showDetourPoint = {this.props.showDetourPoint}
                 detourLocation = {this.props.detourLocation}
                 detourRadius = {this.props.detourRadius}
+                detourOptions = {this.props.detourOptions}
                 route = {this.props.route}>
             </MapContainer>
-           
+            
         </div>
         )
     }

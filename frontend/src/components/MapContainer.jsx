@@ -18,7 +18,7 @@ class MapContainer extends React.Component {
 
       if(this.props.showRoute)
       {
-        var routeCoordinates = this.props.route.overview_polyline.decodedPoints.map(point =>
+        var routeCoordinates = this.props.route.overview_polyline.complete_overview.map(point =>
           {
             return {lat: point[0], lng: point[1]}
           });
@@ -31,6 +31,21 @@ class MapContainer extends React.Component {
         var routeIndex = Math.floor(this.props.detourLocation/100 * routeLength);
         detourPoint = routeCoordinates[routeIndex];
       }
+
+      var showDetourOptions = false;
+      if(this.props.detourOptions.length > 0){
+        showDetourOptions = true;
+        var detourOptions = this.props.detourOptions.map(detour =>
+          {
+            return (
+              <Marker
+                position={
+                  {lat: detour.geometry.location.lat, 
+                  lng: detour.geometry.location.lng}}>
+              </Marker>)
+          })
+      }
+
       return (
           <Map
             google={this.props.google}
@@ -63,6 +78,9 @@ class MapContainer extends React.Component {
               fillColor='#FF0000'
               fillOpacity={0.2}
             />
+            ): (<div></div>)}
+            {showDetourOptions ? (
+              detourOptions
             ): (<div></div>)}
             
           </Map>

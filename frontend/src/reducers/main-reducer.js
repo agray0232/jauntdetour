@@ -9,6 +9,7 @@ let initialState = {
   showRoute: false,
   showDetourButton: false,
   showDetourForm: false,
+  showDetourOptions: false,
   showDetourPoint: false
 };
 
@@ -50,7 +51,8 @@ const mainReducer = (state = initialState, action) => {
     case "SET_DETOUR_OPTIONS":
       return {
         ...state,
-        detourOptions: action.data.detourOptions
+        detourOptions: action.data.detourOptions,
+        showDetourOptions: true
       };
     default:
       return state;

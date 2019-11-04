@@ -25,7 +25,6 @@ class DetourForm extends React.Component {
         detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourRadius, "Hike")
         .then(data => {
             this.props.setDetourOptions(data.results);
-            console.log(data.results);
           })
           .catch(function(error) {
             console.log("Error: " + error);
