@@ -27,6 +27,35 @@ let matchDispatchToProps = dispatch => {
         data: {
           route: route
         }
+      }),
+    getDetourForm: () =>
+      dispatch({
+        type: "GET_DETOUR_FORM"
+      }),
+    setDetourLocation: detourLocation =>
+      dispatch({
+        type: "SET_DETOUR_LOCATION",
+        data: {
+          detourLocation: detourLocation
+        }
+      }),
+    setDetourRadius: detourRadius =>
+      dispatch({
+        type: "SET_DETOUR_RADIUS",
+        data: {
+          detourRadius: detourRadius
+        }
+      }),
+    setDetourOptions: detourOptions =>
+      dispatch({
+        type: "SET_DETOUR_OPTIONS",
+        data: {
+          detourOptions: detourOptions
+        }
+      }),
+    clearDetourOptions: () =>
+      dispatch({
+        type: "CLEAR_DETOUR_OPTIONS"
       })
   };
 };

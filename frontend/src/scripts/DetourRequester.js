@@ -1,33 +1,19 @@
 import axios from "axios";
 
-export default class RouteRequester {
-  getRoute(origin, destination, type, opts) {
+export default class DetourRequester {
+  getDetours(lat, lng, radius, type) {
     // Initialize the parameters to pass in
-    var parameters = {};
-
-    // Switch on if this is an address or coordinates
-    switch (type) {
-      case "Address":
-        parameters = {
-          type: "Address",
-          origin: origin,
-          destination: destination
-        };
-        if (opts["waypoint"]) {
-          parameters.waypoint = opts.waypoint.placeId;
-        }
-        break;
-
-      case "Coordinates":
-        break;
-
-      default:
-    }
+    var parameters = {
+      searchText: type,
+      lat: lat,
+      lng: lng,
+      radius: radius
+    };
 
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server
       axios
-        .get("http://localhost:3001/route", {
+        .get("http://localhost:3001/places", {
           headers: {
             "Content-Type": "application/json"
           },

@@ -30,6 +30,7 @@ module.exports = {
         .then(response => {
           // Decode and send the response
           var decodedData = decodePolylines(response.data);
+          var finalData = createCompleteOverview(decodedData);
           resolve(decodedData);
         })
         .catch(error => {
@@ -84,9 +85,16 @@ function createURL(input) {
       );
   }
 
-  // Create the final url
-  const url = `${urlBase}origin=${formattedOrigin}&destination=${formattedDestination}&key=${key}`;
+  var formattedWaypoint = "";
+  // Check for waypoint data
+  if (input["waypoint"]) {
+    formattedWaypoint = "&waypoints=place_id:";
+    formattedWaypoint = formattedWaypoint + input.waypoint;
+  }
 
+  // Create the final url
+  const url = `${urlBase}origin=${formattedOrigin}&destination=${formattedDestination}${formattedWaypoint}&key=${key}`;
+  console.log(url);
   return url;
 }
 
@@ -126,4 +134,21 @@ function decodePolylines(data) {
   });
 
   return decodedData;
+}
+
+function createCompleteOverview(data) {
+  // For each route option that was returned
+  data.routes.forEach(function(route) {
+    // Create an empty array for all the coordinates
+    var completeOverview = [];
+
+    route.legs.forEach(leg => {
+      leg.steps.forEach(step => {
+        step.polyline.decodedPoints.forEach(point => {
+          completeOverview.push(point);
+        });
+      });
+    });
+    route.overview_polyline.complete_overview = completeOverview;
+  });
 }

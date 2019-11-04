@@ -17,12 +17,11 @@ class TripInput extends React.Component {
         this.props.setOrigin(origin);
         this.props.setDestination(destination);
         var routeRequester = new RouteRequester();
-        routeRequester.getRoute(origin, destination, "Address")
+        routeRequester.getRoute(origin, destination, "Address", {})
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
             }
-            console.log(data.routes);
           })
           .catch(function(error) {
             console.log("Error: " + error);
