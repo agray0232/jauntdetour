@@ -65,6 +65,6 @@ app.get("/places", function(req, res) {
 //Starting https server
 //const httpsServer = https.createServer(app);
 
-app.listen(3001, () => {
-  console.log("HTTP Server running on port 3001");
+app.listen(8080, () => {
+  console.log("HTTP Server running on port 8080");
 });
