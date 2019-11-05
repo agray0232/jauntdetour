@@ -47,8 +47,9 @@ class MapContainer extends React.Component {
       if(this.props.showDetourPoint && this.props.showRoute)
       {
         var detourPoint = {};
+        
         var routeLength = routeCoordinates.length;
-        var routeIndex = Math.floor(this.props.detourLocation/100 * routeLength);
+        var routeIndex = Math.floor(this.props.detourLocation/100 * routeLength) - 1;
         detourPoint = routeCoordinates[routeIndex];
       }
 
@@ -57,11 +58,33 @@ class MapContainer extends React.Component {
         showDetourOptions = true;
         var detourOptions = this.props.detourOptions.map(detour =>
           {
+            var highlight = false;
+            this.props.detourHighlight.forEach(detourHighlight => {
+              if(detourHighlight.id === detour.id){
+                //console.log("setting highlight as " + detourHighlight);
+                highlight = detourHighlight.highlight;
+              }
+            })
+            //console.log(highlight);
+            if(highlight){
+              var icon = {
+                url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|FF0000|40|_|%E2%80%A2', // url
+                scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
+              };
+            }
+            else{
+              var icon = {
+                url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|0091ff|40|_|%E2%80%A2', // url
+                scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
+              };
+            }
+            
             return (
               <Marker
                 position={
                   {lat: detour.geometry.location.lat, 
-                  lng: detour.geometry.location.lng}}>
+                  lng: detour.geometry.location.lng}}
+                icon={icon}>
               </Marker>)
           })
       }
@@ -87,6 +110,7 @@ class MapContainer extends React.Component {
             {this.props.showDetourPoint ? (
               <Marker
                     position={detourPoint}
+                    color="#3349FF"
                 />
             ): (<div></div>)}
             {this.props.showDetourPoint ? (

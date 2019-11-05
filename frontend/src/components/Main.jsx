@@ -22,6 +22,7 @@ class Main extends React.Component{
                 setDetourLocation = {this.props.setDetourLocation}
                 setDetourRadius = {this.props.setDetourRadius}
                 setDetourOptions = {this.props.setDetourOptions}
+                setDetourHighlight = {this.props.setDetourHighlight}
                 detourLocation = {this.props.detourLocation}
                 detourRadius = {this.props.detourRadius}
                 route = {this.props.route}>
@@ -42,7 +43,10 @@ class Main extends React.Component{
                 origin = {this.props.origin}
                 destination = {this.props.destination}
                 detourOptions = {this.props.detourOptions}
+                detourHighlight = {this.props.detourHighlight}
                 setRoute = {this.props.setRoute}
+                setDetourOptions = {this.props.setDetourOptions}
+                setDetourHighlight = {this.props.setDetourHighlight}
                 clearDetourOptions = {this.props.clearDetourOptions}>
               </DetourOptions>
             ): (<div></div>)}  
@@ -54,6 +58,7 @@ class Main extends React.Component{
                 detourLocation = {this.props.detourLocation}
                 detourRadius = {this.props.detourRadius}
                 detourOptions = {this.props.detourOptions}
+                detourHighlight = {this.props.detourHighlight}
                 route = {this.props.route}>
             </MapContainer>
           </div>
