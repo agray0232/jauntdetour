@@ -16,6 +16,7 @@ class RadiusSlider extends React.Component {
     render(){
         return(
             <div className="slidecontainer">
+                <h6>Radius</h6>
                 <input 
                     type="range" 
                     min="1" 

@@ -33,18 +33,17 @@ class DetourForm extends React.Component {
 
     render(){
         return(
-            <div>
-                Detour Location
+            <div className="detour-form container">
+                <h4>Detour Options</h4>
                 <LocationSlider
                     setDetourLocation = {this.props.setDetourLocation}>
                 </LocationSlider>
-                Detour Radius
                 <RadiusSlider
                     setDetourRadius = {this.props.setDetourRadius}>
                 </RadiusSlider>
                 <Button
                     onClick={this.getDetours}
-                    className = "main-button"
+                    className = "btn btn-primary main-button"
                     id = "get-detours-button"
                     text = "Get detours">
                 </Button>

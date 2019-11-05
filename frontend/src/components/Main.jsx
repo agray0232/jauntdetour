@@ -8,7 +8,8 @@ import DetourOptions from "./detour/DetourOptions";
 class Main extends React.Component{
     render(){
         return(
-        <div className="App">
+        <div className="app-container row">
+          <div className="side-bar">
             <UserInput 
                 origin = {this.props.origin}
                 destination = {this.props.destination}
@@ -16,13 +17,6 @@ class Main extends React.Component{
                 setDestination = {this.props.setDestination}
                 setRoute = {this.props.setRoute}>
             </UserInput>
-            <Button
-            disabledCriteria={!this.props.showDetourButton}
-            onClick={this.props.getDetourForm}
-            className = "main-button"
-            id = "add-detour-button"
-            text = "+ Add Detour">
-            </Button>
             {this.props.showDetourForm ? (
               <DetourForm
                 setDetourLocation = {this.props.setDetourLocation}
@@ -32,7 +26,17 @@ class Main extends React.Component{
                 detourRadius = {this.props.detourRadius}
                 route = {this.props.route}>
               </DetourForm>
-            ): (<div></div>)}  
+            ): (
+            <div className="container add-detour-container">
+              <Button
+                disabledCriteria={!this.props.showDetourButton}
+                onClick={this.props.getDetourForm}
+                className = "btn btn-primary add-detour-btn"
+                id = "add-detour-button"
+                text = "+ Add Detour">
+              </Button>
+            </div>            
+            )}  
             {this.props.showDetourOptions ? (
               <DetourOptions
                 origin = {this.props.origin}
@@ -42,6 +46,8 @@ class Main extends React.Component{
                 clearDetourOptions = {this.props.clearDetourOptions}>
               </DetourOptions>
             ): (<div></div>)}  
+          </div>
+          <div className="map-container">
             <MapContainer
                 showRoute = {this.props.showRoute}
                 showDetourPoint = {this.props.showDetourPoint}
@@ -50,7 +56,7 @@ class Main extends React.Component{
                 detourOptions = {this.props.detourOptions}
                 route = {this.props.route}>
             </MapContainer>
-            
+          </div>
         </div>
         )
     }
