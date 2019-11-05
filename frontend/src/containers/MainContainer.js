@@ -53,6 +53,13 @@ let matchDispatchToProps = dispatch => {
           detourOptions: detourOptions
         }
       }),
+    setDetourHighlight: detourHighlight =>
+      dispatch({
+        type: "SET_DETOUR_HIGHLIGHT",
+        data: {
+          detourHighlight: detourHighlight
+        }
+      }),
     clearDetourOptions: () =>
       dispatch({
         type: "CLEAR_DETOUR_OPTIONS"

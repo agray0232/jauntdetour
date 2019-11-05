@@ -17,6 +17,7 @@ class DetourOptions extends React.Component {
               return (
                   <Detour
                      detourOptions = {this.props.detourOptions}
+                     detourHighlight = {this.props.detourHighlight}
                      origin = {this.props.origin}
                      destination = {this.props.destination}
                      name = {option.name}
@@ -27,6 +28,7 @@ class DetourOptions extends React.Component {
                      placeId = {optionPlaceId}
                      setRoute = {this.props.setRoute}
                      setDetourOptions = {this.props.setDetourOptions}
+                     setDetourHighlight = {this.props.setDetourHighlight}
                      clearDetourOptions = {this.props.clearDetourOptions}
                      >
                     </Detour>

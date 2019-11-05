@@ -58,7 +58,15 @@ class MapContainer extends React.Component {
         showDetourOptions = true;
         var detourOptions = this.props.detourOptions.map(detour =>
           {
-            if(detour.hover){
+            var highlight = false;
+            this.props.detourHighlight.forEach(detourHighlight => {
+              if(detourHighlight.id === detour.id){
+                //console.log("setting highlight as " + detourHighlight);
+                highlight = detourHighlight.highlight;
+              }
+            })
+            //console.log(highlight);
+            if(highlight){
               var icon = {
                 url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|FF0000|40|_|%E2%80%A2', // url
                 scaledSize: new this.props.google.maps.Size(20, 30), // scaled size

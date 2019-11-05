@@ -4,6 +4,7 @@ let initialState = {
   route: [],
   routeOptions: [],
   detourOptions: [],
+  detourHighlight: [],
   detourLocation: 50,
   detourRadius: 20000,
   showRoute: false,
@@ -53,6 +54,11 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         detourOptions: action.data.detourOptions,
         showDetourOptions: true
+      };
+    case "SET_DETOUR_HIGHLIGHT":
+      return {
+        ...state,
+        detourHighlight: action.data.detourHighlight
       };
     case "CLEAR_DETOUR_OPTIONS":
       return {

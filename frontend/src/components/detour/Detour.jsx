@@ -12,7 +12,16 @@ class Detour extends React.Component {
     }
 
     highlight(){
-        
+        var newDetourHighlight = [];
+            this.props.detourHighlight.forEach(detour => {
+                var newHighlight = false
+                if(detour.id === this.props.id)
+                {
+                    newHighlight = true;
+                }
+                newDetourHighlight.push({id:detour.id, highlight:newHighlight});
+            })
+            this.props.setDetourHighlight(newDetourHighlight);
     }
 
     addDetour(){
