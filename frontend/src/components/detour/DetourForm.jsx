@@ -24,7 +24,14 @@ class DetourForm extends React.Component {
 
         detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourRadius, "Hike")
         .then(data => {
+
             this.props.setDetourOptions(data.results);
+
+            var detourHighlight = [];
+            data.results.forEach(result => {
+                detourHighlight.push({id:result.id, highlight:false});
+            })
+            this.props.setDetourHighlight(detourHighlight);
           })
           .catch(function(error) {
             console.log("Error: " + error);
@@ -34,7 +41,7 @@ class DetourForm extends React.Component {
     render(){
         return(
             <div className="detour-form container">
-                <h4>Detour Options</h4>
+                <h4>Detour Settings</h4>
                 <LocationSlider
                     setDetourLocation = {this.props.setDetourLocation}>
                 </LocationSlider>

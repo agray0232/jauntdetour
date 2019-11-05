@@ -8,6 +8,20 @@ class Detour extends React.Component {
 
         // Bind 'this' to the addDetour method
         this.addDetour = this.addDetour.bind(this);
+        this.highlight = this.highlight.bind(this);
+    }
+
+    highlight(){
+        var newDetourHighlight = [];
+            this.props.detourHighlight.forEach(detour => {
+                var newHighlight = false
+                if(detour.id === this.props.id)
+                {
+                    newHighlight = true;
+                }
+                newDetourHighlight.push({id:detour.id, highlight:newHighlight});
+            })
+            this.props.setDetourHighlight(newDetourHighlight);
     }
 
     addDetour(){
@@ -30,14 +44,22 @@ class Detour extends React.Component {
 
     render(){
         return(
-            <li key={this.props.id.toString()}>
-                <p>{this.props.name}</p>
-                <Button
-                onClick={this.addDetour}
-                className = "detour-button"
-                id = "${option.name}-detour-button"
-                text = "Add detour">
-                </Button>
+            <li onMouseEnter={this.highlight} className="list-group-item list-group-hover" key={this.props.id.toString()}>
+                <div className="row">
+                    <div className="col">
+                        <h5>{this.props.name}</h5>
+                        <p>Rating: {this.props.rating}</p>
+                    </div>
+                    <div className="col-3">
+                        <Button
+                            onClick={this.addDetour}
+                            className = "btn detour-option-btn"
+                            id = "${option.name}-detour-button"
+                            text = "+">
+                        </Button>
+                    </div>
+                </div>
+                
             </li>
         )
     }

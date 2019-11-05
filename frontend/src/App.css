@@ -67,3 +67,17 @@
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+.detour-options {
+  margin-top: 15px;
+}
+
+.detour-option-btn {
+  font-size: 50px;
+  color: black;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.list-group-item:hover {
+  background-color: lightgray;
+}
