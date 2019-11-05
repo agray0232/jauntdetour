@@ -13,7 +13,7 @@ export default class DetourRequester {
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server
       axios
-        .get("https://localhost:8080/places", {
+        .get("http://localhost:8080/places", {
           headers: {
             "Content-Type": "application/json"
           },
