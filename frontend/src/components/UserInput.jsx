@@ -1,4 +1,5 @@
 import React from 'react';
+
 import RouteRequester from '../scripts/RouteRequester.js'
 
 class TripInput extends React.Component {
@@ -30,16 +31,20 @@ class TripInput extends React.Component {
 
     render() {
         return (
-          <div>
+          <div className="user-input container">
             <form onSubmit={this.requestRoute}>
-              Origin: <input type="text"/>
-              Destination: <input type="text"/>
-              <input type="submit" value="Submit" />
+              <div className="form-group ">
+                <input className="form-control-lg route-input" type="text" placeholder="Origin"/>
+              </div>
+              <div className="form-group">
+                <input className="form-control-lg route-input" type="text" placeholder="Destination"/>
+              </div>
+              <div className="form-group ">
+                <input className="btn-default form-control-lg route-submit" type="submit" value="Get Route" />
+              </div>
             </form>
-            <div>
-              <p>Your origin is: {this.props.origin}</p>
-              <p>Your destination is: {this.props.destination}</p>
-            </div>
+
+
           </div>
         )
     }

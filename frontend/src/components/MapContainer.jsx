@@ -9,7 +9,7 @@ class MapContainer extends React.Component {
     this.state = {
       mapStyle: {
         width: '100%',
-        height: '75%'
+        height: '100%'
       }
     }
 
@@ -17,7 +17,7 @@ class MapContainer extends React.Component {
   }
 
   adjustMap(mapProps, map) {
-    console.log("Adjusted map");
+    
     if(this.props.route.legth > 0){
       const {google, markers} = mapProps;
       const bounds = new google.maps.LatLngBounds();

@@ -15,14 +15,15 @@ class LocationSlider extends React.Component {
 
     render(){
         return(
-            <div className="slidecontainer">
+            <div className="slide-container">
+                <h6>Location</h6>
                 <input 
                     type="range" 
                     min="1" 
                     max="100" 
                     defaultValue="50"
                     onChange={(e) => this.updateDetourLocation(e.target.value)}
-                    className="slider" 
+                    className="slider slider-location" 
                     id="myRange"></input>
             </div>
         )

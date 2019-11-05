@@ -6,7 +6,7 @@ let Button = (props) => {
             <button 
                 disabled={props.disabledCriteria}
                 onClick={props.onClick} 
-                className={props.class}
+                className={props.className}
                 id={props.id}>
                 {props.text}
             </button>
