@@ -16,14 +16,17 @@ class DetourOptions extends React.Component {
 
               return (
                   <Detour
+                     detourOptions = {this.props.detourOptions}
                      origin = {this.props.origin}
                      destination = {this.props.destination}
                      name = {option.name}
                      lat = {optionLat}
                      lng = {optionLng}
                      id = {optionId}
+                     rating = {option.rating}
                      placeId = {optionPlaceId}
                      setRoute = {this.props.setRoute}
+                     setDetourOptions = {this.props.setDetourOptions}
                      clearDetourOptions = {this.props.clearDetourOptions}
                      >
                     </Detour>
@@ -31,9 +34,11 @@ class DetourOptions extends React.Component {
             });
 
         return(
-            <div>
-                <p>Detour Options</p>
-                <ul>
+            <div className="detour-options">
+                <div className="container">
+                    <h4>Detour Options</h4>
+                </div>
+                <ul className="detour-options-list list-group">
                     {detourOptions}
                 </ul>
             </div>

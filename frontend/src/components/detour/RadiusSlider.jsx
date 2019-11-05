@@ -21,7 +21,7 @@ class RadiusSlider extends React.Component {
                     type="range" 
                     min="1" 
                     max="100000" 
-                    defaultValue="50"
+                    defaultValue="20000"
                     onChange={(e) => this.updateDetourRadius(e.target.value)}
                     className="slider" 
                     id="detourRadius"></input>

@@ -43,6 +43,7 @@ class Main extends React.Component{
                 destination = {this.props.destination}
                 detourOptions = {this.props.detourOptions}
                 setRoute = {this.props.setRoute}
+                setDetourOptions = {this.props.setDetourOptions}
                 clearDetourOptions = {this.props.clearDetourOptions}>
               </DetourOptions>
             ): (<div></div>)}  
