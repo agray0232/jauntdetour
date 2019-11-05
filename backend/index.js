@@ -6,6 +6,7 @@ var bodyParser = require("body-parser");
 const https = require("https");
 const routeAPI = require("./app/modules/routeAPI");
 const placesAPI = require("./app/modules/placesAPI");
+const path = require("path");
 
 var app = express();
 app.use(cookieParser());
@@ -27,10 +28,10 @@ app.use(
 );
 //sessionStorage.sync();
 
-//Route to main page
+app.use(express.static(path.join(__dirname, "build")));
+
 app.get("/", function(req, res) {
-  console.log("Message recieved");
-  res.send({ message: "Hello" });
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 app.get("/test", function(req, res) {
