@@ -28,17 +28,11 @@ app.use(
 );
 //sessionStorage.sync();
 
-app.use(express.static(path.join(__dirname, "build")));
-
-app.get("/", function(req, res) {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
-
-app.get("/test", function(req, res) {
+app.get("backend/test", function(req, res) {
   res.send({ message: "Hello" });
 });
 
-app.get("/route", function(req, res) {
+app.get("/backend/route", function(req, res) {
   console.log(req.query);
   routeAPI
     .getRoute(req.query)
@@ -50,7 +44,7 @@ app.get("/route", function(req, res) {
     });
 });
 
-app.get("/places", function(req, res) {
+app.get("/backend/places", function(req, res) {
   console.log(req.query);
   placesAPI
     .getPlaces(req.query)
@@ -65,6 +59,6 @@ app.get("/places", function(req, res) {
 //Starting https server
 //const httpsServer = https.createServer(app);
 
-app.listen(3001, () => {
-  console.log("HTTP Server running on port 3001");
+app.listen(8080, () => {
+  console.log("HTTP Server running on port 8080");
 });
