@@ -1,6 +1,6 @@
 import React from "react";
 import MapContainer from "./MapContainer";
-import Sidebar from "./Sidebar";
+import Sidebar from "./sidebar/Sidebar";
 
 class Main extends React.Component{
     render(){

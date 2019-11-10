@@ -1,6 +1,5 @@
 import React from 'react';
-
-import RouteRequester from '../scripts/RouteRequester.js'
+import RouteRequester from '../../scripts/RouteRequester.js'
 
 class TripInput extends React.Component {
 

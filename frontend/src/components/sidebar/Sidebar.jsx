@@ -1,8 +1,8 @@
 import React from 'react';
 import UserInput from "./UserInput";
-import Button from "./Button";
-import DetourForm from "./detour/DetourForm";
-import DetourOptions from "./detour/DetourOptions";
+import Button from "../Button";
+import DetourForm from "../detour/DetourForm";
+import DetourOptions from "../detour/DetourOptions";
 
 class Sidebar extends React.Component {
 
