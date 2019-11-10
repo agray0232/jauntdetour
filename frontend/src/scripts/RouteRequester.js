@@ -27,7 +27,7 @@ export default class RouteRequester {
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server
       axios
-        .get("https://www.jauntdetour.com/backend/route", {
+        .get("http://localhost:8080/route", {
           headers: {
             "Content-Type": "application/json"
           },
