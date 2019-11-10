@@ -1,6 +1,7 @@
 let initialState = {
   origin: "",
   destination: "",
+  detourList: [],
   route: [],
   routeOptions: [],
   detourOptions: [],
@@ -68,6 +69,18 @@ const mainReducer = (state = initialState, action) => {
         showDetourOptions: false,
         showDetourForm: false,
         showDetourOptions: false
+      };
+    case "ADD_DETOUR":
+      var newDetourList = state.detourList.push(action.data.detour);
+      return {
+        ...state,
+        detourList: newDetourList
+      };
+    case "REMOVE_DETOUR":
+      var newDetourList = state.detourList.splice(action.data.index, 1);
+      return {
+        ...state,
+        detourList: newDetourList
       };
     default:
       return state;

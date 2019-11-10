@@ -63,6 +63,20 @@ let matchDispatchToProps = dispatch => {
     clearDetourOptions: () =>
       dispatch({
         type: "CLEAR_DETOUR_OPTIONS"
+      }),
+    addDetour: detour =>
+      dispatch({
+        type: "ADD_DETOUR",
+        data: {
+          detour: detour
+        }
+      }),
+    removeDetour: index =>
+      dispatch({
+        type: "REMOVE_DETOUR",
+        data: {
+          index: index
+        }
       })
   };
 };
