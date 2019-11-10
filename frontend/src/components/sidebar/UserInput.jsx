@@ -20,6 +20,7 @@ class TripInput extends React.Component {
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
+              this.props.setBaseTripSummary(data.routes[0].summary)
             }
           })
           .catch(function(error) {

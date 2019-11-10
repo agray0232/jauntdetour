@@ -9,10 +9,11 @@ class Main extends React.Component{
           <Sidebar
             origin = {this.props.origin}
             destination = {this.props.destination}
+            baseTripSummary = {this.props.baseTripSummary}
             setOrigin = {this.props.setOrigin}
             setDestination = {this.props.setDestination}
             setRoute = {this.props.setRoute}
-            setBaseTripLength = {this.props.setBaseTripLength}
+            setBaseTripSummary = {this.props.setBaseTripSummary}
             setDetourSearchLocation = {this.props.setDetourSearchLocation}
             setDetourSearchRadius = {this.props.setDetourSearchRadius}
             setDetourOptions = {this.props.setDetourOptions}

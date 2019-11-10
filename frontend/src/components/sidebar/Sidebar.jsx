@@ -16,11 +16,12 @@ class Sidebar extends React.Component {
                 setOrigin = {this.props.setOrigin}
                 setDestination = {this.props.setDestination}
                 setRoute = {this.props.setRoute}
-                setBaseTripLength = {this.props.setBaseTripLength}>
+                setBaseTripSummary = {this.props.setBaseTripSummary}>
             </UserInput>
             <TripSummary
             origin = {this.props.origin}
-            destination = {this.props.destination}>
+            destination = {this.props.destination}
+            baseTripSummary = {this.props.baseTripSummary}>
             </TripSummary>
             {this.props.showDetourForm ? (
               <DetourForm
