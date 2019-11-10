@@ -49,7 +49,7 @@ class MapContainer extends React.Component {
         var detourPoint = {};
         
         var routeLength = routeCoordinates.length;
-        var routeIndex = Math.floor(this.props.detourLocation/100 * routeLength) - 1;
+        var routeIndex = Math.floor(this.props.detourSearchLocation/100 * routeLength) - 1;
         detourPoint = routeCoordinates[routeIndex];
       }
 
@@ -65,15 +65,17 @@ class MapContainer extends React.Component {
                 highlight = detourHighlight.highlight;
               }
             })
-            //console.log(highlight);
+            
+            var icon = {};
+
             if(highlight){
-              var icon = {
+              icon = {
                 url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|FF0000|40|_|%E2%80%A2', // url
                 scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
               };
             }
             else{
-              var icon = {
+              icon = {
                 url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|0091ff|40|_|%E2%80%A2', // url
                 scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
               };
@@ -115,7 +117,7 @@ class MapContainer extends React.Component {
             ): (<div></div>)}
             {this.props.showDetourPoint ? (
               <Circle
-              radius={parseFloat(this.props.detourRadius)}
+              radius={parseFloat(this.props.detourSearchRadius)}
               center={detourPoint}
               strokeColor='transparent'
               strokeOpacity={0}

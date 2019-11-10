@@ -18,12 +18,12 @@ class Sidebar extends React.Component {
             </UserInput>
             {this.props.showDetourForm ? (
               <DetourForm
-                setDetourLocation = {this.props.setDetourLocation}
-                setDetourRadius = {this.props.setDetourRadius}
+                setDetourSearchLocation = {this.props.setDetourSearchLocation}
+                setDetourSearchRadius = {this.props.setDetourSearchRadius}
                 setDetourOptions = {this.props.setDetourOptions}
                 setDetourHighlight = {this.props.setDetourHighlight}
-                detourLocation = {this.props.detourLocation}
-                detourRadius = {this.props.detourRadius}
+                detourSearchLocation = {this.props.detourSearchLocation}
+                detourSearchRadius = {this.props.detourSearchRadius}
                 route = {this.props.route}>
               </DetourForm>
             ): (

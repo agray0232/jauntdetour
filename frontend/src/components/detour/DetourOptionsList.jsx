@@ -1,10 +1,7 @@
 import React from 'react';
-import Detour from './Detour';
+import DetourOption from './DetourOption';
 
 class DetourOptionsList extends React.Component {
-    constructor(){
-        super();
-    }
 
     render(){
         var detourOptionsList = this.props.detourOptions.map(option =>
@@ -15,7 +12,7 @@ class DetourOptionsList extends React.Component {
                 var optionPlaceId = option.place_id;
 
               return (
-                  <Detour
+                  <DetourOption
                      detourOptions = {this.props.detourOptions}
                      detourHighlight = {this.props.detourHighlight}
                      origin = {this.props.origin}
@@ -31,7 +28,7 @@ class DetourOptionsList extends React.Component {
                      setDetourHighlight = {this.props.setDetourHighlight}
                      clearDetourOptions = {this.props.clearDetourOptions}
                      >
-                    </Detour>
+                    </DetourOption>
               )
             });
 

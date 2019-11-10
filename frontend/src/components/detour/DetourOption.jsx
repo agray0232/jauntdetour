@@ -54,7 +54,7 @@ class Detour extends React.Component {
                         <Button
                             onClick={this.addDetour}
                             className = "btn detour-option-btn"
-                            id = "${option.name}-detour-button"
+                            id = "{this.name}-detour-button"
                             text = "+">
                         </Button>
                     </div>

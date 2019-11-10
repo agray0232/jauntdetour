@@ -5,8 +5,8 @@ let initialState = {
   routeOptions: [],
   detourOptions: [],
   detourHighlight: [],
-  detourLocation: 50,
-  detourRadius: 20000,
+  detourSearchLocation: 50,
+  detourSearchRadius: 20000,
   showRoute: false,
   showDetourButton: false,
   showDetourForm: false,
@@ -39,15 +39,15 @@ const mainReducer = (state = initialState, action) => {
         showDetourForm: true,
         showDetourPoint: true
       };
-    case "SET_DETOUR_LOCATION":
+    case "SET_DETOUR_SEARCH_LOCATION":
       return {
         ...state,
-        detourLocation: action.data.detourLocation
+        detourSearchLocation: action.data.detourSearchLocation
       };
-    case "SET_DETOUR_RADIUS":
+    case "SET_DETOUR_SEARCH_RADIUS":
       return {
         ...state,
-        detourRadius: action.data.detourRadius
+        detourSearchRadius: action.data.detourSearchRadius
       };
     case "SET_DETOUR_OPTIONS":
       return {

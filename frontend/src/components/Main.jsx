@@ -12,12 +12,12 @@ class Main extends React.Component{
             setOrigin = {this.props.setOrigin}
             setDestination = {this.props.setDestination}
             setRoute = {this.props.setRoute}
-            setDetourLocation = {this.props.setDetourLocation}
-            setDetourRadius = {this.props.setDetourRadius}
+            setDetourSearchLocation = {this.props.setDetourSearchLocation}
+            setDetourSearchRadius = {this.props.setDetourSearchRadius}
             setDetourOptions = {this.props.setDetourOptions}
             setDetourHighlight = {this.props.setDetourHighlight}
-            detourLocation = {this.props.detourLocation}
-            detourRadius = {this.props.detourRadius}
+            detourSearchLocation = {this.props.detourSearchLocation}
+            detourSearchRadius = {this.props.detourSearchRadius}
             route = {this.props.route}
             showDetourButton = {this.props.showDetourButton}
             showDetourForm = {this.props.showDetourForm}
@@ -31,8 +31,8 @@ class Main extends React.Component{
             <MapContainer
                 showRoute = {this.props.showRoute}
                 showDetourPoint = {this.props.showDetourPoint}
-                detourLocation = {this.props.detourLocation}
-                detourRadius = {this.props.detourRadius}
+                detourSearchLocation = {this.props.detourSearchLocation}
+                detourSearchRadius = {this.props.detourSearchRadius}
                 detourOptions = {this.props.detourOptions}
                 detourHighlight = {this.props.detourHighlight}
                 route = {this.props.route}>
