@@ -6,7 +6,6 @@ class TripInput extends React.Component {
     constructor() {
         super();
 
-        // Bind 'this' to the requestRoute method
         this.requestRoute = this.requestRoute.bind(this);
     }
 
@@ -42,8 +41,6 @@ class TripInput extends React.Component {
                 <input className="btn-default form-control-lg route-submit" type="submit" value="Get Route" />
               </div>
             </form>
-
-
           </div>
         )
     }

@@ -1,13 +1,13 @@
 import React from 'react';
 import Detour from './Detour';
 
-class DetourOptions extends React.Component {
+class DetourOptionsList extends React.Component {
     constructor(){
         super();
     }
 
     render(){
-        var detourOptions = this.props.detourOptions.map(option =>
+        var detourOptionsList = this.props.detourOptions.map(option =>
             {
                 var optionLat = option.geometry.location.lat;
                 var optionLng = option.geometry.location.lng;
@@ -41,11 +41,11 @@ class DetourOptions extends React.Component {
                     <h4>Detour Options</h4>
                 </div>
                 <ul className="detour-options-list list-group">
-                    {detourOptions}
+                    {detourOptionsList}
                 </ul>
             </div>
         )
     }
 }
 
-export default DetourOptions;
+export default DetourOptionsList;

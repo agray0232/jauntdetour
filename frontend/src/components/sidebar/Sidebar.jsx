@@ -2,7 +2,7 @@ import React from 'react';
 import UserInput from "./UserInput";
 import Button from "../Button";
 import DetourForm from "../detour/DetourForm";
-import DetourOptions from "../detour/DetourOptions";
+import DetourOptionsList from "../detour/DetourOptionsList";
 
 class Sidebar extends React.Component {
 
@@ -38,7 +38,7 @@ class Sidebar extends React.Component {
             </div>            
             )}  
             {this.props.showDetourOptions ? (
-              <DetourOptions
+              <DetourOptionsList
                 origin = {this.props.origin}
                 destination = {this.props.destination}
                 detourOptions = {this.props.detourOptions}
@@ -47,7 +47,7 @@ class Sidebar extends React.Component {
                 setDetourOptions = {this.props.setDetourOptions}
                 setDetourHighlight = {this.props.setDetourHighlight}
                 clearDetourOptions = {this.props.clearDetourOptions}>
-              </DetourOptions>
+              </DetourOptionsList>
             ): (<div></div>)}  
           </div>
         )
