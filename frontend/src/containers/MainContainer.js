@@ -28,6 +28,13 @@ let matchDispatchToProps = dispatch => {
           route: route
         }
       }),
+    setBaseTripLength: length =>
+      dispatch({
+        type: "SET_BASE_TRIP_LENGTH",
+        data: {
+          baseTripLength: length
+        }
+      }),
     getDetourForm: () =>
       dispatch({
         type: "GET_DETOUR_FORM"

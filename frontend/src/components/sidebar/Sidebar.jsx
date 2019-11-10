@@ -1,5 +1,6 @@
 import React from 'react';
 import UserInput from "./UserInput";
+import TripSummary from "./TripSummary";
 import Button from "../Button";
 import DetourForm from "../detour/DetourForm";
 import DetourOptionsList from "../detour/DetourOptionsList";
@@ -14,8 +15,13 @@ class Sidebar extends React.Component {
                 destination = {this.props.destination}
                 setOrigin = {this.props.setOrigin}
                 setDestination = {this.props.setDestination}
-                setRoute = {this.props.setRoute}>
+                setRoute = {this.props.setRoute}
+                setBaseTripLength = {this.props.setBaseTripLength}>
             </UserInput>
+            <TripSummary
+            origin = {this.props.origin}
+            destination = {this.props.destination}>
+            </TripSummary>
             {this.props.showDetourForm ? (
               <DetourForm
                 setDetourSearchLocation = {this.props.setDetourSearchLocation}

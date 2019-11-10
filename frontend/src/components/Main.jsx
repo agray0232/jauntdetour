@@ -12,6 +12,7 @@ class Main extends React.Component{
             setOrigin = {this.props.setOrigin}
             setDestination = {this.props.setDestination}
             setRoute = {this.props.setRoute}
+            setBaseTripLength = {this.props.setBaseTripLength}
             setDetourSearchLocation = {this.props.setDetourSearchLocation}
             setDetourSearchRadius = {this.props.setDetourSearchRadius}
             setDetourOptions = {this.props.setDetourOptions}
