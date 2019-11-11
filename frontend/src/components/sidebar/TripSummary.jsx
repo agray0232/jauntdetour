@@ -1,4 +1,5 @@
 import React from 'react';
+import TripTimeline from './TripTimeline';
 
 class TripSummary extends React.Component {
 
@@ -14,10 +15,12 @@ class TripSummary extends React.Component {
             <div>
                 {showTripSummary ? (
                 <div className="trip-summary">
-                    <p>Origin: {this.props.origin}</p>
-                    <p>Destination: {this.props.destination}</p>
                     <p>Distance: {this.props.baseTripSummary.distance}</p>
                     <p>Time: {this.props.baseTripSummary.time.hours} hr {this.props.baseTripSummary.time.min} min</p>
+                    <TripTimeline
+                        origin = {this.props.origin}
+                        destination = {this.props.destination}>    
+                    </TripTimeline>
                 </div>
                 ): (<div></div>)}  
             </div>
