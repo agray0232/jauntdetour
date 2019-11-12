@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../Button';
 import RouteRequester from '../../scripts/RouteRequester.js'
 
-class Detour extends React.Component {
+class DetourOption extends React.Component {
     constructor(){
         super();
 
@@ -25,6 +25,16 @@ class Detour extends React.Component {
     }
 
     addDetour(){
+
+        this.props.addDetour({
+            name : this.props.name,
+            lat : this.props.lat,
+            lng : this.props.lng,
+            id : this.props.id,
+            rating : this.props.rating,
+            placeId : this.props.placeId
+        })
+
         var routeRequester = new RouteRequester();
         routeRequester.getRoute(
             this.props.origin, 
@@ -65,4 +75,4 @@ class Detour extends React.Component {
     }
 }
 
-export default Detour;
+export default DetourOption;

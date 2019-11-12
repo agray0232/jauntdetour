@@ -77,10 +77,9 @@ const mainReducer = (state = initialState, action) => {
         showDetourOptions: false
       };
     case "ADD_DETOUR":
-      var newDetourList = state.detourList.push(action.data.detour);
       return {
         ...state,
-        detourList: newDetourList
+        detourList: [...state.detourList, action.data.detour]
       };
     case "REMOVE_DETOUR":
       var newDetourList = state.detourList.splice(action.data.index, 1);

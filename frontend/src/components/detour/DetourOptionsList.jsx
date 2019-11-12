@@ -24,6 +24,7 @@ class DetourOptionsList extends React.Component {
                      rating = {option.rating}
                      placeId = {optionPlaceId}
                      setRoute = {this.props.setRoute}
+                     addDetour = {this.props.addDetour}
                      setDetourOptions = {this.props.setDetourOptions}
                      setDetourHighlight = {this.props.setDetourHighlight}
                      clearDetourOptions = {this.props.clearDetourOptions}

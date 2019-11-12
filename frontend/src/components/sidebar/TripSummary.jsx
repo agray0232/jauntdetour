@@ -15,11 +15,12 @@ class TripSummary extends React.Component {
             <div>
                 {showTripSummary ? (
                 <div className="trip-summary">
-                    <p>Distance: {this.props.baseTripSummary.distance}</p>
+                    <p>Distance: {this.props.baseTripSummary.distance} mi</p>
                     <p>Time: {this.props.baseTripSummary.time.hours} hr {this.props.baseTripSummary.time.min} min</p>
                     <TripTimeline
                         origin = {this.props.origin}
-                        destination = {this.props.destination}>    
+                        destination = {this.props.destination}
+                        detourList = {this.props.detourList}>    
                     </TripTimeline>
                 </div>
                 ): (<div></div>)}  
