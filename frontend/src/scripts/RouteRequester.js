@@ -13,8 +13,8 @@ export default class RouteRequester {
           origin: origin,
           destination: destination
         };
-        if (opts["waypoint"]) {
-          parameters.waypoint = opts.waypoint.placeId;
+        if (opts["waypoints"]) {
+          parameters.waypoints = opts.waypoints;
         }
         break;
 

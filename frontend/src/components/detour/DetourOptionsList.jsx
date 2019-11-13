@@ -14,6 +14,7 @@ class DetourOptionsList extends React.Component {
               return (
                   <DetourOption
                      detourOptions = {this.props.detourOptions}
+                     detourList = {this.props.detourList}
                      detourHighlight = {this.props.detourHighlight}
                      origin = {this.props.origin}
                      destination = {this.props.destination}

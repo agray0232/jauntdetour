@@ -50,6 +50,7 @@ class Sidebar extends React.Component {
                 origin = {this.props.origin}
                 destination = {this.props.destination}
                 detourOptions = {this.props.detourOptions}
+                detourList = {this.props.detourList}
                 detourHighlight = {this.props.detourHighlight}
                 addDetour = {this.props.addDetour}
                 setRoute = {this.props.setRoute}

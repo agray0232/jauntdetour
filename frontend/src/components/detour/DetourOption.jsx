@@ -24,23 +24,20 @@ class DetourOption extends React.Component {
             this.props.setDetourHighlight(newDetourHighlight);
     }
 
-    addDetour(){
+    addDetour(){ 
+        var waypointList = [];
 
-        this.props.addDetour({
-            name : this.props.name,
-            lat : this.props.lat,
-            lng : this.props.lng,
-            id : this.props.id,
-            rating : this.props.rating,
-            placeId : this.props.placeId
+        this.props.detourList.forEach(detour => {
+            waypointList.push(detour.placeId);
         })
-
+        waypointList.push(this.props.placeId);
+        
         var routeRequester = new RouteRequester();
         routeRequester.getRoute(
             this.props.origin, 
             this.props.destination, 
             "Address", 
-            {waypoint:{placeId:this.props.placeId}})
+            {waypoints: waypointList})
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
@@ -50,6 +47,15 @@ class DetourOption extends React.Component {
           .catch(function(error) {
             console.log("Error: " + error);
           });
+
+        this.props.addDetour({
+            name : this.props.name,
+            lat : this.props.lat,
+            lng : this.props.lng,
+            id : this.props.id,
+            rating : this.props.rating,
+            placeId : this.props.placeId
+        })
     }
 
     render(){

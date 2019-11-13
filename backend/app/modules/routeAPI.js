@@ -86,11 +86,24 @@ function createURL(input) {
       );
   }
 
+  // Add waypoints to the request
   var formattedWaypoint = "";
-  // Check for waypoint data
-  if (input["waypoint"]) {
+
+  // If there are way points
+  if (input["waypoints"]) {
+    // Create the base waypoint tag
     formattedWaypoint = "&waypoints=place_id:";
-    formattedWaypoint = formattedWaypoint + input.waypoint;
+
+    // For each waypoint in the list
+    input.waypoints.forEach(function(waypoint, index) {
+      // If this is not the first waypoint in the list
+      if (index !== 0) {
+        // Add a | and place_id tag
+        formattedWaypoint = formattedWaypoint + "|place_id:";
+      }
+      // Append the waypoint's place ID
+      formattedWaypoint = formattedWaypoint + waypoint;
+    });
   }
 
   // Create the final url
