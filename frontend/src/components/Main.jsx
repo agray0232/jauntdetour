@@ -39,6 +39,7 @@ class Main extends React.Component{
                 detourSearchRadius = {this.props.detourSearchRadius}
                 detourOptions = {this.props.detourOptions}
                 detourHighlight = {this.props.detourHighlight}
+                detourList = {this.props.detourList}
                 route = {this.props.route}>
             </MapContainer>
           </div>

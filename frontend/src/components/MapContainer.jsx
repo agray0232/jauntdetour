@@ -104,6 +104,30 @@ class MapContainer extends React.Component {
           })
       }
 
+      // Initialize showDetourList to false
+      var showDetours = false;
+
+      if(this.props.detourList.length > 0){
+        showDetours = true;
+        // Map the detours to markers
+        var detours = this.props.detourList.map(detour => {
+          // Set the icon as the non highlighted detour option icon
+          var icon = {
+            url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|0091ff|40|_|%E2%80%A2', // url
+            scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
+          };
+
+          // Return a google maps Marker
+          return (
+            <Marker
+              position={
+                {lat: detour.lat, 
+                lng: detour.lng}}
+              icon={icon}>
+            </Marker>)
+        })
+      }
+
       return (
           <Map
             google={this.props.google}
@@ -141,6 +165,9 @@ class MapContainer extends React.Component {
             ): (<div></div>)}
             {showDetourOptions ? (
               detourOptions
+            ): (<div></div>)}
+            {showDetours ? (
+              detours
             ): (<div></div>)}
             
           </Map>
