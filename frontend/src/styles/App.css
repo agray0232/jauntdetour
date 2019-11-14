@@ -82,3 +82,8 @@
 .list-group-item:hover {
   background-color: lightgray;
 }
+
+.btn-clear {
+  height: 48px;
+  width: 100%;
+}

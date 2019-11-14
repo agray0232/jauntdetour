@@ -88,6 +88,24 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         detourList: newDetourList
       };
+    case "CLEAR_ALL":
+      return {
+        origin: "",
+        destination: "",
+        detourList: [],
+        baseTripSummary: {},
+        route: [],
+        routeOptions: [],
+        detourOptions: [],
+        detourHighlight: [],
+        detourSearchLocation: 50,
+        detourSearchRadius: 20000,
+        showRoute: false,
+        showDetourButton: false,
+        showDetourForm: false,
+        showDetourOptions: false,
+        showDetourSearchPoint: false
+      };
     default:
       return state;
   }
