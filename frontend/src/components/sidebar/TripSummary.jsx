@@ -16,20 +16,23 @@ class TripSummary extends React.Component {
             <div>
                 {showTripSummary ? (
                 <div className="trip-summary">
-                    <div className="row">
-
-                        <div className="col-4">
-                        <Button
-                            onClick={this.props.clearAll}
-                            className = "btn btn-danger btn-clear"
-                            type = "button"
-                            id = "user-input-clear"
-                            text = "Clear">
-                        </Button>
+                    <div className="container">
+                        <div className="row">
+                            <div className="col">
+                                <p>Distance: {this.props.baseTripSummary.distance} mi</p>
+                                <p>Time: {this.props.baseTripSummary.time.hours} hr {this.props.baseTripSummary.time.min} min</p>
+                            </div>
+                            <div className="col-4">
+                                <Button
+                                    onClick={this.props.clearAll}
+                                    className = "btn btn-danger btn-clear"
+                                    type = "button"
+                                    id = "user-input-clear"
+                                    text = "Clear">
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                    <p>Distance: {this.props.baseTripSummary.distance} mi</p>
-                    <p>Time: {this.props.baseTripSummary.time.hours} hr {this.props.baseTripSummary.time.min} min</p>
                     <TripTimeline
                         origin = {this.props.origin}
                         destination = {this.props.destination}

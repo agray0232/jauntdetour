@@ -69,7 +69,8 @@
   margin-bottom: 10px;
 }
 
-.detour-options {
+.detour-options,
+.trip-summary {
   margin-top: 15px;
 }
 
