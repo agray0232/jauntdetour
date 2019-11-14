@@ -34,7 +34,7 @@ class Main extends React.Component{
           <div className="map-container">
             <MapContainer
                 showRoute = {this.props.showRoute}
-                showDetourPoint = {this.props.showDetourPoint}
+                showDetourSearchPoint = {this.props.showDetourSearchPoint}
                 detourSearchLocation = {this.props.detourSearchLocation}
                 detourSearchRadius = {this.props.detourSearchRadius}
                 detourOptions = {this.props.detourOptions}

@@ -36,6 +36,8 @@ class MapContainer extends React.Component {
 
     render() {
 
+      // If a we are to show a route, go through the route's overview polyline and map it to lat lng points to be
+      // Ingested by the Map component
       if(this.props.showRoute)
       {
         var routeCoordinates = this.props.route.overview_polyline.complete_overview.map(point =>
@@ -44,7 +46,9 @@ class MapContainer extends React.Component {
           });
       }
 
-      if(this.props.showDetourPoint && this.props.showRoute)
+      // If showDetourSearchPoint and showRoute are set, set the search point to be at a percentage of the route
+      // as determined by the detourSearchLocation property
+      if(this.props.showDetourSearchPoint && this.props.showRoute)
       {
         var detourPoint = {};
         
@@ -53,12 +57,18 @@ class MapContainer extends React.Component {
         detourPoint = routeCoordinates[routeIndex];
       }
 
+      // Initiaze this boolean to false
       var showDetourOptions = false;
+
+      // If the detourOptions property has elements, map each one to a google maps Marker
       if(this.props.detourOptions.length > 0){
         showDetourOptions = true;
         var detourOptions = this.props.detourOptions.map(detour =>
           {
+            // Initialize a highlight boolean as false
             var highlight = false;
+             // Go through the detourHighlight array. When the detour in the array matches the current detour,
+             // Set the highlight property as the value in the array
             this.props.detourHighlight.forEach(detourHighlight => {
               if(detourHighlight.id === detour.id){
                 //console.log("setting highlight as " + detourHighlight);
@@ -66,8 +76,10 @@ class MapContainer extends React.Component {
               }
             })
             
+            // Initialize the icon object
             var icon = {};
 
+            // Set the icon values according to if the icon should be highlighted or not
             if(highlight){
               icon = {
                 url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|FF0000|40|_|%E2%80%A2', // url
@@ -81,6 +93,7 @@ class MapContainer extends React.Component {
               };
             }
             
+            // Return a google maps Marker
             return (
               <Marker
                 position={
@@ -109,13 +122,13 @@ class MapContainer extends React.Component {
                     strokeWeight= {5}
                 />
             ): (<div></div>)}
-            {this.props.showDetourPoint ? (
+            {this.props.showDetourSearchPoint ? (
               <Marker
                     position={detourPoint}
                     color="#3349FF"
                 />
             ): (<div></div>)}
-            {this.props.showDetourPoint ? (
+            {this.props.showDetourSearchPoint ? (
               <Circle
               radius={parseFloat(this.props.detourSearchRadius)}
               center={detourPoint}

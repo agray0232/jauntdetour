@@ -13,7 +13,7 @@ let initialState = {
   showDetourButton: false,
   showDetourForm: false,
   showDetourOptions: false,
-  showDetourPoint: false
+  showDetourSearchPoint: false
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -44,7 +44,7 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         showDetourForm: true,
-        showDetourPoint: true
+        showDetourSearchPoint: true
       };
     case "SET_DETOUR_SEARCH_LOCATION":
       return {
@@ -74,7 +74,8 @@ const mainReducer = (state = initialState, action) => {
         detourRadius: 0,
         showDetourOptions: false,
         showDetourForm: false,
-        showDetourOptions: false
+        showDetourOptions: false,
+        showDetourSearchPoint: false
       };
     case "ADD_DETOUR":
       return {
