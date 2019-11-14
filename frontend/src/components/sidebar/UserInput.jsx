@@ -1,13 +1,11 @@
 import React from 'react';
-
-import RouteRequester from '../scripts/RouteRequester.js'
+import RouteRequester from '../../scripts/RouteRequester.js'
 
 class TripInput extends React.Component {
 
     constructor() {
         super();
 
-        // Bind 'this' to the requestRoute method
         this.requestRoute = this.requestRoute.bind(this);
     }
 
@@ -22,6 +20,7 @@ class TripInput extends React.Component {
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
+              this.props.setBaseTripSummary(data.routes[0].summary)
             }
           })
           .catch(function(error) {
@@ -43,8 +42,6 @@ class TripInput extends React.Component {
                 <input className="btn-default form-control-lg route-submit" type="submit" value="Get Route" />
               </div>
             </form>
-
-
           </div>
         )
     }

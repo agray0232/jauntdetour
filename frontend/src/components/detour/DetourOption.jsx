@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../Button';
 import RouteRequester from '../../scripts/RouteRequester.js'
 
-class Detour extends React.Component {
+class DetourOption extends React.Component {
     constructor(){
         super();
 
@@ -24,13 +24,20 @@ class Detour extends React.Component {
             this.props.setDetourHighlight(newDetourHighlight);
     }
 
-    addDetour(){
+    addDetour(){ 
+        var waypointList = [];
+
+        this.props.detourList.forEach(detour => {
+            waypointList.push(detour.placeId);
+        })
+        waypointList.push(this.props.placeId);
+        
         var routeRequester = new RouteRequester();
         routeRequester.getRoute(
             this.props.origin, 
             this.props.destination, 
             "Address", 
-            {waypoint:{placeId:this.props.placeId}})
+            {waypoints: waypointList})
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
@@ -40,6 +47,15 @@ class Detour extends React.Component {
           .catch(function(error) {
             console.log("Error: " + error);
           });
+
+        this.props.addDetour({
+            name : this.props.name,
+            lat : this.props.lat,
+            lng : this.props.lng,
+            id : this.props.id,
+            rating : this.props.rating,
+            placeId : this.props.placeId
+        })
     }
 
     render(){
@@ -54,7 +70,7 @@ class Detour extends React.Component {
                         <Button
                             onClick={this.addDetour}
                             className = "btn detour-option-btn"
-                            id = "${option.name}-detour-button"
+                            id = "{this.name}-detour-button"
                             text = "+">
                         </Button>
                     </div>
@@ -65,4 +81,4 @@ class Detour extends React.Component {
     }
 }
 
-export default Detour;
+export default DetourOption;

@@ -28,22 +28,29 @@ let matchDispatchToProps = dispatch => {
           route: route
         }
       }),
+    setBaseTripSummary: summary =>
+      dispatch({
+        type: "SET_BASE_TRIP_SUMMARY",
+        data: {
+          baseTripSummary: summary
+        }
+      }),
     getDetourForm: () =>
       dispatch({
         type: "GET_DETOUR_FORM"
       }),
-    setDetourLocation: detourLocation =>
+    setDetourSearchLocation: detourSearchLocation =>
       dispatch({
-        type: "SET_DETOUR_LOCATION",
+        type: "SET_DETOUR_SEARCH_LOCATION",
         data: {
-          detourLocation: detourLocation
+          detourSearchLocation: detourSearchLocation
         }
       }),
-    setDetourRadius: detourRadius =>
+    setDetourSearchRadius: detourSearchRadius =>
       dispatch({
-        type: "SET_DETOUR_RADIUS",
+        type: "SET_DETOUR_SEARCH_RADIUS",
         data: {
-          detourRadius: detourRadius
+          detourSearchRadius: detourSearchRadius
         }
       }),
     setDetourOptions: detourOptions =>
@@ -63,6 +70,20 @@ let matchDispatchToProps = dispatch => {
     clearDetourOptions: () =>
       dispatch({
         type: "CLEAR_DETOUR_OPTIONS"
+      }),
+    addDetour: detour =>
+      dispatch({
+        type: "ADD_DETOUR",
+        data: {
+          detour: detour
+        }
+      }),
+    removeDetour: index =>
+      dispatch({
+        type: "REMOVE_DETOUR",
+        data: {
+          index: index
+        }
       })
   };
 };

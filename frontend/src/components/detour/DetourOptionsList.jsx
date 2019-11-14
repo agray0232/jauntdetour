@@ -1,13 +1,10 @@
 import React from 'react';
-import Detour from './Detour';
+import DetourOption from './DetourOption';
 
-class DetourOptions extends React.Component {
-    constructor(){
-        super();
-    }
+class DetourOptionsList extends React.Component {
 
     render(){
-        var detourOptions = this.props.detourOptions.map(option =>
+        var detourOptionsList = this.props.detourOptions.map(option =>
             {
                 var optionLat = option.geometry.location.lat;
                 var optionLng = option.geometry.location.lng;
@@ -15,8 +12,9 @@ class DetourOptions extends React.Component {
                 var optionPlaceId = option.place_id;
 
               return (
-                  <Detour
+                  <DetourOption
                      detourOptions = {this.props.detourOptions}
+                     detourList = {this.props.detourList}
                      detourHighlight = {this.props.detourHighlight}
                      origin = {this.props.origin}
                      destination = {this.props.destination}
@@ -27,11 +25,12 @@ class DetourOptions extends React.Component {
                      rating = {option.rating}
                      placeId = {optionPlaceId}
                      setRoute = {this.props.setRoute}
+                     addDetour = {this.props.addDetour}
                      setDetourOptions = {this.props.setDetourOptions}
                      setDetourHighlight = {this.props.setDetourHighlight}
                      clearDetourOptions = {this.props.clearDetourOptions}
                      >
-                    </Detour>
+                    </DetourOption>
               )
             });
 
@@ -41,11 +40,11 @@ class DetourOptions extends React.Component {
                     <h4>Detour Options</h4>
                 </div>
                 <ul className="detour-options-list list-group">
-                    {detourOptions}
+                    {detourOptionsList}
                 </ul>
             </div>
         )
     }
 }
 
-export default DetourOptions;
+export default DetourOptionsList;
