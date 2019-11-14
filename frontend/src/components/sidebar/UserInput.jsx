@@ -1,5 +1,6 @@
 import React from 'react';
 import RouteRequester from '../../scripts/RouteRequester.js'
+import Button from "../Button"
 
 class TripInput extends React.Component {
 
@@ -11,6 +12,7 @@ class TripInput extends React.Component {
 
     requestRoute(e){
         e.preventDefault();
+        console.log("User input being submitted");
         var origin = e.target[0].value;
         var destination = e.target[1].value;
         this.props.setOrigin(origin);
@@ -38,9 +40,9 @@ class TripInput extends React.Component {
               <div className="form-group">
                 <input className="form-control-lg route-input" type="text" placeholder="Destination"/>
               </div>
-              <div className="form-group ">
-                <input className="btn-default form-control-lg route-submit" type="submit" value="Get Route" />
-              </div>
+                  <div className="form-group ">
+                    <input className="btn-default form-control-lg route-submit" type="submit" value="Get Route" />
+                  </div>
             </form>
           </div>
         )

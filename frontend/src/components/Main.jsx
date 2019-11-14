@@ -29,7 +29,8 @@ class Main extends React.Component{
             getDetourForm = {this.props.getDetourForm}
             detourOptions = {this.props.detourOptions}
             detourHighlight = {this.props.detourHighlight}
-            clearDetourOptions = {this.props.clearDetourOptions}>
+            clearDetourOptions = {this.props.clearDetourOptions}
+            clearAll = {this.props.clearAll}>
           </Sidebar>
           <div className="map-container">
             <MapContainer

@@ -7,7 +7,8 @@ let Button = (props) => {
                 disabled={props.disabledCriteria}
                 onClick={props.onClick} 
                 className={props.className}
-                id={props.id}>
+                id={props.id}
+                type={props.type}>
                 {props.text}
             </button>
         </div>

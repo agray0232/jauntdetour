@@ -84,6 +84,10 @@ let matchDispatchToProps = dispatch => {
         data: {
           index: index
         }
+      }),
+    clearAll: () =>
+      dispatch({
+        type: "CLEAR_ALL"
       })
   };
 };

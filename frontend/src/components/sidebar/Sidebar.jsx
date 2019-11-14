@@ -22,7 +22,8 @@ class Sidebar extends React.Component {
             origin = {this.props.origin}
             destination = {this.props.destination}
             baseTripSummary = {this.props.baseTripSummary}
-            detourList = {this.props.detourList}>
+            detourList = {this.props.detourList}
+            clearAll = {this.props.clearAll}>
             </TripSummary>
             {this.props.showDetourForm ? (
               <DetourForm
