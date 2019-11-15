@@ -1,0 +1,90 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #09d3ac;
+}
+
+.side-bar {
+  height: 100%; /* Full-height: remove this if you want "auto" height */
+  width: 400px; /* Set the width of the sidebar */
+  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: white; /* Black */
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 20px;
+  box-shadow: 10px 0 30px -2px #888;
+}
+
+.map-container {
+  padding-left: 415px;
+  height: 100%;
+}
+
+.user-input,
+.trip-summary,
+.detour-form {
+  border-bottom: 1px solid lightgrey;
+}
+
+.detour-form,
+.add-detour-container {
+  margin-top: 15px;
+  padding-bottom: 15px;
+}
+
+.route-input,
+.add-detour-btn,
+.slide-container,
+.slider,
+.detour-form {
+  width: 100%;
+}
+
+.route-submit {
+  width: 100%;
+  margin: auto;
+}
+
+.slide-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.detour-options,
+.trip-summary {
+  margin-top: 15px;
+}
+
+.detour-option-btn {
+  font-size: 50px;
+  color: black;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.list-group-item:hover {
+  background-color: lightgray;
+}
+
+.btn-clear {
+  height: 48px;
+  width: 100%;
+}

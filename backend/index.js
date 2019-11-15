@@ -28,12 +28,6 @@ app.use(
 );
 //sessionStorage.sync();
 
-app.use(express.static(path.join(__dirname, "build")));
-
-app.get("/", function(req, res) {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
-
 app.get("/test", function(req, res) {
   res.send({ message: "Hello" });
 });
@@ -65,6 +59,6 @@ app.get("/places", function(req, res) {
 //Starting https server
 //const httpsServer = https.createServer(app);
 
-app.listen(3001, () => {
-  console.log("HTTP Server running on port 3001");
+app.listen(8080, () => {
+  console.log("HTTP Server running on port 8080");
 });

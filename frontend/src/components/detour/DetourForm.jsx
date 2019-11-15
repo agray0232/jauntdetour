@@ -19,10 +19,10 @@ class DetourForm extends React.Component {
               return {lat: point[0], lng: point[1]}
             });
         var routeLength = routeCoordinates.length;
-        var routeIndex = Math.floor(this.props.detourLocation/100 * routeLength);
+        var routeIndex = Math.floor(this.props.detourSearchLocation/100 * routeLength);
         var detourPoint = routeCoordinates[routeIndex];
 
-        detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourRadius, "Hike")
+        detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourSearchRadius, "Hike")
         .then(data => {
 
             this.props.setDetourOptions(data.results);
@@ -43,10 +43,10 @@ class DetourForm extends React.Component {
             <div className="detour-form container">
                 <h4>Detour Settings</h4>
                 <LocationSlider
-                    setDetourLocation = {this.props.setDetourLocation}>
+                    setDetourSearchLocation = {this.props.setDetourSearchLocation}>
                 </LocationSlider>
                 <RadiusSlider
-                    setDetourRadius = {this.props.setDetourRadius}>
+                    setDetourSearchRadius = {this.props.setDetourSearchRadius}>
                 </RadiusSlider>
                 <Button
                     onClick={this.getDetours}

@@ -13,8 +13,8 @@ export default class RouteRequester {
           origin: origin,
           destination: destination
         };
-        if (opts["waypoint"]) {
-          parameters.waypoint = opts.waypoint.placeId;
+        if (opts["waypoints"]) {
+          parameters.waypoints = opts.waypoints;
         }
         break;
 
@@ -27,7 +27,7 @@ export default class RouteRequester {
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server
       axios
-        .get("http://localhost:3001/route", {
+        .get("http://localhost:8080/route", {
           headers: {
             "Content-Type": "application/json"
           },

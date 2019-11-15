@@ -1,17 +1,19 @@
 let initialState = {
   origin: "",
   destination: "",
+  detourList: [],
+  baseTripSummary: {},
   route: [],
   routeOptions: [],
   detourOptions: [],
   detourHighlight: [],
-  detourLocation: 50,
-  detourRadius: 20000,
+  detourSearchLocation: 50,
+  detourSearchRadius: 20000,
   showRoute: false,
   showDetourButton: false,
   showDetourForm: false,
   showDetourOptions: false,
-  showDetourPoint: false
+  showDetourSearchPoint: false
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -33,21 +35,26 @@ const mainReducer = (state = initialState, action) => {
         showDetourButton: true,
         route: action.data.route
       };
+    case "SET_BASE_TRIP_SUMMARY":
+      return {
+        ...state,
+        baseTripSummary: action.data.baseTripSummary
+      };
     case "GET_DETOUR_FORM":
       return {
         ...state,
         showDetourForm: true,
-        showDetourPoint: true
+        showDetourSearchPoint: true
       };
-    case "SET_DETOUR_LOCATION":
+    case "SET_DETOUR_SEARCH_LOCATION":
       return {
         ...state,
-        detourLocation: action.data.detourLocation
+        detourSearchLocation: action.data.detourSearchLocation
       };
-    case "SET_DETOUR_RADIUS":
+    case "SET_DETOUR_SEARCH_RADIUS":
       return {
         ...state,
-        detourRadius: action.data.detourRadius
+        detourSearchRadius: action.data.detourSearchRadius
       };
     case "SET_DETOUR_OPTIONS":
       return {
@@ -67,7 +74,37 @@ const mainReducer = (state = initialState, action) => {
         detourRadius: 0,
         showDetourOptions: false,
         showDetourForm: false,
-        showDetourOptions: false
+        showDetourOptions: false,
+        showDetourSearchPoint: false
+      };
+    case "ADD_DETOUR":
+      return {
+        ...state,
+        detourList: [...state.detourList, action.data.detour]
+      };
+    case "REMOVE_DETOUR":
+      var newDetourList = state.detourList.splice(action.data.index, 1);
+      return {
+        ...state,
+        detourList: newDetourList
+      };
+    case "CLEAR_ALL":
+      return {
+        origin: "",
+        destination: "",
+        detourList: [],
+        baseTripSummary: {},
+        route: [],
+        routeOptions: [],
+        detourOptions: [],
+        detourHighlight: [],
+        detourSearchLocation: 50,
+        detourSearchRadius: 20000,
+        showRoute: false,
+        showDetourButton: false,
+        showDetourForm: false,
+        showDetourOptions: false,
+        showDetourSearchPoint: false
       };
     default:
       return state;

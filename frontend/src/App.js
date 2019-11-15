@@ -1,6 +1,7 @@
 import React from "react";
 import MainContainer from "./containers/MainContainer";
-import "./App.css";
+import "./styles/App.css";
+import "./styles/TripTimeline.css";
 
 function App() {
   return (

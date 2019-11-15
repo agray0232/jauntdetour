@@ -1,17 +1,6 @@
 import React from 'react';
 
 class LocationSlider extends React.Component {
-    constructor(){
-        super();
-
-        // Bind 'this' to the updateDetourLocation method
-        this.updateDetourLocation = this.updateDetourLocation.bind(this);
-    }
-
-    updateDetourLocation(value)
-    {
-        this.props.setDetourLocation(value);
-    }
 
     render(){
         return(
@@ -22,7 +11,7 @@ class LocationSlider extends React.Component {
                     min="1" 
                     max="100" 
                     defaultValue="50"
-                    onChange={(e) => this.updateDetourLocation(e.target.value)}
+                    onChange={(e) => this.props.setDetourSearchLocation(e.target.value)}
                     className="slider slider-location" 
                     id="myRange"></input>
             </div>

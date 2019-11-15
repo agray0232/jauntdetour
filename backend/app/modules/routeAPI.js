@@ -30,8 +30,8 @@ module.exports = {
         .then(response => {
           // Decode and send the response
           var decodedData = decodePolylines(response.data);
-          var finalData = createCompleteOverview(decodedData);
-          resolve(decodedData);
+          var finalData = createSummaryData(decodedData);
+          resolve(finalData);
         })
         .catch(error => {
           console.log(
@@ -47,6 +47,7 @@ module.exports = {
 };
 
 /**
+ * Creates the URL to send to the google routes API
  *
  * @param input - Origin and destination input data recieved from the client. Supported types are "address" and "coordinates"
  * @returns - Formatted url call containing origin and destination data
@@ -85,11 +86,24 @@ function createURL(input) {
       );
   }
 
+  // Add waypoints to the request
   var formattedWaypoint = "";
-  // Check for waypoint data
-  if (input["waypoint"]) {
+
+  // If there are way points
+  if (input["waypoints"]) {
+    // Create the base waypoint tag
     formattedWaypoint = "&waypoints=place_id:";
-    formattedWaypoint = formattedWaypoint + input.waypoint;
+
+    // For each waypoint in the list
+    input.waypoints.forEach(function(waypoint, index) {
+      // If this is not the first waypoint in the list
+      if (index !== 0) {
+        // Add a | and place_id tag
+        formattedWaypoint = formattedWaypoint + "|place_id:";
+      }
+      // Append the waypoint's place ID
+      formattedWaypoint = formattedWaypoint + waypoint;
+    });
   }
 
   // Create the final url
@@ -136,19 +150,46 @@ function decodePolylines(data) {
   return decodedData;
 }
 
-function createCompleteOverview(data) {
+/**
+ * Creates a polyline containing each leg and step. Also creates summary data
+ */
+function createSummaryData(data) {
   // For each route option that was returned
   data.routes.forEach(function(route) {
     // Create an empty array for all the coordinates
     var completeOverview = [];
+    // Intialize distance and travel time
+    var travelTime = 0;
+    var travelDistance = 0;
 
+    // For each leg, add to the travel time and distance
     route.legs.forEach(leg => {
+      travelTime += leg.duration.value;
+      travelDistance += leg.distance.value;
+      // For each step, add the points to the complete polyline
       leg.steps.forEach(step => {
         step.polyline.decodedPoints.forEach(point => {
           completeOverview.push(point);
         });
       });
     });
+
+    // Calculate/set the hours and min
+    var hours = Math.floor(travelTime / (60 * 60));
+    var min = Math.floor((travelTime / (60 * 60) - hours) * 60);
+    // Calculate the distance
+    var distance = (travelDistance / 1609.34).toPrecision(3);
+
+    // Set the summary information
+    route.summary = {
+      time: {
+        hours: hours,
+        min: min
+      },
+      distance: distance
+    };
     route.overview_polyline.complete_overview = completeOverview;
   });
+
+  return data;
 }
