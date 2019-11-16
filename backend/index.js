@@ -28,11 +28,11 @@ app.use(
 );
 //sessionStorage.sync();
 
-app.get("/backend/test", function(req, res) {
+app.get("/test", function(req, res) {
   res.send({ message: "Hello" });
 });
 
-app.get("/backend/route", function(req, res) {
+app.get("/route", function(req, res) {
   console.log(req.query);
   routeAPI
     .getRoute(req.query)
@@ -44,7 +44,7 @@ app.get("/backend/route", function(req, res) {
     });
 });
 
-app.get("/backend/places", function(req, res) {
+app.get("/places", function(req, res) {
   console.log(req.query);
   placesAPI
     .getPlaces(req.query)
@@ -55,9 +55,6 @@ app.get("/backend/places", function(req, res) {
       console.log("Error: " + error);
     });
 });
-
-//Starting https server
-//const httpsServer = https.createServer(app);
 
 app.listen(8080, () => {
   console.log("HTTP Server running on port 8080");
