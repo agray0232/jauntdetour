@@ -1,4 +1,5 @@
 import axios from "axios";
+import config from "../config/config.js";
 
 export default class DetourRequester {
   getDetours(lat, lng, radius, type) {
@@ -10,10 +11,13 @@ export default class DetourRequester {
       radius: radius
     };
 
+    // Get the url base
+    var requestURL = this.getUrlBase() + "/places";
+
     var promise = new Promise(function(resolve, reject) {
       // Send an axios GET request to the server
       axios
-        .get("http://localhost:8080/places", {
+        .get(requestURL, {
           headers: {
             "Content-Type": "application/json"
           },
@@ -33,5 +37,24 @@ export default class DetourRequester {
     });
 
     return promise;
+  }
+
+  /**
+   * Sets the URL base based on the environment
+   *
+   * @returns - URL base for axios request
+   */
+  getUrlBase() {
+    var urlBase = "";
+
+    switch (config.NODE_ENV) {
+      case "development":
+        urlBase = "http://localhost:8080";
+        break;
+      case "environment":
+        urlBase = "https://www.jauntdetour.com/backend";
+    }
+
+    return urlBase;
   }
 }
