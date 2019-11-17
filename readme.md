@@ -4,7 +4,7 @@ Often during a road trip, you want to stop at a nice place for lunch an hour dow
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 Jauntdetour consists of a lightweight frontend that is built in React that interfaces with a NodeJS backend deployed on an Ubuntu server. 
 
