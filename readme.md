@@ -75,6 +75,7 @@ View the running application in your browser of choice by going to `http:://loca
 * [Node v10.15.3](https://nodejs.org/en/download/) - Runtime environment
 * [Express](https://expressjs.com/) - Web framework used for backend
 * [React](https://reactjs.org/) - Library used to build the frontend
+* [Redux](https://redux.js.org/) - State management library
 * [google-maps-react](https://github.com/fullstackreact/google-maps-react) - React library for wrapping the Google Maps API
 
 ## Versioning
