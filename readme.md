@@ -16,6 +16,8 @@ This project was built with NodeJS (v10.15.3). You can obtain the latest version
 https://nodejs.org/en/download/
 ```
 
+#### Environment Variables
+
 Both the frontend and backend use environment variables in their configuration. These are used to set the Google API key and to determine if this is a development or production environment
 
 Google API key
