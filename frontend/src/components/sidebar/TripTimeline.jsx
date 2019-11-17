@@ -20,7 +20,11 @@ class TripTimeline extends React.Component {
                 mutedText={mutedText} 
                 type="detour"
                 detourIndex = {index}
-                removeDetour = {this.props.removeDetour}>   
+                removeDetour = {this.props.removeDetour}
+                setRoute = {this.props.setRoute}
+                detourList = {this.props.detourList}
+                origin = {this.props.origin}
+                destination = {this.props.destination}>   
                 </TimelineItem>
               )
             }, this);

@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '../Button'
+import RouteRequester from '../../scripts/RouteRequester.js'
 
 class TimelineItem extends React.Component {
     constructor(){
@@ -9,7 +10,35 @@ class TimelineItem extends React.Component {
     }
 
     removeDetour(){
-        if(this.props.detourIndex >= 0){
+        var detourIndex = this.props.detourIndex;
+
+        if(detourIndex >= 0){
+
+            var newDetourList = this.props.detourList.filter(function(detour, index){
+                return index != detourIndex;
+            })
+
+            var waypointList = [];
+
+            newDetourList.forEach(detour => {
+                waypointList.push(detour.placeId);
+            })
+            
+            var routeRequester = new RouteRequester();
+            routeRequester.getRoute(
+                this.props.origin, 
+                this.props.destination, 
+                "Address", 
+                {waypoints: waypointList})
+            .then(data => {
+                if(data.routes.length > 0){
+                this.props.setRoute(data.routes[0]);
+                }
+            })
+            .catch(function(error) {
+                console.log("Error: " + error);
+            });
+        
             this.props.removeDetour(this.props.detourIndex);
         }
     }
