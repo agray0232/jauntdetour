@@ -21,6 +21,7 @@ class Main extends React.Component{
             detourSearchLocation = {this.props.detourSearchLocation}
             detourSearchRadius = {this.props.detourSearchRadius}
             addDetour = {this.props.addDetour}
+            removeDetour = {this.props.removeDetour}
             detourList = {this.props.detourList}
             route = {this.props.route}
             showDetourButton = {this.props.showDetourButton}

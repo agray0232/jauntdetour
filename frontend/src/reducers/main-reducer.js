@@ -83,7 +83,9 @@ const mainReducer = (state = initialState, action) => {
         detourList: [...state.detourList, action.data.detour]
       };
     case "REMOVE_DETOUR":
-      var newDetourList = state.detourList.splice(action.data.index, 1);
+      var newDetourList = state.detourList.filter(function(detour, index) {
+        return index != action.data.index;
+      });
       return {
         ...state,
         detourList: newDetourList

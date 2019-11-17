@@ -1,21 +1,49 @@
 import React from 'react';
+import Button from '../Button'
 
 class TimelineItem extends React.Component {
+    constructor(){
+        super()
+
+        this.removeDetour = this.removeDetour.bind(this);
+    }
+
+    removeDetour(){
+        if(this.props.detourIndex >= 0){
+            this.props.removeDetour(this.props.detourIndex);
+        }
+    }
 
     render() {
+
+        var showDetourEditOptions = false;
+        if(this.props.type === "detour"){
+            showDetourEditOptions = true;
+        }
+
         return (
-            <li class="timeline-inverted">
-                <div class={this.props.badgeClass}>
-                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+            <li className="timeline-inverted">
+                <div className={this.props.badgeClass}>
+                    <span className="glyphicon glyphicon-search" aria-hidden="true"></span>
                 </div>
-                <div class="timeline-panel">
-                    <div class="timeline-heading">
-                    <h5 class="timeline-title">{this.props.title}</h5>
+                <div className="timeline-panel">
+                    <div className="timeline-heading">
+                    <h5 className="timeline-title">{this.props.title}</h5>
                     </div>
-                    <p><small class="text-muted">
-                            <i class="glyphicon glyphicon-time"></i> 
+                    <p><small className="text-muted">
+                            <i className="glyphicon glyphicon-time"></i> 
                             {this.props.mutedText}
                     </small></p>
+                    {showDetourEditOptions ? (
+                        <Button
+                            onClick={this.removeDetour}
+                            className = "btn btn-danger btn-clear"
+                            type = "button"
+                            id = "user-input-clear"
+                            text = "Remove">
+                        </Button>
+                    ): (<div></div>)}
+                    
                 </div>
             </li>
         )
