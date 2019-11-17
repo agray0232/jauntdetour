@@ -5,30 +5,43 @@ class TripTimeline extends React.Component {
 
     render() {
 
-        var detourList = this.props.detourList.map(detour =>
+        /**
+         * Map all of the detours to timeline items
+         */
+        var detourList = this.props.detourList.map(function(detour, index)
             {
-                var mutedText = "Rating: " + detour.rating;
+              // Created muted subtext
+              var mutedText = "Rating: " + detour.rating;
 
               return (
                 <TimelineItem
                 badgeClass="timeline-badge hike"
                 title={detour.name}
-                mutedText={mutedText} >   
+                mutedText={mutedText} 
+                type="detour"
+                detourIndex = {index}
+                removeDetour = {this.props.removeDetour}
+                setRoute = {this.props.setRoute}
+                detourList = {this.props.detourList}
+                origin = {this.props.origin}
+                destination = {this.props.destination}>   
                 </TimelineItem>
               )
-            });
+            }, this);
 
         return (
-            <div class="container">
-                <ul class="timeline">
+            <div className="container">
+                <ul className="timeline">
                     <TimelineItem
                     badgeClass="timeline-badge"
-                    title={this.props.origin}>   
+                    title={this.props.origin}
+                    type="origin">   
                     </TimelineItem>
                     {detourList}
                     <TimelineItem
                     badgeClass="timeline-badge"
-                    title={this.props.destination}>   
+                    title={this.props.destination}
+                    type="destination">   
                     </TimelineItem>
                 </ul>
             </div>
