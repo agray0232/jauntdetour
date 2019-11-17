@@ -59,19 +59,27 @@ class TimelineItem extends React.Component {
                     <div className="timeline-heading">
                     <h5 className="timeline-title">{this.props.title}</h5>
                     </div>
-                    <p><small className="text-muted">
-                            <i className="glyphicon glyphicon-time"></i> 
-                            {this.props.mutedText}
-                    </small></p>
-                    {showDetourEditOptions ? (
-                        <Button
-                            onClick={this.removeDetour}
-                            className = "btn btn-danger btn-clear"
-                            type = "button"
-                            id = "user-input-clear"
-                            text = "Remove">
-                        </Button>
-                    ): (<div></div>)}
+                    <div className="row">
+                        <div className="col-9"> 
+                            <p><small className="text-muted">
+                                <i className="glyphicon glyphicon-time"></i> 
+                                {this.props.mutedText}
+                            </small></p>
+                        </div>
+                        {showDetourEditOptions ? (
+                        <div className="col-3">
+                           <Button
+                                onClick={this.removeDetour}
+                                className = "btn-default btn btn-remove-detour"
+                                type = "button"
+                                id = "user-input-clear"
+                                text = "Remove">
+                            </Button> 
+                        </div>
+                        ): (<div></div>)}
+                    </div>
+                   
+
                     
                 </div>
             </li>
