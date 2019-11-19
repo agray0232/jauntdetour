@@ -33,6 +33,7 @@ class TimelineItem extends React.Component {
             .then(data => {
                 if(data.routes.length > 0){
                 this.props.setRoute(data.routes[0]);
+                this.props.setTripSummary(data.routes[0].summary);
                 }
             })
             .catch(function(error) {
@@ -45,9 +46,9 @@ class TimelineItem extends React.Component {
 
     render() {
 
-        var showDetourEditOptions = false;
+        var showDetourOptions = false;
         if(this.props.type === "detour"){
-            showDetourEditOptions = true;
+            showDetourOptions = true;
         }
 
         return (
@@ -59,14 +60,21 @@ class TimelineItem extends React.Component {
                     <div className="timeline-heading">
                     <h5 className="timeline-title">{this.props.title}</h5>
                     </div>
+                    {showDetourOptions ? (
                     <div className="row">
                         <div className="col-9"> 
-                            <p><small className="text-muted">
-                                <i className="glyphicon glyphicon-time"></i> 
-                                {this.props.mutedText}
-                            </small></p>
+                            <div className="row">
+                                <p><small className="text-muted">
+                                    {this.props.mutedText}
+                                </small></p>
+                            </div>
+                            <div className="row">
+                                <p><small className="text-muted">
+                                    {this.props.addedTimeTxt}
+                                </small></p>
+                            </div>
                         </div>
-                        {showDetourEditOptions ? (
+                        
                         <div className="col-3">
                            <Button
                                 onClick={this.removeDetour}
@@ -76,9 +84,9 @@ class TimelineItem extends React.Component {
                                 text = "Remove">
                             </Button> 
                         </div>
-                        ): (<div></div>)}
+                        
                     </div>
-                   
+                   ): (<div></div>)}
 
                     
                 </div>

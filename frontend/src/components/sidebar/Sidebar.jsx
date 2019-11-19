@@ -25,6 +25,7 @@ class Sidebar extends React.Component {
             detourList = {this.props.detourList}
             removeDetour = {this.props.removeDetour}
             setRoute = {this.props.setRoute}
+            setTripSummary = {this.props.setTripSummary}
             clearAll = {this.props.clearAll}>
             </TripSummary>
             {this.props.showDetourForm ? (
@@ -52,11 +53,13 @@ class Sidebar extends React.Component {
               <DetourOptionsList
                 origin = {this.props.origin}
                 destination = {this.props.destination}
+                tripSummary = {this.props.tripSummary}
                 detourOptions = {this.props.detourOptions}
                 detourList = {this.props.detourList}
                 detourHighlight = {this.props.detourHighlight}
                 addDetour = {this.props.addDetour}
                 setRoute = {this.props.setRoute}
+                setTripSummary = {this.props.setTripSummary}
                 setDetourOptions = {this.props.setDetourOptions}
                 setDetourHighlight = {this.props.setDetourHighlight}
                 clearDetourOptions = {this.props.clearDetourOptions}>
