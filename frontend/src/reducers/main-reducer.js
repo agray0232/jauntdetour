@@ -2,7 +2,7 @@ let initialState = {
   origin: "",
   destination: "",
   detourList: [],
-  baseTripSummary: {},
+  tripSummary: {},
   route: [],
   routeOptions: [],
   detourOptions: [],
@@ -35,10 +35,10 @@ const mainReducer = (state = initialState, action) => {
         showDetourButton: true,
         route: action.data.route
       };
-    case "SET_BASE_TRIP_SUMMARY":
+    case "SET_TRIP_SUMMARY":
       return {
         ...state,
-        baseTripSummary: action.data.baseTripSummary
+        tripSummary: action.data.tripSummary
       };
     case "GET_DETOUR_FORM":
       return {
