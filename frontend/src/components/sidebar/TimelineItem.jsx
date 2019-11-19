@@ -15,7 +15,7 @@ class TimelineItem extends React.Component {
         if(detourIndex >= 0){
 
             var newDetourList = this.props.detourList.filter(function(detour, index){
-                return index != detourIndex;
+                return index !== detourIndex;
             })
 
             var waypointList = [];
