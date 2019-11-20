@@ -60,34 +60,30 @@ class TimelineItem extends React.Component {
                     <div className="timeline-heading">
                     <h5 className="timeline-title">{this.props.title}</h5>
                     </div>
-                    {showDetourOptions ? (
-                    <div className="row">
-                        <div className="col-9"> 
-                            <div className="row">
-                                <p><small className="text-muted">
-                                    {this.props.mutedText}
-                                </small></p>
-                            </div>
-                            <div className="row">
-                                <p><small className="text-muted">
-                                    {this.props.addedTimeTxt}
-                                </small></p>
-                            </div>
-                        </div>
-                        
-                        <div className="col-3">
-                           <Button
+                    <div className="timeline-body">
+                        {showDetourOptions ? (
+                            <p><small className="text-muted">
+                                {this.props.mutedText}
+                            </small></p>
+                        ): (<div></div>)}
+                        {showDetourOptions ? (
+                            <p><small className="text-muted">
+                                {this.props.addedTimeTxt}
+                            </small></p>
+                        ): (<div></div>)}
+                        {showDetourOptions ? (
+                            <div>
+                            <hr/>
+                            <Button
                                 onClick={this.removeDetour}
                                 className = "btn-default btn btn-remove-detour"
                                 type = "button"
                                 id = "user-input-clear"
                                 text = "Remove">
-                            </Button> 
-                        </div>
-                        
+                            </Button>
+                            </div>
+                        ): (<div></div>)}
                     </div>
-                   ): (<div></div>)}
-
                     
                 </div>
             </li>
