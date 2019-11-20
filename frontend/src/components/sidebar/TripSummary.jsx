@@ -7,7 +7,7 @@ class TripSummary extends React.Component {
     render() {
 
         var showTripSummary = false;
-        if(Object.entries(this.props.baseTripSummary).length !== 0)
+        if(Object.entries(this.props.tripSummary).length !== 0)
         {
             showTripSummary = true;
         }
@@ -19,8 +19,8 @@ class TripSummary extends React.Component {
                     <div className="container">
                         <div className="row">
                             <div className="col">
-                                <p>Distance: {this.props.baseTripSummary.distance} mi</p>
-                                <p>Time: {this.props.baseTripSummary.time.hours} hr {this.props.baseTripSummary.time.min} min</p>
+                                <p>Distance: {this.props.tripSummary.distance} mi</p>
+                                <p>Time: {this.props.tripSummary.time.hours} hr {this.props.tripSummary.time.min} min</p>
                             </div>
                             <div className="col-4">
                                 <Button
@@ -38,7 +38,8 @@ class TripSummary extends React.Component {
                         destination = {this.props.destination}
                         detourList = {this.props.detourList}
                         removeDetour = {this.props.removeDetour}
-                        setRoute = {this.props.setRoute}>    
+                        setRoute = {this.props.setRoute}
+                        setTripSummary = {this.props.setTripSummary}>    
                     </TripTimeline>
                 </div>
                 ): (<div></div>)}  

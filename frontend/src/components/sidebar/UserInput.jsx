@@ -1,6 +1,5 @@
 import React from 'react';
 import RouteRequester from '../../scripts/RouteRequester.js'
-import Button from "../Button"
 
 class TripInput extends React.Component {
 
@@ -22,7 +21,7 @@ class TripInput extends React.Component {
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
-              this.props.setBaseTripSummary(data.routes[0].summary)
+              this.props.setTripSummary(data.routes[0].summary);
             }
           })
           .catch(function(error) {

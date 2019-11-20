@@ -3,6 +3,23 @@ import TimelineItem from "./TimelineItem";
 
 class TripTimeline extends React.Component {
 
+    createAddedTimeText(detour){
+        var addedTimeTxt = "";
+        var addedHours = Math.floor(detour.addedTime / 60);
+        var addedMin = detour.addedTime - (addedHours * 60);
+        var addedHoursTxt = "";
+        var addedMinTxt = "";
+        if(addedHours > 0){
+            addedHoursTxt = addedHours + " hr";
+        }
+        if(addedMin > 0){
+            addedMinTxt = addedMin + " min";
+        }
+        addedTimeTxt = "+ " + addedHoursTxt + addedMinTxt;
+
+        return addedTimeTxt;
+    }
+
     render() {
 
         /**
@@ -13,15 +30,20 @@ class TripTimeline extends React.Component {
               // Created muted subtext
               var mutedText = "Rating: " + detour.rating;
 
+              // Create added time text
+              var addedTimeTxt = this.createAddedTimeText(detour);
+
               return (
                 <TimelineItem
                 badgeClass="timeline-badge hike"
                 title={detour.name}
                 mutedText={mutedText} 
+                addedTimeTxt={addedTimeTxt}
                 type="detour"
                 detourIndex = {index}
                 removeDetour = {this.props.removeDetour}
                 setRoute = {this.props.setRoute}
+                setTripSummary = {this.props.setTripSummary}
                 detourList = {this.props.detourList}
                 origin = {this.props.origin}
                 destination = {this.props.destination}>   

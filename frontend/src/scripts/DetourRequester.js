@@ -53,6 +53,9 @@ export default class DetourRequester {
         break;
       case "environment":
         urlBase = "https://www.jauntdetour.com/backend";
+        break;
+      default:
+        urlBase = "https://www.jauntdetour.com/backend";
     }
 
     return urlBase;
