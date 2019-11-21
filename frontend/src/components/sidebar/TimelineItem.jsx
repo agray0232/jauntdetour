@@ -74,13 +74,23 @@ class TimelineItem extends React.Component {
                         {showDetourOptions ? (
                             <div>
                             <hr/>
-                            <Button
-                                onClick={this.removeDetour}
-                                className = "btn-default btn btn-remove-detour"
-                                type = "button"
-                                id = "user-input-clear"
-                                text = "Remove">
-                            </Button>
+                            <div className="container detour-edit-options">
+                                <div className="row">
+                                    <div className="col detour-edit-remove">
+                                    <Button
+                                            onClick={this.removeDetour}
+                                            className = "btn-default btn btn-remove-detour"
+                                            type = "button"
+                                            id = "user-input-clear"
+                                            text = "Remove">
+                                        </Button> 
+                                    </div>
+                                    <div className="col-3 detour-edit-move">
+                                        <button class="btn detour-arrow-btn"><i class="fa fa-angle-up"></i></button>
+                                        <button class="btn detour-arrow-btn"><i class="fa fa-angle-down"></i></button>
+                                    </div>
+                                </div>   
+                            </div>
                             </div>
                         ): (<div></div>)}
                     </div>
