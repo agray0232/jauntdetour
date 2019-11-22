@@ -8,6 +8,7 @@ class TimelineItem extends React.Component {
 
         this.removeDetour = this.removeDetour.bind(this);
         this.moveUp = this.moveUp.bind(this);
+        this.moveDown = this.moveDown.bind(this);
     }
 
     removeDetour(){
@@ -46,11 +47,31 @@ class TimelineItem extends React.Component {
     }
 
     moveUp(){
-        // Only move up if the index is set and this isn't the first item
+        // Get the detour's index
         var index = this.props.detourIndex;
-        console.log(index);
+        
+        // Only move up if the index is set and this isn't the first item
         if(index > 0){
             var newIndex = index - 1;
+            var newDetourList = []
+            this.arrayMove(this.props.detourList, index, newIndex);
+            this.props.detourList.forEach(detour => {
+                newDetourList.push(detour);
+            });
+            this.props.setDetourList(newDetourList);
+        }
+        else{
+            console.log("This is the first detour. It cannot be moved up");
+        }
+    }
+
+    moveDown(){
+        // Get the detour's index
+        var index = this.props.detourIndex;
+
+        // Only move down if the index is set and this isn't the last item
+        if(index !== this.props.detourList.length - 1){
+            var newIndex = index + 1;
             var newDetourList = []
             this.arrayMove(this.props.detourList, index, newIndex);
             this.props.detourList.forEach(detour => {
@@ -121,7 +142,8 @@ class TimelineItem extends React.Component {
                                                 <i className="fa fa-angle-up"></i>
                                         </button>
                                         <button
-                                            className="btn detour-arrow-btn">
+                                            className="btn detour-arrow-btn"
+                                            onClick={this.moveDown}>
                                                 <i className="fa fa-angle-down"></i>
                                         </button>
                                     </div>
