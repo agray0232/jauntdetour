@@ -7,6 +7,7 @@ class TimelineItem extends React.Component {
         super()
 
         this.removeDetour = this.removeDetour.bind(this);
+        this.moveUp = this.moveUp.bind(this);
     }
 
     removeDetour(){
@@ -43,6 +44,34 @@ class TimelineItem extends React.Component {
             this.props.removeDetour(this.props.detourIndex);
         }
     }
+
+    moveUp(){
+        // Only move up if the index is set and this isn't the first item
+        var index = this.props.detourIndex;
+        console.log(index);
+        if(index > 0){
+            var newIndex = index - 1;
+            var newDetourList = []
+            this.arrayMove(this.props.detourList, index, newIndex);
+            this.props.detourList.forEach(detour => {
+                newDetourList.push(detour);
+            });
+            this.props.setDetourList(newDetourList);
+        }
+        else{
+            console.log("This is the first detour. It cannot be moved up");
+        }
+    }
+
+    arrayMove(arr, old_index, new_index) {
+        if (new_index >= arr.length) {
+            var k = new_index - arr.length + 1;
+            while (k--) {
+                arr.push(undefined);
+            }
+        }
+        arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    };
 
     render() {
 
@@ -83,11 +112,18 @@ class TimelineItem extends React.Component {
                                             type = "button"
                                             id = "user-input-clear"
                                             text = "Remove">
-                                        </Button> 
+                                    </Button> 
                                     </div>
                                     <div className="col-3 detour-edit-move">
-                                        <button class="btn detour-arrow-btn"><i class="fa fa-angle-up"></i></button>
-                                        <button class="btn detour-arrow-btn"><i class="fa fa-angle-down"></i></button>
+                                        <button 
+                                            className="btn detour-arrow-btn"
+                                            onClick={this.moveUp}>
+                                                <i className="fa fa-angle-up"></i>
+                                        </button>
+                                        <button
+                                            className="btn detour-arrow-btn">
+                                                <i className="fa fa-angle-down"></i>
+                                        </button>
                                     </div>
                                 </div>   
                             </div>

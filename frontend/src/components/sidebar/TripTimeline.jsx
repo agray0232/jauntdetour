@@ -44,6 +44,7 @@ class TripTimeline extends React.Component {
                 removeDetour = {this.props.removeDetour}
                 setRoute = {this.props.setRoute}
                 setTripSummary = {this.props.setTripSummary}
+                setDetourList = {this.props.setDetourList}
                 detourList = {this.props.detourList}
                 origin = {this.props.origin}
                 destination = {this.props.destination}>   
