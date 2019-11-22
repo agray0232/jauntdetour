@@ -58,10 +58,30 @@ class TimelineItem extends React.Component {
             this.props.detourList.forEach(detour => {
                 newDetourList.push(detour);
             });
+
+            var waypointList = [];
+
+            newDetourList.forEach(detour => {
+                waypointList.push(detour.placeId);
+            })
+            
+            var routeRequester = new RouteRequester();
+            routeRequester.getRoute(
+                this.props.origin, 
+                this.props.destination, 
+                "Address", 
+                {waypoints: waypointList})
+            .then(data => {
+                if(data.routes.length > 0){
+                this.props.setRoute(data.routes[0]);
+                this.props.setTripSummary(data.routes[0].summary);
+                }
+            })
+            .catch(function(error) {
+                console.log("Error: " + error);
+            });
+
             this.props.setDetourList(newDetourList);
-        }
-        else{
-            console.log("This is the first detour. It cannot be moved up");
         }
     }
 
@@ -77,10 +97,30 @@ class TimelineItem extends React.Component {
             this.props.detourList.forEach(detour => {
                 newDetourList.push(detour);
             });
+
+            var waypointList = [];
+
+            newDetourList.forEach(detour => {
+                waypointList.push(detour.placeId);
+            })
+            
+            var routeRequester = new RouteRequester();
+            routeRequester.getRoute(
+                this.props.origin, 
+                this.props.destination, 
+                "Address", 
+                {waypoints: waypointList})
+            .then(data => {
+                if(data.routes.length > 0){
+                this.props.setRoute(data.routes[0]);
+                this.props.setTripSummary(data.routes[0].summary);
+                }
+            })
+            .catch(function(error) {
+                console.log("Error: " + error);
+            });
+
             this.props.setDetourList(newDetourList);
-        }
-        else{
-            console.log("This is the first detour. It cannot be moved up");
         }
     }
 
