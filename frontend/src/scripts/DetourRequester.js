@@ -51,7 +51,7 @@ export default class DetourRequester {
       case "development":
         urlBase = "http://localhost:8080";
         break;
-      case "environment":
+      case "production":
         urlBase = "https://www.jauntdetour.com/backend";
         break;
       default:

@@ -1,5 +1,5 @@
 var config = {
-  NODE_ENV: process.env.NODE_ENV
+  NODE_ENV: "production"
 };
 
 module.exports = config;
