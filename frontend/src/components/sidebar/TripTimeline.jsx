@@ -5,23 +5,29 @@ class TripTimeline extends React.Component {
 
     createAddedTimeText(detour){
         var addedTimeTxt = "";
-        var addedHours = Math.floor(detour.addedTime / 60);
-        var addedMin = detour.addedTime - (addedHours * 60);
-        var addedHoursTxt = "";
-        var addedMinTxt = "";
-        if(addedHours > 0){
-            addedHoursTxt = addedHours + " hr";
+
+        if(detour.addedTime !== -1){
+            
+            var addedHours = Math.floor(detour.addedTime / 60);
+            var addedMin = detour.addedTime - (addedHours * 60);
+            var addedHoursTxt = "";
+            var addedMinTxt = "";
+            if(addedHours > 0){
+                addedHoursTxt = addedHours + " hr";
+            }
+            if(addedMin > 0){
+                addedMinTxt = addedMin + " min";
+            }
+            if(addedMin > 0 && addedHours > 0){
+                addedTimeTxt = "+ " + addedHoursTxt + " " + addedMinTxt;
+            }
+            else{
+                addedTimeTxt = "+ " + addedHoursTxt + addedMinTxt;
+            }
+        }else{
+            addedTimeTxt = "Not calculated - route altered"
         }
-        if(addedMin > 0){
-            addedMinTxt = addedMin + " min";
-        }
-        if(addedMin > 0 && addedHours > 0){
-            addedTimeTxt = "+ " + addedHoursTxt + " " + addedMinTxt;
-        }
-        else{
-            addedTimeTxt = "+ " + addedHoursTxt + addedMinTxt;
-        }
-        
+
 
         return addedTimeTxt;
     }

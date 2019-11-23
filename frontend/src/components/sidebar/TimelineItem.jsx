@@ -62,6 +62,7 @@ class TimelineItem extends React.Component {
             var waypointList = [];
 
             newDetourList.forEach(detour => {
+                detour.addedTime = -1;
                 waypointList.push(detour.placeId);
             })
             
@@ -101,6 +102,7 @@ class TimelineItem extends React.Component {
             var waypointList = [];
 
             newDetourList.forEach(detour => {
+                detour.addedTime = -1;
                 waypointList.push(detour.placeId);
             })
             
