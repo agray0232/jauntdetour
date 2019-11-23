@@ -85,6 +85,13 @@ let matchDispatchToProps = dispatch => {
           index: index
         }
       }),
+    setDetourList: detourList =>
+      dispatch({
+        type: "SET_DETOUR_LIST",
+        data: {
+          detourList: detourList
+        }
+      }),
     clearAll: () =>
       dispatch({
         type: "CLEAR_ALL"

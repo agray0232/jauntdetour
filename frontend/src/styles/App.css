@@ -91,5 +91,20 @@
 
 .btn-remove-detour {
   color: #d60000;
-  float: right;
+  float: left;
+}
+
+.detour-edit-options {
+  height: 40px;
+}
+
+.detour-arrow-btn {
+  padding: 0;
+  height: 20px;
+  width: 25px;
+}
+
+.detour-edit-remove,
+.detour-edit-move {
+  height: 40px;
 }

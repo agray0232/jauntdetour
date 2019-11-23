@@ -39,7 +39,8 @@ class TripSummary extends React.Component {
                         detourList = {this.props.detourList}
                         removeDetour = {this.props.removeDetour}
                         setRoute = {this.props.setRoute}
-                        setTripSummary = {this.props.setTripSummary}>    
+                        setTripSummary = {this.props.setTripSummary}
+                        setDetourList = {this.props.setDetourList}>    
                     </TripTimeline>
                 </div>
                 ): (<div></div>)}  

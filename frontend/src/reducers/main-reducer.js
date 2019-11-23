@@ -89,6 +89,11 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         detourList: newDetourList
       };
+    case "SET_DETOUR_LIST":
+      return {
+        ...state,
+        detourList: action.data.detourList
+      };
     case "CLEAR_ALL":
       return {
         origin: "",
