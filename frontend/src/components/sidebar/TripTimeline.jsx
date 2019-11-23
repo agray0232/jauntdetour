@@ -15,7 +15,13 @@ class TripTimeline extends React.Component {
         if(addedMin > 0){
             addedMinTxt = addedMin + " min";
         }
-        addedTimeTxt = "+ " + addedHoursTxt + addedMinTxt;
+        if(addedMin > 0 && addedHours > 0){
+            addedTimeTxt = "+ " + addedHoursTxt + " " + addedMinTxt;
+        }
+        else{
+            addedTimeTxt = "+ " + addedHoursTxt + addedMinTxt;
+        }
+        
 
         return addedTimeTxt;
     }
