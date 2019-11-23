@@ -7,6 +7,8 @@ class TimelineItem extends React.Component {
         super()
 
         this.removeDetour = this.removeDetour.bind(this);
+        this.moveUp = this.moveUp.bind(this);
+        this.moveDown = this.moveDown.bind(this);
     }
 
     removeDetour(){
@@ -44,6 +46,96 @@ class TimelineItem extends React.Component {
         }
     }
 
+    moveUp(){
+        // Get the detour's index
+        var index = this.props.detourIndex;
+        
+        // Only move up if the index is set and this isn't the first item
+        if(index > 0){
+            var newIndex = index - 1;
+            var newDetourList = []
+            this.arrayMove(this.props.detourList, index, newIndex);
+            this.props.detourList.forEach(detour => {
+                newDetourList.push(detour);
+            });
+
+            var waypointList = [];
+
+            newDetourList.forEach(detour => {
+                detour.addedTime = -1;
+                waypointList.push(detour.placeId);
+            })
+            
+            var routeRequester = new RouteRequester();
+            routeRequester.getRoute(
+                this.props.origin, 
+                this.props.destination, 
+                "Address", 
+                {waypoints: waypointList})
+            .then(data => {
+                if(data.routes.length > 0){
+                this.props.setRoute(data.routes[0]);
+                this.props.setTripSummary(data.routes[0].summary);
+                }
+            })
+            .catch(function(error) {
+                console.log("Error: " + error);
+            });
+
+            this.props.setDetourList(newDetourList);
+        }
+    }
+
+    moveDown(){
+        // Get the detour's index
+        var index = this.props.detourIndex;
+
+        // Only move down if the index is set and this isn't the last item
+        if(index !== this.props.detourList.length - 1){
+            var newIndex = index + 1;
+            var newDetourList = []
+            this.arrayMove(this.props.detourList, index, newIndex);
+            this.props.detourList.forEach(detour => {
+                newDetourList.push(detour);
+            });
+
+            var waypointList = [];
+
+            newDetourList.forEach(detour => {
+                detour.addedTime = -1;
+                waypointList.push(detour.placeId);
+            })
+            
+            var routeRequester = new RouteRequester();
+            routeRequester.getRoute(
+                this.props.origin, 
+                this.props.destination, 
+                "Address", 
+                {waypoints: waypointList})
+            .then(data => {
+                if(data.routes.length > 0){
+                this.props.setRoute(data.routes[0]);
+                this.props.setTripSummary(data.routes[0].summary);
+                }
+            })
+            .catch(function(error) {
+                console.log("Error: " + error);
+            });
+
+            this.props.setDetourList(newDetourList);
+        }
+    }
+
+    arrayMove(arr, old_index, new_index) {
+        if (new_index >= arr.length) {
+            var k = new_index - arr.length + 1;
+            while (k--) {
+                arr.push(undefined);
+            }
+        }
+        arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    };
+
     render() {
 
         var showDetourOptions = false;
@@ -74,13 +166,31 @@ class TimelineItem extends React.Component {
                         {showDetourOptions ? (
                             <div>
                             <hr/>
-                            <Button
-                                onClick={this.removeDetour}
-                                className = "btn-default btn btn-remove-detour"
-                                type = "button"
-                                id = "user-input-clear"
-                                text = "Remove">
-                            </Button>
+                            <div className="container detour-edit-options">
+                                <div className="row">
+                                    <div className="col detour-edit-remove">
+                                    <Button
+                                            onClick={this.removeDetour}
+                                            className = "btn-default btn btn-remove-detour"
+                                            type = "button"
+                                            id = "user-input-clear"
+                                            text = "Remove">
+                                    </Button> 
+                                    </div>
+                                    <div className="col-3 detour-edit-move">
+                                        <button 
+                                            className="btn detour-arrow-btn"
+                                            onClick={this.moveUp}>
+                                                <i className="fa fa-angle-up"></i>
+                                        </button>
+                                        <button
+                                            className="btn detour-arrow-btn"
+                                            onClick={this.moveDown}>
+                                                <i className="fa fa-angle-down"></i>
+                                        </button>
+                                    </div>
+                                </div>   
+                            </div>
                             </div>
                         ): (<div></div>)}
                     </div>

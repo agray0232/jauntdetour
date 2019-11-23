@@ -18,6 +18,7 @@ class Main extends React.Component{
             setDetourSearchRadius = {this.props.setDetourSearchRadius}
             setDetourOptions = {this.props.setDetourOptions}
             setDetourHighlight = {this.props.setDetourHighlight}
+            setDetourList = {this.props.setDetourList}
             detourSearchLocation = {this.props.detourSearchLocation}
             detourSearchRadius = {this.props.detourSearchRadius}
             addDetour = {this.props.addDetour}
