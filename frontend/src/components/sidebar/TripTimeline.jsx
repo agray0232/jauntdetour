@@ -3,32 +3,67 @@ import TimelineItem from "./TimelineItem";
 
 class TripTimeline extends React.Component {
 
+    createAddedTimeText(detour){
+        var addedTimeTxt = "";
+        var addedHours = Math.floor(detour.addedTime / 60);
+        var addedMin = detour.addedTime - (addedHours * 60);
+        var addedHoursTxt = "";
+        var addedMinTxt = "";
+        if(addedHours > 0){
+            addedHoursTxt = addedHours + " hr";
+        }
+        if(addedMin > 0){
+            addedMinTxt = addedMin + " min";
+        }
+        addedTimeTxt = "+ " + addedHoursTxt + addedMinTxt;
+
+        return addedTimeTxt;
+    }
+
     render() {
 
-        var detourList = this.props.detourList.map(detour =>
+        /**
+         * Map all of the detours to timeline items
+         */
+        var detourList = this.props.detourList.map(function(detour, index)
             {
-                var mutedText = "Rating: " + detour.rating;
+              // Created muted subtext
+              var mutedText = "Rating: " + detour.rating;
+
+              // Create added time text
+              var addedTimeTxt = this.createAddedTimeText(detour);
 
               return (
                 <TimelineItem
                 badgeClass="timeline-badge hike"
                 title={detour.name}
-                mutedText={mutedText} >   
+                mutedText={mutedText} 
+                addedTimeTxt={addedTimeTxt}
+                type="detour"
+                detourIndex = {index}
+                removeDetour = {this.props.removeDetour}
+                setRoute = {this.props.setRoute}
+                setTripSummary = {this.props.setTripSummary}
+                detourList = {this.props.detourList}
+                origin = {this.props.origin}
+                destination = {this.props.destination}>   
                 </TimelineItem>
               )
-            });
+            }, this);
 
         return (
-            <div class="container">
-                <ul class="timeline">
+            <div className="container">
+                <ul className="timeline">
                     <TimelineItem
                     badgeClass="timeline-badge"
-                    title={this.props.origin}>   
+                    title={this.props.origin}
+                    type="origin">   
                     </TimelineItem>
                     {detourList}
                     <TimelineItem
                     badgeClass="timeline-badge"
-                    title={this.props.destination}>   
+                    title={this.props.destination}
+                    type="destination">   
                     </TimelineItem>
                 </ul>
             </div>

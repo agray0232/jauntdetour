@@ -28,11 +28,11 @@ let matchDispatchToProps = dispatch => {
           route: route
         }
       }),
-    setBaseTripSummary: summary =>
+    setTripSummary: summary =>
       dispatch({
-        type: "SET_BASE_TRIP_SUMMARY",
+        type: "SET_TRIP_SUMMARY",
         data: {
-          baseTripSummary: summary
+          tripSummary: summary
         }
       }),
     getDetourForm: () =>
@@ -92,7 +92,4 @@ let matchDispatchToProps = dispatch => {
   };
 };
 
-export default connect(
-  matchStateToProps,
-  matchDispatchToProps
-)(Main);
+export default connect(matchStateToProps, matchDispatchToProps)(Main);

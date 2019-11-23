@@ -2,7 +2,7 @@ let initialState = {
   origin: "",
   destination: "",
   detourList: [],
-  baseTripSummary: {},
+  tripSummary: {},
   route: [],
   routeOptions: [],
   detourOptions: [],
@@ -35,10 +35,10 @@ const mainReducer = (state = initialState, action) => {
         showDetourButton: true,
         route: action.data.route
       };
-    case "SET_BASE_TRIP_SUMMARY":
+    case "SET_TRIP_SUMMARY":
       return {
         ...state,
-        baseTripSummary: action.data.baseTripSummary
+        tripSummary: action.data.tripSummary
       };
     case "GET_DETOUR_FORM":
       return {
@@ -72,7 +72,6 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         detourOptions: [],
         detourRadius: 0,
-        showDetourOptions: false,
         showDetourForm: false,
         showDetourOptions: false,
         showDetourSearchPoint: false
@@ -83,7 +82,9 @@ const mainReducer = (state = initialState, action) => {
         detourList: [...state.detourList, action.data.detour]
       };
     case "REMOVE_DETOUR":
-      var newDetourList = state.detourList.splice(action.data.index, 1);
+      var newDetourList = state.detourList.filter(function(detour, index) {
+        return index !== action.data.index;
+      });
       return {
         ...state,
         detourList: newDetourList
@@ -93,7 +94,7 @@ const mainReducer = (state = initialState, action) => {
         origin: "",
         destination: "",
         detourList: [],
-        baseTripSummary: {},
+        tripSummary: {},
         route: [],
         routeOptions: [],
         detourOptions: [],

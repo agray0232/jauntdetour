@@ -177,8 +177,21 @@ function createSummaryData(data) {
     // Calculate/set the hours and min
     var hours = Math.floor(travelTime / (60 * 60));
     var min = Math.floor((travelTime / (60 * 60) - hours) * 60);
-    // Calculate the distance
-    var distance = (travelDistance / 1609.34).toPrecision(3);
+    // Calculate the distance in miles
+    var distance = travelDistance / 1609.34;
+
+    /**
+     *  If this distance is less than 100, round to three sigfigs, else
+     *  if it is more, round to the nearest integer
+     *
+     * This ensures that there will be at least 3 significant digits but
+     * no more than three if the distance is too small
+     */
+    if (distance < 100) {
+      distance = distance.toPrecision(3);
+    } else {
+      distance = Math.round(distance);
+    }
 
     // Set the summary information
     route.summary = {

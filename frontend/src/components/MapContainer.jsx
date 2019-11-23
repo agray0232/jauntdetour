@@ -19,7 +19,8 @@ class MapContainer extends React.Component {
   adjustMap(mapProps, map) {
     
     if(this.props.route.legth > 0){
-      const {google, markers} = mapProps;
+      // Could include "markers" below
+      const {google} = mapProps;
       const bounds = new google.maps.LatLngBounds();
     
       const ne_lat = this.props.route.bounds.northeast.lat;

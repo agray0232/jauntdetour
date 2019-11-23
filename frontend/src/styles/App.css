@@ -88,3 +88,8 @@
   height: 48px;
   width: 100%;
 }
+
+.btn-remove-detour {
+  color: #d60000;
+  float: right;
+}
