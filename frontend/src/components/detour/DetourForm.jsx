@@ -38,10 +38,20 @@ class DetourForm extends React.Component {
           });
     }
 
+    testFunction(){
+        console.log("test");
+    }
+
     render(){
         return(
             <div className="detour-form container">
                 <h4>Detour Settings</h4>
+                <select class="browser-default custom-select" onChange={this.testFunction}>
+                    <option selected>Open this select menu</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
                 <LocationSlider
                     setDetourSearchLocation = {this.props.setDetourSearchLocation}>
                 </LocationSlider>
