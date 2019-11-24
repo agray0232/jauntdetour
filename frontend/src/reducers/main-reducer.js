@@ -1,7 +1,7 @@
 let initialState = {
   origin: "",
   destination: "",
-  detourType: "",
+  detourType: "Hike",
   detourList: [],
   tripSummary: {},
   route: [],
