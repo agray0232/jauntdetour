@@ -11,7 +11,6 @@ class TripInput extends React.Component {
 
     requestRoute(e){
         e.preventDefault();
-        console.log("User input being submitted");
         var origin = e.target[0].value;
         var destination = e.target[1].value;
         this.props.setOrigin(origin);
