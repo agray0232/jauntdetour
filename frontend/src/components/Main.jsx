@@ -13,12 +13,14 @@ class Main extends React.Component{
             setOrigin = {this.props.setOrigin}
             setDestination = {this.props.setDestination}
             setRoute = {this.props.setRoute}
+            setDetourType = {this.props.setDetourType}
             setTripSummary = {this.props.setTripSummary}
             setDetourSearchLocation = {this.props.setDetourSearchLocation}
             setDetourSearchRadius = {this.props.setDetourSearchRadius}
             setDetourOptions = {this.props.setDetourOptions}
             setDetourHighlight = {this.props.setDetourHighlight}
             setDetourList = {this.props.setDetourList}
+            detourType = {this.props.detourType}
             detourSearchLocation = {this.props.detourSearchLocation}
             detourSearchRadius = {this.props.detourSearchRadius}
             addDetour = {this.props.addDetour}

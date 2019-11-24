@@ -1,4 +1,5 @@
 import React from 'react';
+import DetourSettings from './DetourSettings';
 import LocationSlider from './LocationSlider';
 import RadiusSlider from './RadiusSlider';
 import Button from '../Button';
@@ -22,7 +23,7 @@ class DetourForm extends React.Component {
         var routeIndex = Math.floor(this.props.detourSearchLocation/100 * routeLength);
         var detourPoint = routeCoordinates[routeIndex];
 
-        detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourSearchRadius, "Hike")
+        detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourSearchRadius, this.props.detourType)
         .then(data => {
 
             this.props.setDetourOptions(data.results);
@@ -41,7 +42,9 @@ class DetourForm extends React.Component {
     render(){
         return(
             <div className="detour-form container">
-                <h4>Detour Settings</h4>
+                <DetourSettings
+                    setDetourType = {this.props.setDetourType}>
+                </DetourSettings>
                 <LocationSlider
                     setDetourSearchLocation = {this.props.setDetourSearchLocation}>
                 </LocationSlider>
