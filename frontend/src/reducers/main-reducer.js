@@ -1,6 +1,7 @@
 let initialState = {
   origin: "",
   destination: "",
+  detourType: "",
   detourList: [],
   tripSummary: {},
   route: [],
@@ -45,6 +46,11 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         showDetourForm: true,
         showDetourSearchPoint: true
+      };
+    case "SET_DETOUR_TYPE":
+      return {
+        ...state,
+        detourType: action.data.detourType
       };
     case "SET_DETOUR_SEARCH_LOCATION":
       return {
