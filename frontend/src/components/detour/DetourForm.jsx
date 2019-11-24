@@ -38,15 +38,15 @@ class DetourForm extends React.Component {
           });
     }
 
-    testFunction(){
-        console.log("test");
+    setDetourType(event){
+        console.log(event.target.value);
     }
 
     render(){
         return(
             <div className="detour-form container">
                 <h4>Detour Settings</h4>
-                <select class="browser-default custom-select" onChange={this.testFunction}>
+                <select className="browser-default custom-select" onChange={this.setDetourType}>
                     <option selected>Open this select menu</option>
                     <option value="1">One</option>
                     <option value="2">Two</option>
