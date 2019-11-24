@@ -23,7 +23,7 @@ class DetourForm extends React.Component {
         var routeIndex = Math.floor(this.props.detourSearchLocation/100 * routeLength);
         var detourPoint = routeCoordinates[routeIndex];
 
-        detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourSearchRadius, "Hike")
+        detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourSearchRadius, this.props.detourType)
         .then(data => {
 
             this.props.setDetourOptions(data.results);

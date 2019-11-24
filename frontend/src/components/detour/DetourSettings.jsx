@@ -8,6 +8,7 @@ class DetourSettings extends React.Component {
     }
 
     changeDetourType(event){
+        console.log(event.target.value);
         this.props.setDetourType(event.target.value);
     }
 
@@ -15,11 +16,15 @@ class DetourSettings extends React.Component {
         return(
             <div className="detour-settings">
                 <h4>Detour Settings</h4>
-                <select className="browser-default custom-select" onChange={this.chageDetourType}>
-                    <option defaultValue>Select Detour Type</option>
-                    <option value="Hike">Hike</option>
+                <select className="browser-default custom-select" onChange={this.changeDetourType}>
+                    <option defaultValue="Hike">Hike</option>
                     <option value="Coffee">Coffee</option>
                     <option value="Museum">Museum</option>
+                    <option value="Landmark">Landmark</option>
+                    <option value="Restaurant">Restaurant</option>
+                    <option value="Bar">Bar</option>
+                    <option value="Gas Station">Gas Station</option>
+                    <option value="Charging Station">Charging Station</option>
                 </select>
             </div>
         )
