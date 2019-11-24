@@ -33,6 +33,7 @@ class Sidebar extends React.Component {
               <DetourForm
                 setDetourSearchLocation = {this.props.setDetourSearchLocation}
                 setDetourSearchRadius = {this.props.setDetourSearchRadius}
+                setDetourType = {this.props.setDetourType}
                 setDetourOptions = {this.props.setDetourOptions}
                 setDetourHighlight = {this.props.setDetourHighlight}
                 detourSearchLocation = {this.props.detourSearchLocation}

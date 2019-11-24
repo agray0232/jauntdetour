@@ -1,4 +1,5 @@
 import React from 'react';
+import DetourSettings from './DetourSettings';
 import LocationSlider from './LocationSlider';
 import RadiusSlider from './RadiusSlider';
 import Button from '../Button';
@@ -38,20 +39,12 @@ class DetourForm extends React.Component {
           });
     }
 
-    setDetourType(event){
-        console.log(event.target.value);
-    }
-
     render(){
         return(
             <div className="detour-form container">
-                <h4>Detour Settings</h4>
-                <select className="browser-default custom-select" onChange={this.setDetourType}>
-                    <option selected>Open this select menu</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
+                <DetourSettings
+                    setDetourType = {this.props.setDetourType}>
+                </DetourSettings>
                 <LocationSlider
                     setDetourSearchLocation = {this.props.setDetourSearchLocation}>
                 </LocationSlider>
