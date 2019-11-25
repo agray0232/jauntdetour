@@ -9,7 +9,7 @@ class Sidebar extends React.Component {
 
     render(){
         return(
-            <div className="side-bar">
+          <div className="side-bar">
             <UserInput 
                 origin = {this.props.origin}
                 destination = {this.props.destination}
