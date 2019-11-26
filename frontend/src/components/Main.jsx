@@ -1,5 +1,6 @@
 import React from "react";
 import Header from "./header/Header";
+import FooterMenu from "./footer-menu/FooterMenu";
 import MapContainer from "./MapContainer";
 import Sidebar from "./sidebar/Sidebar";
 import Button from "./Button";
@@ -65,6 +66,7 @@ class Main extends React.Component{
                 text = "+">
             </Button>
           </div>
+          <FooterMenu></FooterMenu>
         </div>
         </div>
         )
