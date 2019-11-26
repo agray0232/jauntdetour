@@ -5,7 +5,7 @@ class FooterMenu extends React.Component {
 
     componentDidMount(){
         $(".footerMenu .open").on("click", function() {
-            $(".footerMenu .content").slideToggle();
+            $(".footerMenu .content").slideToggle("fast");
           });
     }
 
