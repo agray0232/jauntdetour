@@ -29,18 +29,34 @@ class TripInput extends React.Component {
           });
     }
 
+    
+
     render() {
+
+      var classes = this.props.classes + " user-input container";
+
+      var formInputClass = ""
+      var formButtonClass = ""
+      if(this.props.type === "desktop")
+      {
+        formInputClass = "form-control-lg route-input";
+        formButtonClass = "btn-default form-control-lg route-submit";
+      }else{
+        formInputClass = "form-control-sm route-input";
+        formButtonClass = "btn-default form-control-sm route-submit";
+      }
+
         return (
-          <div className="user-input container">
+          <div className={classes}>
             <form onSubmit={this.requestRoute}>
               <div className="form-group ">
-                <input className="form-control-lg route-input" type="text" placeholder="Origin"/>
+                <input className={formInputClass} type="text" placeholder="Origin"/>
               </div>
               <div className="form-group">
-                <input className="form-control-lg route-input" type="text" placeholder="Destination"/>
+                <input className={formInputClass} type="text" placeholder="Destination"/>
               </div>
               <div className="form-group ">
-                <input className="btn-default form-control-lg route-submit" type="submit" value="Get Route" />
+                <input className={formButtonClass} type="submit" value="Get Route" />
               </div>
             </form>
 

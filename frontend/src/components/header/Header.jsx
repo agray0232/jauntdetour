@@ -7,6 +7,8 @@ class Header extends React.Component {
         return(
           <div className="header row">
             <UserInput 
+                type = "mobile"
+                classes = "user-input-mobile"
                 origin = {this.props.origin}
                 destination = {this.props.destination}
                 setOrigin = {this.props.setOrigin}

@@ -24,7 +24,7 @@
 .header {
   display: none;
   width: 100%;
-  height: 200px;
+  height: 150px;
   z-index: 1; /* Stay on top */
   top: 0; /* Stay at the top */
   background-color: white; /* Black */
@@ -153,6 +153,9 @@
 .detour-edit-remove,
 .detour-edit-move {
   height: 40px;
+}
+
+.user-input-mobile {
 }
 
 /** Mobile **/

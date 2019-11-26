@@ -11,6 +11,7 @@ class Sidebar extends React.Component {
         return(
           <div className="side-bar">
             <UserInput 
+                type = "desktop"
                 origin = {this.props.origin}
                 destination = {this.props.destination}
                 setOrigin = {this.props.setOrigin}
