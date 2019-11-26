@@ -1,5 +1,5 @@
 import React from 'react';
-import UserInput from "../UserInput";
+import UserInput from "../sidebar/UserInput";
 
 class Header extends React.Component {
 

@@ -66,7 +66,17 @@ class Main extends React.Component{
                 text = "+">
             </Button>
           </div>
-          <FooterMenu></FooterMenu>
+          <FooterMenu
+            origin = {this.props.origin}
+            destination = {this.props.destination}
+            tripSummary = {this.props.tripSummary}
+            detourList = {this.props.detourList}
+            removeDetour = {this.props.removeDetour}
+            setRoute = {this.props.setRoute}
+            setTripSummary = {this.props.setTripSummary}
+            setDetourList = {this.props.setDetourList}
+            clearAll = {this.props.clearAll}>
+          </FooterMenu>
         </div>
         </div>
         )

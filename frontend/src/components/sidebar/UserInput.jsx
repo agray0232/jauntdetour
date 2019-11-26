@@ -1,7 +1,7 @@
 import React from 'react';
 import RouteRequester from '../../scripts/RouteRequester.js'
 
-class TripInput extends React.Component {
+class UserInput extends React.Component {
 
     constructor() {
         super();
@@ -11,6 +11,7 @@ class TripInput extends React.Component {
 
     requestRoute(e){
         e.preventDefault();
+        console.log("route")
         var origin = e.target[0].value;
         var destination = e.target[1].value;
         this.props.setOrigin(origin);
@@ -20,6 +21,8 @@ class TripInput extends React.Component {
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
+              console.log("Hello");
+              console.log(data.routes[0].summary);
               this.props.setTripSummary(data.routes[0].summary);
             }
           })
@@ -29,17 +32,31 @@ class TripInput extends React.Component {
     }
 
     render() {
+
+      var classes = this.props.classes + " user-input container";
+
+      var formInputClass = ""
+      var formButtonClass = ""
+      if(this.props.type === "desktop")
+      {
+        formInputClass = "form-control-lg route-input";
+        formButtonClass = "btn-default form-control-lg route-submit";
+      }else{
+        formInputClass = "form-control-sm route-input";
+        formButtonClass = "btn-default form-control-sm route-submit";
+      }
+
         return (
-          <div className="user-input container">
+          <div className={classes}>
             <form onSubmit={this.requestRoute}>
               <div className="form-group ">
-                <input className="form-control-lg route-input" type="text" placeholder="Origin"/>
+                <input className={formInputClass} type="text" placeholder="Origin"/>
               </div>
               <div className="form-group">
-                <input className="form-control-lg route-input" type="text" placeholder="Destination"/>
+                <input className={formInputClass} type="text" placeholder="Destination"/>
               </div>
                   <div className="form-group ">
-                    <input className="btn-default form-control-lg route-submit" type="submit" value="Get Route" />
+                    <input className={formButtonClass} type="submit" value="Get Route" />
                   </div>
             </form>
           </div>
@@ -47,4 +64,4 @@ class TripInput extends React.Component {
     }
 }
 
-export default TripInput;
+export default UserInput;
