@@ -18,7 +18,7 @@ class Main extends React.Component{
             setTripSummary = {this.props.setTripSummary}
             clearAll = {this.props.clearAll}>
           </Header>
-          <div className="row">
+          
             <Sidebar
               origin = {this.props.origin}
               destination = {this.props.destination}
@@ -67,8 +67,7 @@ class Main extends React.Component{
                   text = "+">
               </Button>
             </div>
-
-          </div>
+          
           <FooterMenu
               origin = {this.props.origin}
               destination = {this.props.destination}

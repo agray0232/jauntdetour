@@ -68,7 +68,7 @@
 }
 
 .map-container {
-  padding-left: 415px;
+  padding-left: 400px;
   height: 100%;
 }
 
@@ -184,6 +184,11 @@
   .add-detour-btn-map {
     display: block;
   }
+  .map-container {
+    padding-left: 0px;
+    padding-top: 170px;
+    height: 100%;
+  }
 }
 
 /** Tablet **/
@@ -204,6 +209,11 @@
   .add-detour-btn-map {
     display: block;
   }
+  .map-container {
+    padding-left: 0px;
+    padding-top: 170px;
+    height: 100%;
+  }
 }
 
 /** Tablet (landscape) **/
@@ -220,6 +230,11 @@
   }
   .add-detour-btn-map {
     display: block;
+  }
+  .map-container {
+    padding-left: 0px;
+    padding-top: 170px;
+    height: 100%;
   }
 }
 

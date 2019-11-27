@@ -5,7 +5,7 @@ class Header extends React.Component {
 
     render(){
         return(
-          <div className="header row">
+          <div className="header">
             <UserInput 
                 type = "mobile"
                 classes = "user-input-mobile"
