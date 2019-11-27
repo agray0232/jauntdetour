@@ -17,7 +17,8 @@ class Sidebar extends React.Component {
                 setOrigin = {this.props.setOrigin}
                 setDestination = {this.props.setDestination}
                 setRoute = {this.props.setRoute}
-                setTripSummary = {this.props.setTripSummary}>
+                setTripSummary = {this.props.setTripSummary}
+                clearAll = {this.props.clearAll}>
             </UserInput>
             <TripSummary
             origin = {this.props.origin}

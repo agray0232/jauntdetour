@@ -1,5 +1,6 @@
 import React from 'react';
 import RouteRequester from '../../scripts/RouteRequester.js'
+import Button from '../Button'
 
 class UserInput extends React.Component {
 
@@ -40,10 +41,10 @@ class UserInput extends React.Component {
       if(this.props.type === "desktop")
       {
         formInputClass = "form-control-lg route-input";
-        formButtonClass = "btn-default form-control-lg route-submit";
+        formButtonClass = "btn form-control-lg route-submit";
       }else{
         formInputClass = "form-control-sm route-input";
-        formButtonClass = "btn-default form-control-sm route-submit";
+        formButtonClass = "btn form-control-sm route-submit";
       }
 
         return (
@@ -55,9 +56,21 @@ class UserInput extends React.Component {
               <div className="form-group">
                 <input className={formInputClass} type="text" placeholder="Destination"/>
               </div>
-                  <div className="form-group ">
-                    <input className={formButtonClass} type="submit" value="Get Route" />
-                  </div>
+              <div className="row">
+                <div className="col"></div>
+                <div className="col-3">
+                  <Button
+                      onClick={this.props.clearAll}
+                      className = "btn btn-danger btn-clear"
+                      type = "button"
+                      id = "user-input-clear"
+                      text = "Clear">
+                  </Button>
+                </div>
+                <div className="form-group col-3">
+                  <input className={formButtonClass} type="submit" value="Go" />
+                </div>
+              </div>
             </form>
           </div>
         )

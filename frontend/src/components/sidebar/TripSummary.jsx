@@ -23,13 +23,6 @@ class TripSummary extends React.Component {
                                 <p>Time: {this.props.tripSummary.time.hours} hr {this.props.tripSummary.time.min} min</p>
                             </div>
                             <div className="col-4">
-                                <Button
-                                    onClick={this.props.clearAll}
-                                    className = "btn btn-danger btn-clear"
-                                    type = "button"
-                                    id = "user-input-clear"
-                                    text = "Clear">
-                                </Button>
                             </div>
                         </div>
                     </div>

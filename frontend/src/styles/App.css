@@ -24,7 +24,7 @@
 .header {
   display: none;
   width: 100%;
-  height: 150px;
+  height: 170px;
   z-index: 1; /* Stay on top */
   top: 0; /* Stay at the top */
   background-color: white; /* Black */
@@ -38,19 +38,19 @@
 
 .footerMenu {
   display: none;
-  background-color: #eeeeee;
+  background-color: #b14b1b;
   width: 100%;
   position: fixed;
   bottom: 0;
 }
 
 .footerMenu .open {
-  background-color: #eeeeee;
+  background-color: #b14b1b;
 }
 
 .footerMenu .content {
   height: 100px;
-  background-color: #cccccc;
+  background-color: white;
   display: none;
 }
 
@@ -106,7 +106,12 @@
 }
 
 .route-submit {
-  width: 100%;
+  border-color: #007bff;
+  background-color: white;
+  color: black;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   margin: auto;
 }
 
@@ -131,8 +136,11 @@
 }
 
 .btn-clear {
-  height: 48px;
+  height: 50px;
   width: 100%;
+  background-color: white;
+  border-color: red;
+  color: black;
 }
 
 .btn-remove-detour {
@@ -156,6 +164,7 @@
 }
 
 .user-input-mobile {
+  border: none;
 }
 
 /** Mobile **/
@@ -213,4 +222,8 @@
   .add-detour-btn-map {
     display: block;
   }
+}
+
+html {
+  width: 100%;
 }

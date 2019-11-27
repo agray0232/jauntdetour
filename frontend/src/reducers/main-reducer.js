@@ -104,6 +104,7 @@ const mainReducer = (state = initialState, action) => {
       return {
         origin: "",
         destination: "",
+        detourType: "Hike",
         detourList: [],
         tripSummary: {},
         route: [],
