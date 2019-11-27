@@ -22,7 +22,6 @@ class UserInput extends React.Component {
         .then(data => {
             if(data.routes.length > 0){
               this.props.setRoute(data.routes[0]);
-              console.log("Hello");
               console.log(data.routes[0].summary);
               this.props.setTripSummary(data.routes[0].summary);
             }
