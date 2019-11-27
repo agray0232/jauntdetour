@@ -29,6 +29,8 @@ class Sidebar extends React.Component {
             setRoute = {this.props.setRoute}
             setTripSummary = {this.props.setTripSummary}
             setDetourList = {this.props.setDetourList}
+            showDetourButton = {this.props.showDetourButton}
+            getDetourForm = {this.props.getDetourForm}
             clearAll = {this.props.clearAll}>
             </TripSummary>
             {this.props.showDetourForm ? (
@@ -44,15 +46,7 @@ class Sidebar extends React.Component {
                 route = {this.props.route}>
               </DetourForm>
             ): (
-            <div className="container add-detour-container">
-              <Button
-                disabledCriteria={!this.props.showDetourButton}
-                onClick={this.props.getDetourForm}
-                className = "btn btn-primary add-detour-btn"
-                id = "add-detour-button"
-                text = "+ Add Detour">
-              </Button>
-            </div>            
+            <div></div>            
             )}  
             {this.props.showDetourOptions ? (
               <DetourOptionsList

@@ -49,36 +49,49 @@ class Main extends React.Component{
               clearDetourOptions = {this.props.clearDetourOptions}
               clearAll = {this.props.clearAll}>
             </Sidebar>
-          <div className="map-container">
-            <MapContainer
-                showRoute = {this.props.showRoute}
-                showDetourSearchPoint = {this.props.showDetourSearchPoint}
-                detourSearchLocation = {this.props.detourSearchLocation}
-                detourSearchRadius = {this.props.detourSearchRadius}
-                detourOptions = {this.props.detourOptions}
-                detourHighlight = {this.props.detourHighlight}
-                detourList = {this.props.detourList}
-                route = {this.props.route}>
-            </MapContainer>
-            <Button
-                disabledCriteria={!this.props.showDetourButton}
-                className = "btn btn-primary add-detour-btn-map"
-                id = "add-detour-button"
-                text = "+">
-            </Button>
+            <div className="map-container">
+              <MapContainer
+                  showRoute = {this.props.showRoute}
+                  showDetourSearchPoint = {this.props.showDetourSearchPoint}
+                  detourSearchLocation = {this.props.detourSearchLocation}
+                  detourSearchRadius = {this.props.detourSearchRadius}
+                  detourOptions = {this.props.detourOptions}
+                  detourHighlight = {this.props.detourHighlight}
+                  detourList = {this.props.detourList}
+                  route = {this.props.route}>
+              </MapContainer>
+              <Button
+                  disabledCriteria={!this.props.showDetourButton}
+                  className = "btn btn-primary add-detour-btn-map"
+                  id = "add-detour-button"
+                  text = "+">
+              </Button>
+            </div>
+
           </div>
           <FooterMenu
-            origin = {this.props.origin}
-            destination = {this.props.destination}
-            tripSummary = {this.props.tripSummary}
-            detourList = {this.props.detourList}
-            removeDetour = {this.props.removeDetour}
-            setRoute = {this.props.setRoute}
-            setTripSummary = {this.props.setTripSummary}
-            setDetourList = {this.props.setDetourList}
-            clearAll = {this.props.clearAll}>
-          </FooterMenu>
-        </div>
+              origin = {this.props.origin}
+              destination = {this.props.destination}
+              tripSummary = {this.props.tripSummary}
+              detourList = {this.props.detourList}
+              removeDetour = {this.props.removeDetour}
+              setRoute = {this.props.setRoute}
+              setTripSummary = {this.props.setTripSummary}
+              setDetourList = {this.props.setDetourList}
+              showDetourButton = {this.props.showDetourButton}
+              showDetourForm = {this.props.showDetourForm}
+              getDetourForm = {this.props.getDetourForm}
+              setDetourSearchLocation = {this.props.setDetourSearchLocation}
+              setDetourSearchRadius = {this.props.setDetourSearchRadius}
+              setDetourType = {this.props.setDetourType}
+              setDetourOptions = {this.props.setDetourOptions}
+              setDetourHighlight = {this.props.setDetourHighlight}
+              detourType = {this.props.detourType}
+              detourSearchLocation = {this.props.detourSearchLocation}
+              detourSearchRadius = {this.props.detourSearchRadius}
+              route = {this.props.route}
+              clearAll = {this.props.clearAll}>
+            </FooterMenu>
         </div>
         )
     }

@@ -22,7 +22,14 @@ class TripSummary extends React.Component {
                                 <p>Distance: {this.props.tripSummary.distance} mi</p>
                                 <p>Time: {this.props.tripSummary.time.hours} hr {this.props.tripSummary.time.min} min</p>
                             </div>
-                            <div className="col-4">
+                            <div className="col-5">
+                            <Button
+                                disabledCriteria={!this.props.showDetourButton}
+                                onClick={this.props.getDetourForm}
+                                className = "btn btn-primary add-detour-btn"
+                                id = "add-detour-button"
+                                text = "+ Add Detour">
+                            </Button>
                             </div>
                         </div>
                     </div>

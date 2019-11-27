@@ -13,6 +13,8 @@ class DetourForm extends React.Component {
         this.getDetours = this.getDetours.bind(this);
     }
 
+    
+
     getDetours(){
         var detourRequester = new DetourRequester();
         var routeCoordinates = this.props.route.overview_polyline.decodedPoints.map(point =>

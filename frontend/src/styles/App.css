@@ -38,18 +38,18 @@
 
 .footerMenu {
   display: none;
-  background-color: #b14b1b;
+  background-color: white;
   width: 100%;
   position: fixed;
   bottom: 0;
 }
 
 .footerMenu .open {
-  background-color: #b14b1b;
+  background-color: white;
 }
 
 .footerMenu .content {
-  height: 100px;
+  max-height: 50%;
   background-color: white;
   display: none;
 }
