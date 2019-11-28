@@ -72,11 +72,13 @@ class Main extends React.Component{
               tripSummary = {this.props.tripSummary}
               detourList = {this.props.detourList}
               removeDetour = {this.props.removeDetour}
+              addDetour = {this.props.addDetour}
               setRoute = {this.props.setRoute}
               setTripSummary = {this.props.setTripSummary}
               setDetourList = {this.props.setDetourList}
               showDetourButton = {this.props.showDetourButton}
               showDetourForm = {this.props.showDetourForm}
+              showDetourOptions = {this.props.showDetourOptions}
               getDetourForm = {this.props.getDetourForm}
               setDetourSearchLocation = {this.props.setDetourSearchLocation}
               setDetourSearchRadius = {this.props.setDetourSearchRadius}
@@ -86,8 +88,11 @@ class Main extends React.Component{
               detourType = {this.props.detourType}
               detourSearchLocation = {this.props.detourSearchLocation}
               detourSearchRadius = {this.props.detourSearchRadius}
+              detourOptions = {this.props.detourOptions}
+              detourHighlight = {this.props.detourHighlight}
               route = {this.props.route}
-              clearAll = {this.props.clearAll}>
+              clearAll = {this.props.clearAll}
+              clearDetourOptions = {this.props.clearDetourOptions}>
             </FooterMenu>
         </div>
         )

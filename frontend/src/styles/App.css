@@ -43,6 +43,7 @@
 .footerMenu {
   display: none;
   background-color: white;
+  overflow: scroll;
   width: 100%;
   position: fixed;
   bottom: 0;
@@ -53,7 +54,7 @@
 }
 
 .footerMenu .content {
-  max-height: 50%;
+  height: 100px;
   background-color: white;
   display: none;
 }

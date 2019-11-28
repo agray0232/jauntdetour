@@ -2,6 +2,7 @@ import React from 'react';
 import $ from 'jquery';
 import TripSummary from '../sidebar/TripSummary'
 import DetourForm from '../detour/DetourForm'
+import DetourOptionsList from '../detour/DetourOptionsList'
 
 class FooterMenu extends React.Component {
 
@@ -29,16 +30,6 @@ class FooterMenu extends React.Component {
                         getDetourForm = {this.props.getDetourForm}
                         clearAll = {this.props.clearAll}>
                     </TripSummary>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    <p>hiiiiiiiiiiiiiiiiiiii</p>
-                    
-
                     {this.props.showDetourForm ? (
                     <DetourForm
                         setDetourSearchLocation = {this.props.setDetourSearchLocation}
@@ -53,7 +44,23 @@ class FooterMenu extends React.Component {
                     </DetourForm>
                     ): (
                     <div></div>            
-                    )} 
+                    )}
+                    {this.props.showDetourOptions ? (
+                        <DetourOptionsList
+                            origin = {this.props.origin}
+                            destination = {this.props.destination}
+                            tripSummary = {this.props.tripSummary}
+                            detourOptions = {this.props.detourOptions}
+                            detourList = {this.props.detourList}
+                            detourHighlight = {this.props.detourHighlight}
+                            addDetour = {this.props.addDetour}
+                            setRoute = {this.props.setRoute}
+                            setTripSummary = {this.props.setTripSummary}
+                            setDetourOptions = {this.props.setDetourOptions}
+                            setDetourHighlight = {this.props.setDetourHighlight}
+                            clearDetourOptions = {this.props.clearDetourOptions}>
+                        </DetourOptionsList>
+                    ): (<div></div>)}  
                 </div>
             </div>
         )
