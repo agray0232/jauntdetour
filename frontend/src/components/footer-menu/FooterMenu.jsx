@@ -3,11 +3,13 @@ import $ from 'jquery';
 import TripSummary from '../sidebar/TripSummary'
 import DetourForm from '../detour/DetourForm'
 import DetourOptionsList from '../detour/DetourOptionsList'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronUp } from '@fortawesome/free-solid-svg-icons'
 
 class FooterMenu extends React.Component {
 
     componentDidMount(){
-        $(".footerMenu .open").on("click", function() {
+        $(".footerMenu .footer-open").on("click", function() {
             $(".footerMenu .content").slideToggle("fast");
           });
     }
@@ -15,7 +17,9 @@ class FooterMenu extends React.Component {
     render(){
         return(
             <div className="footerMenu">
-                <div className="open">open</div>
+                <div className="footer-open">
+                    <FontAwesomeIcon icon={faChevronUp} />
+                </div>
                 <div className="content">
                     <TripSummary
                         origin = {this.props.origin}

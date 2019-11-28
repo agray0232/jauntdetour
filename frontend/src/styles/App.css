@@ -49,8 +49,8 @@
   bottom: 0;
 }
 
-.footerMenu .open {
-  background-color: white;
+.footerMenu .footer-open {
+  background-color: gainsboro;
 }
 
 .footerMenu .content {
