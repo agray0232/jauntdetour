@@ -51,6 +51,11 @@
 
 .footerMenu .footer-open {
   background-color: gainsboro;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: 30px;
+  width: 100%;
 }
 
 .footerMenu .content {
@@ -187,6 +192,9 @@
   .add-detour-btn-map {
     display: block;
   }
+  .map-container {
+    margin-bottom: 30px;
+  }
 }
 
 /** Tablet **/
@@ -204,6 +212,9 @@
   .add-detour-btn-map {
     display: block;
   }
+  .map-container {
+    margin-bottom: 30px;
+  }
 }
 
 /** Tablet (landscape) **/
@@ -220,6 +231,9 @@
   }
   .add-detour-btn-map {
     display: block;
+  }
+  .map-container {
+    margin-bottom: 30px;
   }
 }
 

@@ -18,7 +18,9 @@ class FooterMenu extends React.Component {
         return(
             <div className="footerMenu">
                 <div className="footer-open">
-                    <FontAwesomeIcon icon={faChevronUp} />
+                    <div className="footer-open-icon">
+                        <FontAwesomeIcon icon={faChevronUp} />
+                    </div>
                 </div>
                 <div className="content">
                     <TripSummary
