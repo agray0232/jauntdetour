@@ -8,6 +8,7 @@ class MapContainer extends React.Component {
 
     this.state = {
       mapStyle: {
+        position: 'relative',
         width: '100%',
         height: '100%'
       }
