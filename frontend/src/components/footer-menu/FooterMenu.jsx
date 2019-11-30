@@ -4,14 +4,30 @@ import TripSummary from '../sidebar/TripSummary'
 import DetourForm from '../detour/DetourForm'
 import DetourOptionsList from '../detour/DetourOptionsList'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
 class FooterMenu extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            isOpen: false
+        };
+
+        this.toggleIsOpen = this.toggleIsOpen.bind(this);
+    }
 
     componentDidMount(){
-        $(".footerMenu .footer-open").on("click", function() {
-            $(".footerMenu .content").slideToggle("fast");
-          });
+        $(".footerMenu .footer-open").on("click", this.toggleIsOpen);
+    }
+
+    toggleIsOpen(){
+        $(".footerMenu .content").slideToggle("fast");
+        this.setState(
+            {
+                ...this.state,
+                isOpen: !this.state.isOpen
+            }
+        )
     }
 
     render(){
@@ -19,7 +35,11 @@ class FooterMenu extends React.Component {
             <div className="footerMenu">
                 <div className="footer-open">
                     <div className="footer-open-icon">
+                    {this.state.isOpen ? (
+                        <FontAwesomeIcon icon={faChevronDown} />
+                    ): (
                         <FontAwesomeIcon icon={faChevronUp} />
+                    )}
                     </div>
                 </div>
                 <div className="content">
