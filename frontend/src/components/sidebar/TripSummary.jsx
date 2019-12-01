@@ -19,8 +19,8 @@ class TripSummary extends React.Component {
                     <div className="container">
                         <div className="row">
                             <div className="col">
-                                <p>Distance: {this.props.tripSummary.distance} mi</p>
-                                <p>Time: {this.props.tripSummary.time.hours} hr {this.props.tripSummary.time.min} min</p>
+                                <p className="distance-summary">Distance: {this.props.tripSummary.distance} mi</p>
+                                <p className="time-summary">Time: {this.props.tripSummary.time.hours} hr {this.props.tripSummary.time.min} min</p>
                             </div>
                             <div className="col-5">
                             <Button

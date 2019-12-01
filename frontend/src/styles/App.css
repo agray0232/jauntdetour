@@ -197,6 +197,12 @@
   .map-container {
     margin-bottom: 30px;
   }
+  .add-detour-btn {
+    font-size: 12px;
+  }
+  .btn-get-detours {
+    font-size: 12px;
+  }
   .btn-remove-detour {
     height: 20px;
     padding: 0px;
@@ -218,6 +224,17 @@
     height: 20px;
     padding: 0px;
     flex-direction: row;
+  }
+  .detour-arrow-btn {
+    background: white;
+  }
+  .distance-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .time-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
   }
 }
 

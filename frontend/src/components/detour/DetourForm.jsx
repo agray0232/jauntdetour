@@ -55,7 +55,7 @@ class DetourForm extends React.Component {
                 </RadiusSlider>
                 <Button
                     onClick={this.getDetours}
-                    className = "btn btn-primary main-button"
+                    className = "btn btn-primary main-button btn-get-detours"
                     id = "get-detours-button"
                     text = "Get detours">
                 </Button>
