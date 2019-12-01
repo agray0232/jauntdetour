@@ -177,7 +177,7 @@ class TimelineItem extends React.Component {
                                             text = "Remove">
                                     </Button> 
                                     </div>
-                                    <div className="col-3 detour-edit-move">
+                                    <div className="col-4 detour-edit-move">
                                         <button 
                                             className="btn detour-arrow-btn"
                                             onClick={this.moveUp}>
