@@ -256,6 +256,45 @@
   .map-container {
     margin-bottom: 30px;
   }
+  .add-detour-btn {
+    font-size: 12px;
+  }
+  .btn-get-detours {
+    font-size: 12px;
+  }
+  .btn-remove-detour {
+    height: 20px;
+    padding: 0px;
+    font-size: 12px;
+    background: white;
+    color: #d60000;
+    float: left;
+  }
+  .detour-edit-options {
+    height: 20px;
+  }
+  .detour-arrow-btn {
+    padding: 0;
+    height: 16px;
+    width: 40px;
+  }
+  .detour-edit-remove,
+  .detour-edit-move {
+    height: 20px;
+    padding: 0px;
+    flex-direction: row;
+  }
+  .detour-arrow-btn {
+    background: white;
+  }
+  .distance-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .time-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
 }
 
 /** Tablet (landscape) **/
@@ -275,6 +314,45 @@
   }
   .map-container {
     margin-bottom: 30px;
+  }
+  .add-detour-btn {
+    font-size: 12px;
+  }
+  .btn-get-detours {
+    font-size: 12px;
+  }
+  .btn-remove-detour {
+    height: 20px;
+    padding: 0px;
+    font-size: 12px;
+    background: white;
+    color: #d60000;
+    float: left;
+  }
+  .detour-edit-options {
+    height: 20px;
+  }
+  .detour-arrow-btn {
+    padding: 0;
+    height: 16px;
+    width: 40px;
+  }
+  .detour-edit-remove,
+  .detour-edit-move {
+    height: 20px;
+    padding: 0px;
+    flex-direction: row;
+  }
+  .detour-arrow-btn {
+    background: white;
+  }
+  .distance-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .time-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
   }
 }
 
