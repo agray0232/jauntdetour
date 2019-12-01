@@ -21,6 +21,49 @@
   color: #09d3ac;
 }
 
+.app-container {
+  overflow: hidden;
+}
+
+.header {
+  display: none;
+  width: 100%;
+  height: 135px;
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  background-color: white; /* Black */
+  overflow-y: hidden; /* Disable horizontal scroll */
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  box-shadow: 0px 10px 30px -2px #888;
+}
+
+.footerMenu {
+  display: none;
+  background-color: white;
+  overflow: scroll;
+  width: 100%;
+  max-height: 350px;
+  position: fixed;
+  bottom: 0;
+}
+
+.footerMenu .footer-open {
+  background-color: #007bffad;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+.footerMenu .content {
+  height: 100px;
+  background-color: white;
+  display: none;
+}
+
 .side-bar {
   height: 100%; /* Full-height: remove this if you want "auto" height */
   width: 400px; /* Set the width of the sidebar */
@@ -35,8 +78,9 @@
 }
 
 .map-container {
-  padding-left: 415px;
   height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 .user-input,
@@ -59,8 +103,25 @@
   width: 100%;
 }
 
+.add-detour-btn-map {
+  display: none;
+  vertical-align: middle;
+  padding: 0px;
+  font-size: 30px;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  right: 80px;
+  bottom: 40px;
+}
+
 .route-submit {
+  border-color: #007bff;
+  background-color: white;
+  color: black;
   width: 100%;
+  height: 50px;
   margin: auto;
 }
 
@@ -85,8 +146,11 @@
 }
 
 .btn-clear {
-  height: 48px;
+  height: 50px;
   width: 100%;
+  background-color: white;
+  border-color: red;
+  color: black;
 }
 
 .btn-remove-detour {
@@ -107,4 +171,230 @@
 .detour-edit-remove,
 .detour-edit-move {
   height: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-input-mobile {
+  border: none;
+}
+
+/** Mobile **/
+@media only screen and (max-width: 767px) {
+  .side-bar {
+    display: none;
+  }
+  .header {
+    position: fixed;
+    display: block;
+    padding: 10px;
+  }
+  .origin-input,
+  .destination-input {
+    margin-bottom: 0.5rem;
+  }
+  .clear-btn-container,
+  .submit-btn-container {
+    height: 40px;
+  }
+  .btn-clear,
+  .route-submit {
+    height: 40px;
+  }
+  .footerMenu {
+    display: block;
+  }
+  .add-detour-btn-map {
+    display: block;
+  }
+  .map-container {
+    margin-bottom: 30px;
+  }
+  .add-detour-btn {
+    font-size: 12px;
+  }
+  .btn-get-detours {
+    font-size: 12px;
+  }
+  .btn-remove-detour {
+    height: 20px;
+    padding: 0px;
+    font-size: 12px;
+    background: white;
+    color: #d60000;
+    float: left;
+  }
+  .detour-edit-options {
+    height: 20px;
+  }
+  .detour-arrow-btn {
+    padding: 0;
+    height: 16px;
+    width: 40px;
+  }
+  .detour-edit-remove,
+  .detour-edit-move {
+    height: 20px;
+    padding: 0px;
+    flex-direction: row;
+  }
+  .detour-arrow-btn {
+    background: white;
+  }
+  .distance-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .time-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+}
+
+/** Tablet **/
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  .side-bar {
+    display: none;
+  }
+  .header {
+    position: fixed;
+    display: block;
+    padding: 10px;
+  }
+  .origin-input,
+  .destination-input {
+    margin-bottom: 0.5rem;
+  }
+  .clear-btn-container,
+  .submit-btn-container {
+    height: 40px;
+  }
+  .btn-clear,
+  .route-submit {
+    height: 40px;
+  }
+  .footerMenu {
+    display: block;
+  }
+  .add-detour-btn-map {
+    display: block;
+  }
+  .map-container {
+    margin-bottom: 30px;
+  }
+  .add-detour-btn {
+    font-size: 12px;
+  }
+  .btn-get-detours {
+    font-size: 12px;
+  }
+  .btn-remove-detour {
+    height: 20px;
+    padding: 0px;
+    font-size: 12px;
+    background: white;
+    color: #d60000;
+    float: left;
+  }
+  .detour-edit-options {
+    height: 20px;
+  }
+  .detour-arrow-btn {
+    padding: 0;
+    height: 16px;
+    width: 40px;
+  }
+  .detour-edit-remove,
+  .detour-edit-move {
+    height: 20px;
+    padding: 0px;
+    flex-direction: row;
+  }
+  .detour-arrow-btn {
+    background: white;
+  }
+  .distance-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .time-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+}
+
+/** Tablet (landscape) **/
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+  .side-bar {
+    display: none;
+  }
+  .header {
+    position: fixed;
+    display: block;
+    padding: 10px;
+  }
+  .origin-input,
+  .destination-input {
+    margin-bottom: 0.5rem;
+  }
+  .clear-btn-container,
+  .submit-btn-container {
+    height: 40px;
+  }
+  .btn-clear,
+  .route-submit {
+    height: 40px;
+  }
+  .footerMenu {
+    display: block;
+  }
+  .add-detour-btn-map {
+    display: block;
+  }
+  .map-container {
+    margin-bottom: 30px;
+  }
+  .add-detour-btn {
+    font-size: 12px;
+  }
+  .btn-get-detours {
+    font-size: 12px;
+  }
+  .btn-remove-detour {
+    height: 20px;
+    padding: 0px;
+    font-size: 12px;
+    background: white;
+    color: #d60000;
+    float: left;
+  }
+  .detour-edit-options {
+    height: 20px;
+  }
+  .detour-arrow-btn {
+    padding: 0;
+    height: 16px;
+    width: 40px;
+  }
+  .detour-edit-remove,
+  .detour-edit-move {
+    height: 20px;
+    padding: 0px;
+    flex-direction: row;
+  }
+  .detour-arrow-btn {
+    background: white;
+  }
+  .distance-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  .time-summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+}
+
+html {
+  width: 100%;
 }

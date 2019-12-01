@@ -25,7 +25,7 @@ class TripTimeline extends React.Component {
                 addedTimeTxt = "+ " + addedHoursTxt + addedMinTxt;
             }
         }else{
-            addedTimeTxt = "Time added not calculated - route altered"
+            addedTimeTxt = "Time added not calculated"
         }
 
 
