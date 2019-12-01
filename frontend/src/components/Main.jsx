@@ -59,12 +59,6 @@ class Main extends React.Component{
                 detourList = {this.props.detourList}
                 route = {this.props.route}>
             </MapContainer>
-            <Button
-                disabledCriteria={!this.props.showDetourButton}
-                className = "btn btn-primary add-detour-btn-map"
-                id = "add-detour-button"
-                text = "+">
-            </Button>
           </div>
           <FooterMenu
               origin = {this.props.origin}
