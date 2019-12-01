@@ -8,7 +8,6 @@ class DetourSettings extends React.Component {
     }
 
     changeDetourType(event){
-        console.log(event.target.value);
         this.props.setDetourType(event.target.value);
     }
 
