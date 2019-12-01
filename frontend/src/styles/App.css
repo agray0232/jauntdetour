@@ -28,7 +28,7 @@
 .header {
   display: none;
   width: 100%;
-  height: 170px;
+  height: 135px;
   z-index: 1; /* Stay on top */
   top: 0; /* Stay at the top */
   background-color: white; /* Black */
@@ -187,6 +187,19 @@
   .header {
     position: fixed;
     display: block;
+    padding: 10px;
+  }
+  .origin-input,
+  .destination-input {
+    margin-bottom: 0.5rem;
+  }
+  .clear-btn-container,
+  .submit-btn-container {
+    height: 40px;
+  }
+  .btn-clear,
+  .route-submit {
+    height: 40px;
   }
   .footerMenu {
     display: block;
@@ -305,6 +318,7 @@
   .header {
     position: fixed;
     display: block;
+    padding: 5px;
   }
   .footerMenu {
     display: block;

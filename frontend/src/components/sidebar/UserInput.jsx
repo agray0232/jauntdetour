@@ -49,15 +49,15 @@ class UserInput extends React.Component {
         return (
           <div className={classes}>
             <form onSubmit={this.requestRoute}>
-              <div className="form-group ">
+              <div className="form-group origin-input">
                 <input className={formInputClass} type="text" placeholder="Origin"/>
               </div>
-              <div className="form-group">
+              <div className="form-group destination-input">
                 <input className={formInputClass} type="text" placeholder="Destination"/>
               </div>
               <div className="row">
                 <div className="col"></div>
-                <div className="col-3">
+                <div className="col-4 clear-btn-container">
                   <Button
                       onClick={this.props.clearAll}
                       className = "btn btn-danger btn-clear"
@@ -66,7 +66,7 @@ class UserInput extends React.Component {
                       text = "Clear">
                   </Button>
                 </div>
-                <div className="form-group col-3">
+                <div className="form-group col-4 submit-btn-container">
                   <input className={formButtonClass} type="submit" value="Go" />
                 </div>
               </div>
