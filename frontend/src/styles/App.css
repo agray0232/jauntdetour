@@ -51,7 +51,7 @@
 }
 
 .footerMenu .footer-open {
-  background-color: gainsboro;
+  background-color: #007bffad;
   display: flex;
   flex-direction: row;
   justify-content: center;
