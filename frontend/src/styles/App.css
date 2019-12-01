@@ -259,6 +259,19 @@
   .header {
     position: fixed;
     display: block;
+    padding: 10px;
+  }
+  .origin-input,
+  .destination-input {
+    margin-bottom: 0.5rem;
+  }
+  .clear-btn-container,
+  .submit-btn-container {
+    height: 40px;
+  }
+  .btn-clear,
+  .route-submit {
+    height: 40px;
   }
   .footerMenu {
     display: block;
@@ -318,7 +331,19 @@
   .header {
     position: fixed;
     display: block;
-    padding: 5px;
+    padding: 10px;
+  }
+  .origin-input,
+  .destination-input {
+    margin-bottom: 0.5rem;
+  }
+  .clear-btn-container,
+  .submit-btn-container {
+    height: 40px;
+  }
+  .btn-clear,
+  .route-submit {
+    height: 40px;
   }
   .footerMenu {
     display: block;
