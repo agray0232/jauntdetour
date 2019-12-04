@@ -36,9 +36,9 @@ class FooterMenu extends React.Component {
                 <div className="footer-open">
                     <div className="footer-open-icon">
                     {this.state.isOpen ? (
-                        <FontAwesomeIcon icon={faChevronDown} />
+                        <FontAwesomeIcon icon={faChevronDown} size="2x"/>
                     ): (
-                        <FontAwesomeIcon icon={faChevronUp} />
+                        <FontAwesomeIcon icon={faChevronUp} size="2x"/>
                     )}
                     </div>
                 </div>
