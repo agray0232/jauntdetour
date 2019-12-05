@@ -104,14 +104,26 @@
 .timeline-badge.hike {
   background-color: #3f903f !important;
 }
-.timeline-badge.warning {
-  background-color: #f0ad4e !important;
+.timeline-badge.coffee {
+  background-color: #523821 !important;
 }
-.timeline-badge.danger {
+.timeline-badge.museum {
+  background-color: #4e1a55 !important;
+}
+.timeline-badge.landmark {
   background-color: #d9534f !important;
 }
-.timeline-badge.info {
+.timeline-badge.restaurant {
   background-color: #5bc0de !important;
+}
+.timeline-badge.bar {
+  background-color: #300f35 !important;
+}
+.timeline-badge.gas-station {
+  background-color: #73777e !important;
+}
+.timeline-badge.charging-station {
+  background-color: #85b885 !important;
 }
 .timeline-title {
   margin-top: 0;

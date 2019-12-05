@@ -45,9 +45,38 @@ class TripTimeline extends React.Component {
               // Create added time text
               var addedTimeTxt = this.createAddedTimeText(detour);
 
+              var badgeClass = "timeline-badge";
+              console.log(detour.type);
+              switch(detour.type){
+                case "Hike":
+                    badgeClass = badgeClass + " hike";
+                    break;
+                case "Coffee":
+                    badgeClass = badgeClass + " coffee";
+                    break;
+                case "Museum":
+                    badgeClass = badgeClass + " museum";
+                    break;
+                case "Landmark":
+                    badgeClass = badgeClass + " landmark";
+                    break;
+                case "Restaurant":
+                    badgeClass = badgeClass + " restaurant";
+                    break;
+                case "Bar":
+                    badgeClass = badgeClass + " bar";
+                    break;
+                case "Gas Station":
+                    badgeClass = badgeClass + " gas-station";
+                    break;
+                case "Charging Station":
+                    badgeClass = badgeClass + " charging-station";
+                    break;
+              }
+
               return (
                 <TimelineItem
-                badgeClass="timeline-badge hike"
+                badgeClass={badgeClass}
                 title={detour.name}
                 mutedText={mutedText} 
                 addedTimeTxt={addedTimeTxt}
@@ -68,13 +97,13 @@ class TripTimeline extends React.Component {
             <div className="container">
                 <ul className="timeline">
                     <TimelineItem
-                    badgeClass="timeline-badge"
+                    badgeClass="timeline-badge primary"
                     title={this.props.origin}
                     type="origin">   
                     </TimelineItem>
                     {detourList}
                     <TimelineItem
-                    badgeClass="timeline-badge"
+                    badgeClass="timeline-badge primary"
                     title={this.props.destination}
                     type="destination">   
                     </TimelineItem>
