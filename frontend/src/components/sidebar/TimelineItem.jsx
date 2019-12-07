@@ -1,6 +1,8 @@
 import React from 'react';
 import Button from '../Button'
 import RouteRequester from '../../scripts/RouteRequester.js'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMapMarkerAlt, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
 class TimelineItem extends React.Component {
     constructor(){
@@ -146,7 +148,7 @@ class TimelineItem extends React.Component {
         return (
             <li className="timeline-inverted">
                 <div className={this.props.badgeClass}>
-                    <span className="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    <FontAwesomeIcon icon={faMapMarkerAlt}/>
                 </div>
                 <div className="timeline-panel">
                     <div className="timeline-heading">
