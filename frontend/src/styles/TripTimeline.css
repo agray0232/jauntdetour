@@ -144,7 +144,7 @@
 /** Mobile **/
 @media only screen and (max-width: 767px) {
   .timeline > li > .timeline-badge {
-    font-size: 20px;
+    font-size: 17px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -198,7 +198,7 @@
 /** Tablet **/
 @media only screen and (min-width: 768px) and (max-width: 1024px) {
   .timeline > li > .timeline-badge {
-    font-size: 20px;
+    font-size: 17px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -252,7 +252,7 @@
 /** Tablet (landscape) **/
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
   .timeline > li > .timeline-badge {
-    font-size: 20px;
+    font-size: 17px;
     width: 30px;
     height: 30px;
     line-height: 30px;
