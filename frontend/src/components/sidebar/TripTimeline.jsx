@@ -45,42 +45,44 @@ class TripTimeline extends React.Component {
               // Create added time text
               var addedTimeTxt = this.createAddedTimeText(detour);
 
-              var badgeClass = "timeline-badge";
-              console.log(detour.type);
+              //var badgeClass = "timeline-badge";
+              var detourType = "";
               switch(detour.type){
                 case "Hike":
-                    badgeClass = badgeClass + " hike";
+                    detourType = "hike";
                     break;
                 case "Coffee":
-                    badgeClass = badgeClass + " coffee";
+                    detourType = "coffee";
                     break;
                 case "Museum":
-                    badgeClass = badgeClass + " museum";
+                    detourType = "museum";
                     break;
                 case "Landmark":
-                    badgeClass = badgeClass + " landmark";
+                    detourType = "landmark";
                     break;
                 case "Restaurant":
-                    badgeClass = badgeClass + " restaurant";
+                    detourType = "restaurant";
                     break;
                 case "Bar":
-                    badgeClass = badgeClass + " bar";
+                    detourType = "bar";
                     break;
                 case "Gas Station":
-                    badgeClass = badgeClass + " gas-station";
+                    detourType = "gas-station";
                     break;
                 case "Charging Station":
-                    badgeClass = badgeClass + " charging-station";
+                    detourType = "charging-station";
                     break;
               }
 
+              var badgeClass = "timeline-badge " + detourType;
+
               return (
                 <TimelineItem
-                badgeClass={badgeClass}
                 title={detour.name}
                 mutedText={mutedText} 
                 addedTimeTxt={addedTimeTxt}
-                type="detour"
+                type={detourType}
+                badgeClass={badgeClass}
                 detourIndex = {index}
                 removeDetour = {this.props.removeDetour}
                 setRoute = {this.props.setRoute}
@@ -97,15 +99,15 @@ class TripTimeline extends React.Component {
             <div className="container">
                 <ul className="timeline">
                     <TimelineItem
-                    badgeClass="timeline-badge primary"
                     title={this.props.origin}
-                    type="origin">   
+                    type="origin"
+                    badgeClass="timeline-badge origin">   
                     </TimelineItem>
                     {detourList}
                     <TimelineItem
-                    badgeClass="timeline-badge primary"
                     title={this.props.destination}
-                    type="destination">   
+                    type="destination"
+                    badgeClass="timeline-badge destination">   
                     </TimelineItem>
                 </ul>
             </div>

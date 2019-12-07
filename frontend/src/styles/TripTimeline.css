@@ -98,7 +98,8 @@
   left: -14px;
   right: auto;
 }
-.timeline-badge.primary {
+.timeline-badge.origin,
+.timeline-badge.destination {
   background-color: #2e6da4 !important;
 }
 .timeline-badge.hike {
