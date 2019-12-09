@@ -28,13 +28,15 @@ class DetourForm extends React.Component {
         detourRequester.getDetours(detourPoint.lat, detourPoint.lng, this.props.detourSearchRadius, this.props.detourType)
         .then(data => {
 
-            this.props.setDetourOptions(data.results);
-
             var detourHighlight = [];
             data.results.forEach(result => {
+                result.type = this.props.detourType
                 detourHighlight.push({id:result.id, highlight:false});
             })
+
             this.props.setDetourHighlight(detourHighlight);
+
+            this.props.setDetourOptions(data.results);
           })
           .catch(function(error) {
             console.log("Error: " + error);

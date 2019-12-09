@@ -20,6 +20,7 @@ class DetourOptionsList extends React.Component {
                      destination = {this.props.destination}
                      tripSummary = {this.props.tripSummary}
                      name = {option.name}
+                     type = {option.type}
                      lat = {optionLat}
                      lng = {optionLng}
                      id = {optionId}

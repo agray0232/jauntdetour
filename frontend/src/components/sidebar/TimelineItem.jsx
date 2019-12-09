@@ -1,6 +1,9 @@
 import React from 'react';
 import Button from '../Button'
 import RouteRequester from '../../scripts/RouteRequester.js'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMapMarkerAlt, faHiking, faCoffee, faLandmark, faMonument, 
+    faUtensils, faGlassMartiniAlt, faGasPump, faChargingStation } from '@fortawesome/free-solid-svg-icons'
 
 class TimelineItem extends React.Component {
     constructor(){
@@ -138,15 +141,46 @@ class TimelineItem extends React.Component {
 
     render() {
 
-        var showDetourOptions = false;
-        if(this.props.type === "detour"){
-            showDetourOptions = true;
+        var showDetourOptions = true;
+        var badgeIcon = [];
+        switch(this.props.type){
+            case "origin":
+                badgeIcon = <FontAwesomeIcon icon={faMapMarkerAlt}/>
+                showDetourOptions = false;
+            case "destination":
+                badgeIcon = <FontAwesomeIcon icon={faMapMarkerAlt}/>
+                showDetourOptions = false;
+                break;
+            case "hike":
+                badgeIcon = <FontAwesomeIcon icon={faHiking}/>
+                break;
+            case "coffee":
+                badgeIcon = <FontAwesomeIcon icon={faCoffee}/>
+                break;
+            case "museum":
+                badgeIcon = <FontAwesomeIcon icon={faLandmark}/>
+                break;
+            case "landmark":
+                badgeIcon = <FontAwesomeIcon icon={faMonument}/>
+                break;
+            case "restaurant":
+                badgeIcon = <FontAwesomeIcon icon={faUtensils}/>
+                break;
+            case "bar":
+                badgeIcon = <FontAwesomeIcon icon={faGlassMartiniAlt}/>
+                break;
+            case "gas-station":
+                badgeIcon = <FontAwesomeIcon icon={faGasPump}/>
+                break;
+            case "charging-station":
+                badgeIcon = <FontAwesomeIcon icon={faChargingStation}/>
+                break;
         }
 
         return (
             <li className="timeline-inverted">
                 <div className={this.props.badgeClass}>
-                    <span className="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    {badgeIcon}
                 </div>
                 <div className="timeline-panel">
                     <div className="timeline-heading">

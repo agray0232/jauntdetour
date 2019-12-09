@@ -57,6 +57,7 @@ class DetourOption extends React.Component {
 
             this.props.addDetour({
                 name : this.props.name,
+                type: this.props.type,
                 lat : this.props.lat,
                 lng : this.props.lng,
                 id : this.props.id,
