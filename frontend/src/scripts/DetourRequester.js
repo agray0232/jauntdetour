@@ -51,11 +51,11 @@ export default class DetourRequester {
       case "development":
         urlBase = "http://localhost:8080";
         break;
-      case "environment":
-        urlBase = "https://www.jauntdetour.com/backend";
+      case "production":
+        urlBase = "https://jauntdetour-backend.azurewebsites.net";
         break;
       default:
-        urlBase = "https://www.jauntdetour.com/backend";
+        urlBase = "https://jauntdetour-backend.azurewebsites.net";
     }
 
     return urlBase;
