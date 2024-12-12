@@ -101,7 +101,8 @@ class MapContainer extends React.Component {
                 position={
                   {lat: detour.geometry.location.lat, 
                   lng: detour.geometry.location.lng}}
-                icon={icon}>
+                //icon={icon}>
+                color="#3349FF">
               </Marker>)
           })
       }
@@ -125,7 +126,8 @@ class MapContainer extends React.Component {
               position={
                 {lat: detour.lat, 
                 lng: detour.lng}}
-              icon={icon}>
+              //icon={icon}>
+              color="#3349FF">
             </Marker>)
         })
       }

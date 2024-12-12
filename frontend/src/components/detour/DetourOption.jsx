@@ -10,7 +10,7 @@ class DetourOption extends React.Component {
         this.addDetour = this.addDetour.bind(this);
         this.highlight = this.highlight.bind(this);
     }
-
+;
     highlight(){
         var newDetourHighlight = [];
             this.props.detourHighlight.forEach(detour => {
@@ -75,7 +75,7 @@ class DetourOption extends React.Component {
 
     render(){
         return(
-            <li onMouseEnter={this.highlight} className="list-group-item list-group-hover" key={this.props.id.toString()}>
+            <li onMouseEnter={this.highlight} className="list-group-item list-group-hover" key={this.props.id}>
                 <div className="row">
                     <div className="col">
                         <h5>{this.props.name}</h5>

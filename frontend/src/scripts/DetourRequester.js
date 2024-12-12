@@ -49,7 +49,7 @@ export default class DetourRequester {
 
     switch (config.NODE_ENV) {
       case "development":
-        urlBase = "http://localhost:8080";
+        urlBase = "http://localhost:3000";
         break;
       case "production":
         urlBase = "https://jauntdetour-backend.azurewebsites.net";
