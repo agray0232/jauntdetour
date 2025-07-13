@@ -20,9 +20,8 @@
     "react-scripts": "3.2.0",
     "redux": "^4.2.1",
     "typescript": "^5.1.6"
-  },
-  "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
+  },  "scripts": {
+    "start": "PORT=3001 react-scripts --openssl-legacy-provider start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

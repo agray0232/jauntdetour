@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Backend",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/backend/index.js",
+            "env": {
+                "NODE_ENV": "development",
+                "NODE_OPTIONS": "--openssl-legacy-provider"
+            },
+            "cwd": "${workspaceFolder}/backend",
+            "console": "integratedTerminal",
+            "restart": true,
+            "runtimeExecutable": "nodemon",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "name": "Debug Frontend",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/frontend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["start"],
+            "env": {
+                "NODE_ENV": "development",
+                "NODE_OPTIONS": "--openssl-legacy-provider"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        }
+    ]
+}

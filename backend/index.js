@@ -22,36 +22,37 @@ app.use(
     secret: "temporarySecretKey",
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 100000000 }
+    cookie: { maxAge: 100000000 },
     //store: sessionStorage
   })
 );
 //sessionStorage.sync();
 
-app.get("/test", function(req, res) {
+app.get("/test", function (req, res) {
   res.send({ message: "Hello" });
 });
 
-app.get("/route", function(req, res) {
+app.get("/route", function (req, res) {
   console.log(req.query);
   routeAPI
     .getRoute(req.query)
-    .then(data => {
+    .then((data) => {
       res.status(200).send(JSON.stringify(data));
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log("Error: " + error);
     });
 });
 
-app.get("/places", function(req, res) {
+app.get("/places", function (req, res) {
   console.log(req.query);
   placesAPI
     .getPlaces(req.query)
-    .then(data => {
+    .then((data) => {
+      console.log(data);
       res.status(200).send(JSON.stringify(data));
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log("Error: " + error);
     });
 });

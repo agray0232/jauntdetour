@@ -54,6 +54,63 @@ cd ../backend
 npm install
 ```
 
+## Development Setup (Recommended)
+
+For the best development experience, use the provided DevContainer or the convenience scripts:
+
+### Option 1: DevContainer (VS Code)
+1. Open the project in VS Code
+2. Install the "Dev Containers" extension
+3. Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+4. The container will automatically install all dependencies
+5. Use `Ctrl+Shift+P` → "Tasks: Run Task" → "Start Full Stack Development"
+
+### Option 2: Local Development with Scripts
+Install root-level dependencies first:
+```bash
+npm install
+```
+
+Then start both services:
+```bash
+npm run dev
+```
+
+This will start:
+- Backend on http://localhost:3000
+- Frontend on http://localhost:3001
+
+### Individual Services
+```bash
+# Backend only (with auto-restart)
+npm run backend:dev
+
+# Frontend only  
+npm run frontend:dev
+```
+
+## Original Manual Setup
+
+### Installing
+
+A step by step series of examples that tell you how to get a development env running
+
+Clone the repo
+
+```
+git clone https://github.com/agray0232/jauntdetour.git
+```
+
+Run npm install for both the frontend and backend
+
+```
+cd /<repo-root-dir>/frontend
+npm install
+
+cd ../backend
+npm install
+```
+
 To run in a development environment, follow the following steps
 
 Start the backend
@@ -68,7 +125,7 @@ cd ../frontend
 npm start
 ```
 
-View the running application in your browser of choice by going to `http:://localhost:8080`
+View the running application in your browser of choice by going to `http://localhost:3001` (frontend) or `http://localhost:3000` (backend API)
 
 ## Built With
 
