@@ -28,7 +28,7 @@
     }
   },
   // Install dependencies for both frontend and backend after container creation
-  "postCreateCommand": "npm install --prefix ./backend && npm install --prefix ./frontend && npm install",
+  //"postCreateCommand": "npm install --prefix ./backend && npm install --prefix ./frontend && npm install",
 
   // Configure VS Code extensions and settings
   "customizations": {
