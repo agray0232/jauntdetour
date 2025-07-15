@@ -2,13 +2,13 @@
   "name": "capstone-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
+  "main": "index.js",  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
-  "dependencies": {
+  "license": "ISC",  "dependencies": {
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
@@ -17,5 +17,8 @@
     "express-session": "^1.17.3",
     "https": "^1.0.0",
     "polyline-encoded": "0.0.9"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

@@ -19,21 +19,21 @@ const polylineEncoder = require("polyline-encoded");
  * @param input - Origin and destination input recieved from client
  */
 module.exports = {
-  getRoute: function(input) {
-    var promise = new Promise(function(resolve, reject) {
+  getRoute: function (input) {
+    var promise = new Promise(function (resolve, reject) {
       // Create the URL
       const url = createURL(input);
 
       // Send an axios GET request to the Google Directions api
       axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           // Decode and send the response
           var decodedData = decodePolylines(response.data);
           var finalData = createSummaryData(decodedData);
           resolve(finalData);
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(
             "ERROR: Unable to get response from the Google Directions API\n User input may be formatted incorrectly" +
               error.response
@@ -43,7 +43,7 @@ module.exports = {
     });
 
     return promise;
-  }
+  },
 };
 
 /**
@@ -95,7 +95,7 @@ function createURL(input) {
     formattedWaypoint = "&waypoints=place_id:";
 
     // For each waypoint in the list
-    input.waypoints.forEach(function(waypoint, index) {
+    input.waypoints.forEach(function (waypoint, index) {
       // If this is not the first waypoint in the list
       if (index !== 0) {
         // Add a | and place_id tag
@@ -121,18 +121,18 @@ function createURL(input) {
 function decodePolylines(data) {
   // Extract the routes
   var decodedData = {
-    routes: data.routes
+    routes: data.routes,
   };
 
   // For each route option that was returned
-  decodedData.routes.forEach(function(route) {
+  decodedData.routes.forEach(function (route) {
     // Create an empty array to contain the summary
     var routeSummary = [];
 
     // The route is made of many legs
-    route.legs.forEach(function(leg) {
+    route.legs.forEach(function (leg) {
       // Each leg has a series of small steps
-      leg.steps.forEach(function(step) {
+      leg.steps.forEach(function (step) {
         // Decode the encoded polyline point string
         step.polyline.decodedPoints = polylineEncoder.decode(
           step.polyline.points
@@ -155,7 +155,7 @@ function decodePolylines(data) {
  */
 function createSummaryData(data) {
   // For each route option that was returned
-  data.routes.forEach(function(route) {
+  data.routes.forEach(function (route) {
     // Create an empty array for all the coordinates
     var completeOverview = [];
     // Intialize distance and travel time
@@ -163,12 +163,12 @@ function createSummaryData(data) {
     var travelDistance = 0;
 
     // For each leg, add to the travel time and distance
-    route.legs.forEach(leg => {
+    route.legs.forEach((leg) => {
       travelTime += leg.duration.value;
       travelDistance += leg.distance.value;
       // For each step, add the points to the complete polyline
-      leg.steps.forEach(step => {
-        step.polyline.decodedPoints.forEach(point => {
+      leg.steps.forEach((step) => {
+        step.polyline.decodedPoints.forEach((point) => {
           completeOverview.push(point);
         });
       });
@@ -197,9 +197,9 @@ function createSummaryData(data) {
     route.summary = {
       time: {
         hours: hours,
-        min: min
+        min: min,
       },
-      distance: distance
+      distance: distance,
     };
     route.overview_polyline.complete_overview = completeOverview;
   });

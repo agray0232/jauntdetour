@@ -1,22 +1,66 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-	"name": "Node.js",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye"
+  "name": "Jauntdetour Full Stack",
+  // Use the Node.js image with additional tools
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+  // Forward ports for both frontend and backend
+  "forwardPorts": [3000, 3001, 8080],
+  "portsAttributes": {
+    "3000": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Frontend Dev Server",
+      "onAutoForward": "openBrowser"
+    },
+    "8080": {
+      "label": "Frontend Production",
+      "onAutoForward": "notify"
+    }
+  },
+  // Install dependencies for both frontend and backend after container creation
+  //"postCreateCommand": "npm install --prefix ./backend && npm install --prefix ./frontend && npm install",
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
+  // Configure VS Code extensions and settings
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-json",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-js-profile-flame"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "always"
+        },
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  // Set environment variables for development
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "NODE_OPTIONS": "--openssl-legacy-provider"
+  },
+  // Load .env file if it exists
+  //"onCreateCommand": "if [ -f .env ]; then echo 'Found .env file for environment variables'; else echo 'No .env file found - create one with GOOGLE_API_KEY=your_key_here'; fi",
 
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+  "remoteUser": "node",
+  "runArgs": ["--env-file", ".devcontainer/devcontainer.env"]
 }
