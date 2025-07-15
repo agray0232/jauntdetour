@@ -59,7 +59,7 @@
     "NODE_OPTIONS": "--openssl-legacy-provider"
   },
   // Load .env file if it exists
-  "onCreateCommand": "if [ -f .env ]; then echo 'Found .env file for environment variables'; else echo 'No .env file found - create one with GOOGLE_API_KEY=your_key_here'; fi",
+  //"onCreateCommand": "if [ -f .env ]; then echo 'Found .env file for environment variables'; else echo 'No .env file found - create one with GOOGLE_API_KEY=your_key_here'; fi",
 
   "remoteUser": "node",
   "runArgs": ["--env-file", ".devcontainer/devcontainer.env"]
