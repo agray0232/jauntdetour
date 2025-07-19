@@ -1,184 +1,274 @@
-import React from 'react';
-import { Map, Circle , Polyline, Marker, GoogleApiWrapper } from 'google-maps-react';
+import React, { useEffect, useRef } from "react";
+//import { Map, Circle , Polyline, Marker, GoogleApiWrapper } from 'google-maps-react';
+import {
+  AdvancedMarker,
+  APIProvider,
+  Map,
+  useMap,
+  useMapsLibrary,
+} from "@vis.gl/react-google-maps";
 
-class MapContainer extends React.Component {
-  
-  constructor(props) {
-    super(props);
+// Custom hook for map bounds adjustment - only on route change
+function useMapBounds(map, route) {
+  const mapsLibrary = useMapsLibrary("maps");
+  const lastRouteIdRef = useRef(null);
+  const hasSetBoundsRef = useRef(false);
 
-    this.state = {
-      mapStyle: {
-        position: 'relative',
-        width: '100%',
-        height: '100%'
+  useEffect(() => {
+    if (!map || !mapsLibrary || !route) return;
+
+    // Create a unique identifier for the route based on its bounds
+    const routeId = route.bounds
+      ? `${route.bounds.northeast.lat}-${route.bounds.northeast.lng}-${route.bounds.southwest.lat}-${route.bounds.southwest.lng}`
+      : null;
+
+    // Only fit bounds if this is a completely new route (route ID changed)
+    if (!routeId || lastRouteIdRef.current === routeId) return;
+
+    // Add a small delay to ensure the map is fully loaded
+    const timeoutId = setTimeout(() => {
+      const bounds = new window.google.maps.LatLngBounds();
+
+      if (route.bounds) {
+        const ne_lat = route.bounds.northeast.lat;
+        const ne_lng = route.bounds.northeast.lng;
+        const sw_lat = route.bounds.southwest.lat;
+        const sw_lng = route.bounds.southwest.lng;
+        bounds.extend(new window.google.maps.LatLng(ne_lat, ne_lng));
+        bounds.extend(new window.google.maps.LatLng(sw_lat, sw_lng));
+
+        map.fitBounds(bounds);
+        lastRouteIdRef.current = routeId;
+        hasSetBoundsRef.current = true;
       }
-    }
+    }, 100);
 
-    this.adjustMap = this.adjustMap.bind(this);
-  }
-
-  adjustMap(mapProps, map) {
-    
-    if(this.props.route.legth > 0){
-      // Could include "markers" below
-      const {google} = mapProps;
-      const bounds = new google.maps.LatLngBounds();
-    
-      const ne_lat = this.props.route.bounds.northeast.lat;
-      const ne_lng = this.props.route.bounds.northeast.lng;
-      const sw_lat = this.props.route.bounds.southwest.lat;
-      const sw_lng = this.props.route.bounds.southwest.lng;
-      bounds.extend(new google.maps.LatLng(ne_lat, ne_lng));
-      bounds.extend(new google.maps.LatLng(sw_lat, sw_lng));
-    
-      map.fitBounds(bounds);
-      // map.panToBounds(bounds);
-    }
-  }
-
-    render() {
-
-      // If a we are to show a route, go through the route's overview polyline and map it to lat lng points to be
-      // Ingested by the Map component
-      if(this.props.showRoute)
-      {
-        var routeCoordinates = this.props.route.overview_polyline.complete_overview.map(point =>
-          {
-            return {lat: point[0], lng: point[1]}
-          });
-      }
-
-      // If showDetourSearchPoint and showRoute are set, set the search point to be at a percentage of the route
-      // as determined by the detourSearchLocation property
-      if(this.props.showDetourSearchPoint && this.props.showRoute)
-      {
-        var detourPoint = {};
-        
-        var routeLength = routeCoordinates.length;
-        var routeIndex = Math.floor(this.props.detourSearchLocation/100 * routeLength) - 1;
-        detourPoint = routeCoordinates[routeIndex];
-      }
-
-      // Initiaze this boolean to false
-      var showDetourOptions = false;
-
-      // If the detourOptions property has elements, map each one to a google maps Marker
-      if(this.props.detourOptions.length > 0){
-        showDetourOptions = true;
-        var detourOptions = this.props.detourOptions.map(detour =>
-          {
-            // Initialize a highlight boolean as false
-            var highlight = false;
-             // Go through the detourHighlight array. When the detour in the array matches the current detour,
-             // Set the highlight property as the value in the array
-            this.props.detourHighlight.forEach(detourHighlight => {
-              if(detourHighlight.id === detour.id){
-                //console.log("setting highlight as " + detourHighlight);
-                highlight = detourHighlight.highlight;
-              }
-            })
-            
-            // Initialize the icon object
-            var icon = {};
-
-            // Set the icon values according to if the icon should be highlighted or not
-            if(highlight){
-              icon = {
-                url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|FF0000|40|_|%E2%80%A2', // url
-                scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
-              };
-            }
-            else{
-              icon = {
-                url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|0091ff|40|_|%E2%80%A2', // url
-                scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
-              };
-            }
-            
-            // Return a google maps Marker
-            return (
-              <Marker
-                position={
-                  {lat: detour.geometry.location.lat, 
-                  lng: detour.geometry.location.lng}}
-                //icon={icon}>
-                color="#3349FF">
-              </Marker>)
-          })
-      }
-
-      // Initialize showDetourList to false
-      var showDetours = false;
-
-      if(this.props.detourList.length > 0){
-        showDetours = true;
-        // Map the detours to markers
-        var detours = this.props.detourList.map(detour => {
-          // Set the icon as the non highlighted detour option icon
-          var icon = {
-            url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|0091ff|40|_|%E2%80%A2', // url
-            scaledSize: new this.props.google.maps.Size(20, 30), // scaled size
-          };
-
-          // Return a google maps Marker
-          return (
-            <Marker
-              position={
-                {lat: detour.lat, 
-                lng: detour.lng}}
-              //icon={icon}>
-              color="#3349FF">
-            </Marker>)
-        })
-      }
-
-      return (
-          <Map
-            google={this.props.google}
-            zoom={9}
-            style={this.state.mapStyle}
-            initialCenter={{ lat: 33.749, lng: -84.388}}
-            onReady={this.adjustMap}
-          >
-            {this.props.showRoute ? (
-              <Polyline
-                    defaultPosition={this.props.center}
-                    path= {routeCoordinates}
-                    geodesic= {true}
-                    strokeColor= {"#007bff"}
-                    strokeOpacity= {1.0}
-                    strokeWeight= {5}
-                />
-            ): (<div></div>)}
-            {this.props.showDetourSearchPoint ? (
-              <Marker
-                    position={detourPoint}
-                    color="#3349FF"
-                />
-            ): (<div></div>)}
-            {this.props.showDetourSearchPoint ? (
-              <Circle
-              radius={parseFloat(this.props.detourSearchRadius)}
-              center={detourPoint}
-              strokeColor='transparent'
-              strokeOpacity={0}
-              strokeWeight={5}
-              fillColor='#FF0000'
-              fillOpacity={0.2}
-            />
-            ): (<div></div>)}
-            {showDetourOptions ? (
-              detourOptions
-            ): (<div></div>)}
-            {showDetours ? (
-              detours
-            ): (<div></div>)}
-            
-          </Map>
-      );
-    }
+    return () => clearTimeout(timeoutId);
+  }, [map, mapsLibrary, route]);
 }
 
-export default GoogleApiWrapper({
-    apiKey: 'AIzaSyArWVAF5NWcXq8RenpdK2vtTZNSX3zaKG4'
-  })(MapContainer);
+// Map bounds component that uses the map context
+function MapBounds({ route }) {
+  const map = useMap();
+  useMapBounds(map, route);
+  return null;
+}
+
+// Polyline component
+function RoutePolyline({ route, showRoute }) {
+  const map = useMap();
+  const mapsLibrary = useMapsLibrary("maps");
+  const polylineRef = useRef(null);
+
+  useEffect(() => {
+    if (
+      !map ||
+      !mapsLibrary ||
+      !showRoute ||
+      !route?.overview_polyline?.complete_overview
+    )
+      return;
+
+    // Clean up existing polyline
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null);
+    }
+
+    const routeCoordinates = route.overview_polyline.complete_overview.map(
+      (point) => ({
+        lat: point[0],
+        lng: point[1],
+      })
+    );
+
+    polylineRef.current = new window.google.maps.Polyline({
+      path: routeCoordinates,
+      geodesic: true,
+      strokeColor: "#007bff",
+      strokeOpacity: 1.0,
+      strokeWeight: 5,
+    });
+
+    polylineRef.current.setMap(map);
+
+    return () => {
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null);
+      }
+    };
+  }, [map, mapsLibrary, showRoute, route]);
+
+  return null;
+}
+
+// Circle component
+function DetourCircle({
+  detourPoint,
+  detourSearchRadius,
+  showDetourSearchPoint,
+}) {
+  const map = useMap();
+  const mapsLibrary = useMapsLibrary("maps");
+  const circleRef = useRef(null);
+
+  useEffect(() => {
+    if (!map || !mapsLibrary || !showDetourSearchPoint || !detourPoint) return;
+
+    // Clean up existing circle
+    if (circleRef.current) {
+      circleRef.current.setMap(null);
+    }
+
+    circleRef.current = new window.google.maps.Circle({
+      center: detourPoint,
+      radius: parseFloat(detourSearchRadius),
+      strokeColor: "transparent",
+      strokeOpacity: 0,
+      strokeWeight: 5,
+      fillColor: "#FF0000",
+      fillOpacity: 0.2,
+    });
+
+    circleRef.current.setMap(map);
+
+    return () => {
+      if (circleRef.current) {
+        circleRef.current.setMap(null);
+      }
+    };
+  }, [
+    map,
+    mapsLibrary,
+    showDetourSearchPoint,
+    detourPoint,
+    detourSearchRadius,
+  ]);
+
+  return null;
+}
+
+// Main MapContainer component - TEST CHANGE
+function MapContainer(props) {
+  const mapRef = useRef(null);
+
+  // Calculate route coordinates
+  const routeCoordinates =
+    props.showRoute && props.route?.overview_polyline?.complete_overview
+      ? props.route.overview_polyline.complete_overview.map((point) => ({
+          lat: point[0],
+          lng: point[1],
+        }))
+      : [];
+
+  // Calculate detour point
+  const detourPoint = (() => {
+    if (
+      props.showDetourSearchPoint &&
+      props.showRoute &&
+      routeCoordinates.length > 0
+    ) {
+      const routeLength = routeCoordinates.length;
+      const routeIndex =
+        Math.floor((props.detourSearchLocation / 100) * routeLength) - 1;
+      return routeCoordinates[routeIndex];
+    }
+    return null;
+  })();
+
+  // Use the custom hook for bounds adjustment
+  // useMapBounds(mapRef.current, props.route); // Moved inside Map component
+
+  return (
+    <APIProvider apiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
+      <Map
+        ref={mapRef}
+        defaultZoom={9}
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+        defaultCenter={{ lat: 33.749, lng: -84.388 }}
+        mapId="DEMO_MAP_ID"
+      >
+        {/* Map bounds adjustment - only fits bounds on new route */}
+        <MapBounds route={props.route} />
+
+        {/* Route polyline */}
+        <RoutePolyline route={props.route} showRoute={props.showRoute} />
+
+        {/* Detour search point marker */}
+        {props.showDetourSearchPoint && detourPoint && (
+          <AdvancedMarker position={detourPoint}>
+            <div
+              style={{
+                width: 20,
+                height: 20,
+                backgroundColor: "#3349FF",
+                borderRadius: "50%",
+                border: "2px solid white",
+              }}
+            />
+          </AdvancedMarker>
+        )}
+
+        {/* Detour search circle */}
+        <DetourCircle
+          detourPoint={detourPoint}
+          detourSearchRadius={props.detourSearchRadius}
+          showDetourSearchPoint={props.showDetourSearchPoint}
+        />
+
+        {/* Detour options markers */}
+        {props.detourOptions?.length > 0 &&
+          props.detourOptions.map((detour, index) => {
+            // Check if this detour should be highlighted
+            const highlight = props.detourHighlight?.some(
+              (detourHighlight) =>
+                detourHighlight.id === detour.id && detourHighlight.highlight
+            );
+
+            return (
+              <AdvancedMarker
+                key={`detour-option-${index}`}
+                position={{
+                  lat: detour.geometry.location.lat,
+                  lng: detour.geometry.location.lng,
+                }}
+              >
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    backgroundColor: highlight ? "#FF0000" : "#0091ff",
+                    borderRadius: "50%",
+                    border: "2px solid white",
+                  }}
+                />
+              </AdvancedMarker>
+            );
+          })}
+
+        {/* Detour list markers */}
+        {props.detourList?.length > 0 &&
+          props.detourList.map((detour, index) => (
+            <AdvancedMarker
+              key={`detour-${index}`}
+              position={{ lat: detour.lat, lng: detour.lng }}
+            >
+              <div
+                style={{
+                  width: 20,
+                  height: 20,
+                  backgroundColor: "#0091ff",
+                  borderRadius: "50%",
+                  border: "2px solid white",
+                }}
+              />
+            </AdvancedMarker>
+          ))}
+      </Map>
+    </APIProvider>
+  );
+}
+
+export default MapContainer;
