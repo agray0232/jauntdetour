@@ -7,6 +7,7 @@ import {
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
+import config from "../config/config.js";
 
 // Custom hook for map bounds adjustment - only on route change
 function useMapBounds(map, route) {
@@ -179,7 +180,7 @@ function MapContainer(props) {
   // useMapBounds(mapRef.current, props.route); // Moved inside Map component
 
   return (
-    <APIProvider apiKey={process.env.REACT_APP_GOOGLE_API_KEY}>
+    <APIProvider apiKey={config.GOOGLE_API_KEY}>
       <Map
         ref={mapRef}
         defaultZoom={9}
