@@ -89,13 +89,19 @@ function createURL(input) {
   // Add waypoints to the request
   var formattedWaypoint = "";
 
+  // Check for waypoints (body-parser 2.x creates waypoints[] from array notation)
+  var waypoints = input["waypoints[]"];
+
   // If there are way points
-  if (input["waypoints"]) {
+  if (waypoints) {
     // Create the base waypoint tag
     formattedWaypoint = "&waypoints=place_id:";
 
+    // Handle single waypoint (string) or multiple waypoints (array)
+    var waypointArray = Array.isArray(waypoints) ? waypoints : [waypoints];
+
     // For each waypoint in the list
-    input.waypoints.forEach(function (waypoint, index) {
+    waypointArray.forEach(function (waypoint, index) {
       // If this is not the first waypoint in the list
       if (index !== 0) {
         // Add a | and place_id tag

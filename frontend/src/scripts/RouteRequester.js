@@ -8,20 +8,20 @@ export default class RouteRequester {
     // Get the request URL
     var requestURL = this.getUrlBase() + "/route";
 
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise(function (resolve, reject) {
       // Send an axios GET request to the server
       axios
         .get(requestURL, {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          params: parameters
+          params: parameters,
         })
-        .then(response => {
+        .then((response) => {
           // Decode and send the response
           resolve(response.data);
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(
             "ERROR: Unable to get response from the server\n User input may be formatted incorrectly" +
               error.response
@@ -52,7 +52,7 @@ export default class RouteRequester {
         parameters = {
           type: "Address",
           origin: origin,
-          destination: destination
+          destination: destination,
         };
         if (opts["waypoints"]) {
           parameters.waypoints = opts.waypoints;
