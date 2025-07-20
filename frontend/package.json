@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "axios": "^1.10.0",
-    "@vis.gl/react-google-maps": "^1.5.4",
-    "jquery": "^3.7.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-redux": "^9.2.0",
+    "@fortawesome/free-solid-svg-icons": "6.7.2",
+    "@fortawesome/react-fontawesome": "0.2.2",
+    "axios": "1.10.0",
+    "@vis.gl/react-google-maps": "1.5.4",
+    "jquery": "3.7.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-redux": "9.2.0",
     "react-scripts": "5.0.1",
-    "redux": "^5.0.1"
+    "redux": "5.0.1"
   },
   "scripts": {
     "start": "PORT=3001 react-scripts --openssl-legacy-provider start",
