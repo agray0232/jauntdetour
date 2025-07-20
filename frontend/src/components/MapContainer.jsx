@@ -8,68 +8,8 @@ import {
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
-import { icon } from "@fortawesome/fontawesome-svg-core";
-import {
-  faMapMarkerAlt,
-  faHiking,
-  faCoffee,
-  faLandmark,
-  faMonument,
-  faUtensils,
-  faGlassMartiniAlt,
-  faGasPump,
-  faChargingStation,
-} from "@fortawesome/free-solid-svg-icons";
+import { getDetourIconElement } from "../utils/detourIcons.js";
 import config from "../config/config.js";
-
-// Utility function to create FontAwesome-based custom marker element
-function getDetourGlyph(type) {
-  const normalizedType = type?.toLowerCase();
-  let iconDefinition;
-
-  switch (normalizedType) {
-    case "hike":
-      iconDefinition = faHiking;
-      break;
-    case "coffee":
-      iconDefinition = faCoffee;
-      break;
-    case "museum":
-      iconDefinition = faLandmark;
-      break;
-    case "landmark":
-      iconDefinition = faMonument;
-      break;
-    case "restaurant":
-      iconDefinition = faUtensils;
-      break;
-    case "bar":
-      iconDefinition = faGlassMartiniAlt;
-      break;
-    case "gas station":
-      iconDefinition = faGasPump;
-      break;
-    case "charging station":
-      iconDefinition = faChargingStation;
-      break;
-    default:
-      iconDefinition = faMapMarkerAlt;
-  }
-
-  // Generate the SVG using FontAwesome's icon function
-  const faIcon = icon(iconDefinition);
-
-  // Create a custom marker element with the FontAwesome SVG
-  const markerElement = document.createElement("div");
-  markerElement.innerHTML = faIcon.html[0];
-  markerElement.style.color = "inherit";
-  markerElement.style.fontSize = "12px";
-  markerElement.style.display = "flex";
-  markerElement.style.justifyContent = "center";
-  markerElement.style.alignItems = "center";
-
-  return markerElement;
-}
 
 // Custom hook for map bounds adjustment - only on route change
 function useMapBounds(map, route) {
@@ -296,7 +236,7 @@ function MapContainer(props) {
                   background={highlight ? "#EA4335" : "#2a91e0ff"}
                   glyphColor={highlight ? "#B31412" : "#0964a9ff"}
                   borderColor={highlight ? "#B31412" : "#0964a9ff"}
-                  glyph={getDetourGlyph(detour.type)}
+                  glyph={getDetourIconElement(detour.type)}
                 />
               </AdvancedMarker>
             );
@@ -314,7 +254,7 @@ function MapContainer(props) {
                 background="#0091ff"
                 glyphColor="#ffffff"
                 borderColor="#ffffff"
-                glyph={getDetourGlyph(detour.type)}
+                glyph={getDetourIconElement(detour.type)}
               />
             </AdvancedMarker>
           ))}
