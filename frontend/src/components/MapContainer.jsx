@@ -4,6 +4,7 @@ import {
   AdvancedMarker,
   APIProvider,
   Map,
+  Pin,
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
@@ -200,15 +201,7 @@ function MapContainer(props) {
         {/* Detour search point marker */}
         {props.showDetourSearchPoint && detourPoint && (
           <AdvancedMarker position={detourPoint}>
-            <div
-              style={{
-                width: 20,
-                height: 20,
-                backgroundColor: "#3349FF",
-                borderRadius: "50%",
-                border: "2px solid white",
-              }}
-            />
+            <Pin scale={0.75} />
           </AdvancedMarker>
         )}
 
@@ -225,7 +218,8 @@ function MapContainer(props) {
             // Check if this detour should be highlighted
             const highlight = props.detourHighlight?.some(
               (detourHighlight) =>
-                detourHighlight.id === detour.id && detourHighlight.highlight
+                detourHighlight.id === detour.place_id &&
+                detourHighlight.highlight
             );
 
             return (
@@ -236,14 +230,11 @@ function MapContainer(props) {
                   lng: detour.geometry.location.lng,
                 }}
               >
-                <div
-                  style={{
-                    width: 20,
-                    height: 20,
-                    backgroundColor: highlight ? "#FF0000" : "#0091ff",
-                    borderRadius: "50%",
-                    border: "2px solid white",
-                  }}
+                <Pin
+                  scale={0.75}
+                  background={highlight ? "#EA4335" : "#2a91e0ff"}
+                  glyphColor={highlight ? "#B31412" : "#0964a9ff"}
+                  borderColor={highlight ? "#B31412" : "#0964a9ff"}
                 />
               </AdvancedMarker>
             );
@@ -256,14 +247,11 @@ function MapContainer(props) {
               key={`detour-${index}`}
               position={{ lat: detour.lat, lng: detour.lng }}
             >
-              <div
-                style={{
-                  width: 20,
-                  height: 20,
-                  backgroundColor: "#0091ff",
-                  borderRadius: "50%",
-                  border: "2px solid white",
-                }}
+              <Pin
+                scale={0.75}
+                background="#0091ff"
+                glyphColor="#ffffff"
+                borderColor="#ffffff"
               />
             </AdvancedMarker>
           ))}
