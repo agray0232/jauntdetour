@@ -178,9 +178,6 @@ function MapContainer(props) {
     return null;
   })();
 
-  // Use the custom hook for bounds adjustment
-  // useMapBounds(mapRef.current, props.route); // Moved inside Map component
-
   return (
     <APIProvider apiKey={config.GOOGLE_API_KEY}>
       <Map
