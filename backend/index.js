@@ -23,10 +23,8 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 100000000 },
-    //store: sessionStorage
   })
 );
-//sessionStorage.sync();
 
 app.get("/test", function (req, res) {
   res.send({ message: "Hello" });
