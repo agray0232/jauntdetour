@@ -171,6 +171,17 @@
   float: left;
 }
 
+.export-route-btn {
+  width: 100%;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+}
+
+.export-route-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .detour-edit-options {
   height: 40px;
 }
