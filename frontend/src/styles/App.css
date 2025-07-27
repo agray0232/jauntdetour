@@ -179,7 +179,7 @@
   background-color: transparent;
   color: #007484;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: 1.5rem;
   transition: background-color 0.15s ease-in-out;
 }
 
@@ -194,6 +194,18 @@
   cursor: not-allowed;
   background-color: transparent;
   color: #6c757d;
+}
+
+/* Apply rounded pill-like styling to all buttons */
+.btn {
+  border-radius: 1.5rem !important;
+}
+
+/* Make all buttons except add-detour-btn match the add-detour-btn size */
+.btn:not(.add-detour-btn) {
+  height: 40px !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
 }
 
 .detour-edit-options {
