@@ -24,7 +24,7 @@ class TripSummary extends React.Component {
           <div className="trip-summary">
             <div className="container">
               <div className="row">
-                <div className="col">
+                <div className="col-6">
                   <p className="distance-summary">
                     Distance: {this.props.tripSummary.distance} mi
                   </p>
@@ -33,7 +33,7 @@ class TripSummary extends React.Component {
                     {this.props.tripSummary.time.min} min
                   </p>
                 </div>
-                <div className="col-5">
+                <div className="col-6">
                   <Button
                     disabledCriteria={!this.props.showDetourButton}
                     onClick={this.props.getDetourForm}
@@ -41,19 +41,14 @@ class TripSummary extends React.Component {
                     id="add-detour-button"
                     text="+ Add Detour"
                   ></Button>
-                </div>
-              </div>
-              {/* Export Route Button Row */}
-              <div className="row mt-2">
-                <div className="col">
                   <Button
                     disabledCriteria={
                       !this.props.origin || !this.props.destination
                     }
                     onClick={this.handleExportRoute}
-                    className="btn btn-outline-primary export-route-btn"
+                    className="btn export-route-btn mt-2"
                     id="export-route-button"
-                    text="Export to Google Maps"
+                    text="Open in Google Maps"
                   ></Button>
                 </div>
               </div>
