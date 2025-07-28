@@ -202,7 +202,7 @@
 }
 
 /* Make all buttons except add-detour-btn match the add-detour-btn size */
-.btn:not(.add-detour-btn) {
+.btn:not(.add-detour-btn, .detour-arrow-btn, .detour-option-btn) {
   height: 40px !important;
   padding: 0.5rem 1rem !important;
   font-size: 0.875rem !important;
