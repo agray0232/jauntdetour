@@ -84,9 +84,21 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          
+          # Check if there are changes to commit
+          if git diff --quiet backend/package.json; then
+            echo "No version changes to commit"
+            exit 0
+          fi
+          
           git add backend/package.json
-          git commit -m "chore(backend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]" || echo "No changes to commit"
-          git push || echo "Push failed, continuing anyway"
+          git commit -m "chore(backend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
+          
+          # Push changes with proper error handling
+          if ! git push; then
+            echo "Failed to push version bump commit"
+            exit 1
+          fi
 
   version-frontend:
     needs: detect-changes
@@ -135,14 +147,26 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          
+          # Check if there are changes to commit
+          if git diff --quiet frontend/package.json; then
+            echo "No version changes to commit"
+            exit 0
+          fi
+          
           git add frontend/package.json
-          git commit -m "chore(frontend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]" || echo "No changes to commit"
-          git push || echo "Push failed, continuing anyway"
+          git commit -m "chore(frontend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
+          
+          # Push changes with proper error handling
+          if ! git push; then
+            echo "Failed to push version bump commit"
+            exit 1
+          fi
 
   build-backend:
     needs: [detect-changes, version-backend]
     if: |
-      always() && 
+      !cancelled() && 
       needs.detect-changes.outputs.backend == 'true' &&
       (needs.version-backend.result == 'success' || github.event_name == 'pull_request')
     runs-on: ubuntu-latest
@@ -174,8 +198,8 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=semver,pattern={{version}},value=${{ needs.version-backend.outputs.new_version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-backend.outputs.new_version }}
+            type=semver,pattern={{version}},value=${{ needs.version-backend.outputs.new_version }},enable=${{ needs.version-backend.outputs.new_version != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-backend.outputs.new_version }},enable=${{ needs.version-backend.outputs.new_version != '' }}
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
@@ -192,7 +216,7 @@ jobs:
   build-frontend:
     needs: [detect-changes, version-frontend]
     if: |
-      always() && 
+      !cancelled() && 
       needs.detect-changes.outputs.frontend == 'true' &&
       (needs.version-frontend.result == 'success' || github.event_name == 'pull_request')
     runs-on: ubuntu-latest
@@ -224,8 +248,8 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=semver,pattern={{version}},value=${{ needs.version-frontend.outputs.new_version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-frontend.outputs.new_version }}
+            type=semver,pattern={{version}},value=${{ needs.version-frontend.outputs.new_version }},enable=${{ needs.version-frontend.outputs.new_version != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-frontend.outputs.new_version }},enable=${{ needs.version-frontend.outputs.new_version != '' }}
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
