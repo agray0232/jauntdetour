@@ -135,35 +135,64 @@ If using Docker Compose on a server:
 
 ### Azure Container Registry Authentication
 
-The pipeline requires authentication to push Docker images to Azure Container Registry. You need to add the following secrets:
+The pipeline uses Azure Login action with OpenID Connect (OIDC) for secure, passwordless authentication to Azure Container Registry. This is the recommended approach by Microsoft.
 
-1. **ACR_USERNAME** - Azure Container Registry username (service principal ID or admin username)
-2. **ACR_PASSWORD** - Azure Container Registry password (service principal password or admin password)
+#### Required GitHub Secrets
 
-#### Setting up Azure Service Principal (Recommended)
+You need to add the following secrets to your GitHub repository:
 
-1. Create a service principal with access to your Azure Container Registry:
+1. **AZURE_CLIENT_ID** - The application (client) ID of the app registration in Azure
+2. **AZURE_TENANT_ID** - The tenant ID of your Azure Active Directory
+3. **AZURE_SUBSCRIPTION_ID** - The subscription ID containing your Azure Container Registry
+
+#### Setup Steps
+
+1. **Create an Azure AD Application and Service Principal:**
+
 ```bash
 az ad sp create-for-rbac --name "github-actions-jauntdetour" \
   --role acrpush \
-  --scopes /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.ContainerRegistry/registries/jauntdetouracr
+  --scopes /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.ContainerRegistry/registries/jauntdetouracr \
+  --sdk-auth
 ```
 
-2. The command will output credentials. Add them to GitHub secrets:
-   - `ACR_USERNAME` = `appId` from the output
-   - `ACR_PASSWORD` = `password` from the output
+Note the output values for later use.
 
-#### Alternative: Using Admin Credentials
+2. **Configure Federated Credentials for GitHub Actions:**
 
-1. Enable admin user in Azure Portal:
-   - Go to your Container Registry → Access keys
-   - Enable Admin user
-   
-2. Add the credentials to GitHub secrets:
-   - `ACR_USERNAME` = Admin username shown in portal
-   - `ACR_PASSWORD` = One of the admin passwords shown in portal
+```bash
+az ad app federated-credential create \
+  --id <application-id> \
+  --parameters '{
+    "name": "github-actions-jauntdetour",
+    "issuer": "https://token.actions.githubusercontent.com",
+    "subject": "repo:<your-github-username>/jauntdetour:ref:refs/heads/main",
+    "audiences": ["api://AzureADTokenExchange"]
+  }'
+```
 
-**Note**: Service principal is the recommended approach for production as it provides better security and access control.
+3. **Add Secrets to GitHub Repository:**
+
+Go to **Settings → Secrets and variables → Actions → New repository secret** and add:
+- `AZURE_CLIENT_ID` - The `appId` from step 1
+- `AZURE_TENANT_ID` - The `tenant` from step 1
+- `AZURE_SUBSCRIPTION_ID` - Your Azure subscription ID
+
+4. **Grant the Service Principal access to ACR (if not already done in step 1):**
+
+```bash
+az role assignment create \
+  --assignee <application-id> \
+  --role acrpush \
+  --scope /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.ContainerRegistry/registries/jauntdetouracr
+```
+
+#### Why OpenID Connect?
+
+- **More Secure**: No secrets stored in GitHub, uses short-lived tokens
+- **Recommended by Microsoft**: As per [Azure documentation](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure)
+- **Better Access Control**: Fine-grained control over which repositories can access Azure resources
+- **No Password Rotation**: Eliminates the need to rotate service principal passwords
 
 ### Deployment Secrets
 
