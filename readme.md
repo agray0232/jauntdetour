@@ -137,7 +137,18 @@ View the running application in your browser of choice by going to `http://local
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/agray0232/jauntdetour/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/agray0232/jauntdetour/tags).
+
+## CI/CD
+
+This project uses GitHub Actions for continuous integration and deployment. The pipeline automatically:
+- Detects changes in backend and frontend directories
+- Builds Docker containers (`jauntdetour-backend` and `jauntdetour-frontend`)
+- Automatically bumps versions (patch by default, configurable via commit messages)
+- Pushes images to GitHub Container Registry
+- Deploys to production
+
+For detailed information about the CI/CD pipeline, version management, and deployment options, see [CI-CD.md](CI-CD.md). 
 
 ## Authors
 
