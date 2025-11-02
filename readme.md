@@ -145,7 +145,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 - Detects changes in backend and frontend directories
 - Builds Docker containers (`jauntdetour-backend` and `jauntdetour-frontend`)
 - Automatically bumps versions (patch by default, configurable via commit messages)
-- Pushes images to GitHub Container Registry
+- Pushes images to Azure Container Registry
 - Deploys to production
 
 For detailed information about the CI/CD pipeline, version management, and deployment options, see [CI-CD.md](CI-CD.md). 

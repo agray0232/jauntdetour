@@ -12,7 +12,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 - Reduces unnecessary builds and deployment time
 
 ### Version Management
-- **Automatic version bumping** on every push to main/master
+- **Automatic version bumping** on every push to main
 - **Default behavior**: Patch version bump (x.x.1)
 - **Custom version bumps** via commit message keywords:
   - `[major]` or `BREAKING` → Major version bump (1.x.x)
@@ -33,12 +33,12 @@ git commit -m "BREAKING: remove deprecated endpoints"
 ```
 
 ### Docker Container Registry
-- Images are pushed to GitHub Container Registry (ghcr.io)
-- **Backend image**: `ghcr.io/<owner>/jauntdetour-backend`
-- **Frontend image**: `ghcr.io/<owner>/jauntdetour-frontend`
+- Images are pushed to Azure Container Registry (jauntdetouracr.azurecr.io)
+- **Backend image**: `jauntdetouracr.azurecr.io/jauntdetour-backend`
+- **Frontend image**: `jauntdetouracr.azurecr.io/jauntdetour-frontend`
 
 #### Image Tags:
-- `latest` - Latest version from main/master branch
+- `latest` - Latest version from main branch
 - `<version>` - Specific version (e.g., `1.0.1`)
 - `<major>.<minor>` - Major.minor version (e.g., `1.0`)
 - `<branch>-<sha>` - Branch name with commit SHA
@@ -51,7 +51,7 @@ git commit -m "BREAKING: remove deprecated endpoints"
 - Does NOT deploy
 
 ### Deployment
-- Runs only on pushes to main/master branch
+- Runs only on pushes to main branch
 - Deploys after successful build
 - Currently configured as placeholder (see Deployment Setup below)
 
@@ -67,7 +67,7 @@ Determines which parts of the application have changed to optimize the build pro
 
 ### 3. build-backend / build-frontend
 - Builds Docker images using the Dockerfiles in respective directories
-- Pushes images to GitHub Container Registry (on push to main/master)
+- Pushes images to Azure Container Registry (on push to main)
 - Uses build caching for faster builds
 
 ### 4. deploy-backend / deploy-frontend
@@ -102,12 +102,13 @@ Example deployment script:
     # Deploy
     ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
       $DEPLOY_USER@$DEPLOY_HOST \
-      "docker pull ghcr.io/${{ github.repository_owner }}/jauntdetour-backend:latest && \
+      "docker login jauntdetouracr.azurecr.io -u \$ACR_USERNAME -p \$ACR_PASSWORD && \
+       docker pull jauntdetouracr.azurecr.io/jauntdetour-backend:latest && \
        docker stop jauntdetour-backend || true && \
        docker rm jauntdetour-backend || true && \
        docker run -d --name jauntdetour-backend \
          -p 3000:3000 \
-         ghcr.io/${{ github.repository_owner }}/jauntdetour-backend:latest"
+         jauntdetouracr.azurecr.io/jauntdetour-backend:latest"
 ```
 
 ### Option 2: Deploy to Cloud Platform
@@ -132,9 +133,41 @@ If using Docker Compose on a server:
 
 ## Required GitHub Secrets
 
-The pipeline currently requires minimal secrets as it uses GitHub's built-in token for pushing to GitHub Container Registry.
+### Azure Container Registry Authentication
 
-For deployment, you'll need to add:
+The pipeline requires authentication to push Docker images to Azure Container Registry. You need to add the following secrets:
+
+1. **ACR_USERNAME** - Azure Container Registry username (service principal ID or admin username)
+2. **ACR_PASSWORD** - Azure Container Registry password (service principal password or admin password)
+
+#### Setting up Azure Service Principal (Recommended)
+
+1. Create a service principal with access to your Azure Container Registry:
+```bash
+az ad sp create-for-rbac --name "github-actions-jauntdetour" \
+  --role acrpush \
+  --scopes /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.ContainerRegistry/registries/jauntdetouracr
+```
+
+2. The command will output credentials. Add them to GitHub secrets:
+   - `ACR_USERNAME` = `appId` from the output
+   - `ACR_PASSWORD` = `password` from the output
+
+#### Alternative: Using Admin Credentials
+
+1. Enable admin user in Azure Portal:
+   - Go to your Container Registry → Access keys
+   - Enable Admin user
+   
+2. Add the credentials to GitHub secrets:
+   - `ACR_USERNAME` = Admin username shown in portal
+   - `ACR_PASSWORD` = One of the admin passwords shown in portal
+
+**Note**: Service principal is the recommended approach for production as it provides better security and access control.
+
+### Deployment Secrets
+
+For deployment, you may also need to add:
 - Server credentials (SSH keys, API tokens, etc.)
 - Environment variables for your application
 - Any API keys or secrets needed by your application
@@ -154,7 +187,7 @@ You can also trigger the workflow manually:
 - View workflow runs in the **Actions** tab
 - Each job shows detailed logs
 - Failed jobs will send notifications (if configured)
-- Check the **Packages** tab to see published container images
+- Check Azure Portal to see published container images in your Container Registry
 
 ## Troubleshooting
 
