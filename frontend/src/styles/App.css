@@ -171,6 +171,43 @@
   float: left;
 }
 
+.export-route-btn {
+  width: 100%;
+  font-size: 0.8rem;
+  padding: 0.4rem;
+  text-align: center;
+  background-color: transparent;
+  color: #007484;
+  border: none;
+  border-radius: 1.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.export-route-btn:hover {
+  background-color: #ebf5f6;
+  color: #007484;
+  text-decoration: none;
+}
+
+.export-route-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: transparent;
+  color: #6c757d;
+}
+
+/* Apply rounded pill-like styling to all buttons */
+.btn {
+  border-radius: 1.5rem !important;
+}
+
+/* Make all buttons except add-detour-btn match the add-detour-btn size */
+.btn:not(.add-detour-btn, .detour-arrow-btn, .detour-option-btn) {
+  height: 40px !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+}
+
 .detour-edit-options {
   height: 40px;
 }
