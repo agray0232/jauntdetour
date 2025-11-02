@@ -16,10 +16,6 @@ COPY .env.production ./
 
 COPY . .
 
-# Debug: Show what env files exist and their contents
-RUN ls -la .env* || echo "No .env files found"
-RUN cat .env.production || echo ".env.production not found"
-
 RUN npm run build
 
 EXPOSE 3000
