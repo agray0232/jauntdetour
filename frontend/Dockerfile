@@ -1,5 +1,7 @@
 FROM node:lts-alpine
 
+ARG REACT_APP_GOOGLE_API_KEY
+ENV REACT_APP_GOOGLE_API_KEY=$REACT_APP_GOOGLE_API_KEY
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
