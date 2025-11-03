@@ -200,11 +200,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
+            type=ref,event=pr,prefix=pr-
             type=semver,pattern={{version}},value=${{ needs.version-backend.outputs.new_version }},enable=${{ needs.version-backend.outputs.new_version != '' }}
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-backend.outputs.new_version }},enable=${{ needs.version-backend.outputs.new_version != '' }}
-            type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
@@ -254,11 +252,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
+            type=ref,event=pr,prefix=pr-
             type=semver,pattern={{version}},value=${{ needs.version-frontend.outputs.new_version }},enable=${{ needs.version-frontend.outputs.new_version != '' }}
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-frontend.outputs.new_version }},enable=${{ needs.version-frontend.outputs.new_version != '' }}
-            type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
