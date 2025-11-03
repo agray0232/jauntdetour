@@ -11,9 +11,6 @@ RUN npm install -g npm@11.4.2
 RUN npm ci --verbose
 RUN npm install -g serve
 
-# Copy .env file if it exists
-COPY .env.production ./
-
 COPY . .
 
 RUN npm run build
