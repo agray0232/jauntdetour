@@ -55,7 +55,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Determine version bump type
         id: bump-type
@@ -84,16 +84,16 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
           # Check if there are changes to commit
           if git diff --quiet backend/package.json; then
             echo "No version changes to commit"
             exit 0
           fi
-          
+
           git add backend/package.json
           git commit -m "chore(backend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
-          
+
           # Push changes with proper error handling
           if ! git push; then
             echo "Failed to push version bump commit"
@@ -118,7 +118,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Determine version bump type
         id: bump-type
@@ -147,16 +147,16 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
           # Check if there are changes to commit
           if git diff --quiet frontend/package.json; then
             echo "No version changes to commit"
             exit 0
           fi
-          
+
           git add frontend/package.json
           git commit -m "chore(frontend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
-          
+
           # Push changes with proper error handling
           if ! git push; then
             echo "Failed to push version bump commit"
@@ -272,27 +272,43 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-backend:
-    needs: [build-backend]
+    needs: [build-backend, version-backend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     steps:
-      - name: Deploy Backend
-        run: |
-          echo "Backend deployment would happen here"
-          echo "Container: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest"
-          # Add your deployment logic here (e.g., SSH to server, update container, etc.)
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: jauntdetour-backend # Your Azure Web App name
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ needs.version-backend.outputs.new_version }}
 
   deploy-frontend:
-    needs: [build-frontend]
+    needs: [build-frontend, version-frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     steps:
-      - name: Deploy Frontend
-        run: |
-          echo "Frontend deployment would happen here"
-          echo "Container: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest"
-          # Add your deployment logic here (e.g., SSH to server, update container, etc.)
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: jauntdetour-frontend # Your Azure Web App name
+          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ needs.version-frontend.outputs.new_version }}
