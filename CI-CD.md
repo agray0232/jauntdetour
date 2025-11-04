@@ -7,37 +7,19 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 ## Pipeline Features
 
 ### Automatic Change Detection
+
 - The pipeline monitors changes in `backend/` and `frontend/` directories
 - Only builds and deploys the services that have been modified
 - Reduces unnecessary builds and deployment time
 
-### Version Management
-- **Automatic version bumping** on every push to main
-- **Default behavior**: Patch version bump (x.x.1)
-- **Custom version bumps** via commit message keywords:
-  - `[major]` or `BREAKING` → Major version bump (1.x.x)
-  - `[minor]` → Minor version bump (x.1.x)
-  - Default (no keyword) → Patch version bump (x.x.1)
-
-#### Examples:
-```bash
-# Patch version bump (1.0.0 → 1.0.1)
-git commit -m "fix: correct route handling"
-
-# Minor version bump (1.0.0 → 1.1.0)
-git commit -m "[minor] add new feature for user profiles"
-
-# Major version bump (1.0.0 → 2.0.0)
-git commit -m "[major] BREAKING: change API response format"
-git commit -m "BREAKING: remove deprecated endpoints"
-```
-
 ### Docker Container Registry
+
 - Images are pushed to Azure Container Registry (jauntdetouracr.azurecr.io)
 - **Backend image**: `jauntdetouracr.azurecr.io/jauntdetour-backend`
 - **Frontend image**: `jauntdetouracr.azurecr.io/jauntdetour-frontend`
 
 #### Image Tags:
+
 - `latest` - Latest version from main branch
 - `<version>` - Specific version (e.g., `1.0.1`)
 - `<major>.<minor>` - Major.minor version (e.g., `1.0`)
@@ -45,12 +27,14 @@ git commit -m "BREAKING: remove deprecated endpoints"
 - `pr-<number>` - Pull request number
 
 ### Pull Request Validation
+
 - Runs on all pull requests
 - Builds Docker images to validate changes
-- Does NOT push images or bump versions
+- Does NOT push images
 - Does NOT deploy
 
 ### Deployment
+
 - Runs only on pushes to main branch
 - Deploys after successful build
 - Currently configured as placeholder (see Deployment Setup below)
@@ -58,19 +42,23 @@ git commit -m "BREAKING: remove deprecated endpoints"
 ## Workflow Jobs
 
 ### 1. detect-changes
+
 Determines which parts of the application have changed to optimize the build process.
 
 ### 2. version-backend / version-frontend
+
 - Bumps the version in package.json
 - Commits the version change back to the repository
 - Runs only for pushes (not PRs)
 
 ### 3. build-backend / build-frontend
+
 - Builds Docker images using the Dockerfiles in respective directories
 - Pushes images to Azure Container Registry (on push to main)
 - Uses build caching for faster builds
 
 ### 4. deploy-backend / deploy-frontend
+
 - Deploys the new version to production
 - Currently contains placeholder deployment logic
 
@@ -81,12 +69,14 @@ The pipeline includes deployment jobs that need to be configured for your specif
 ### Option 1: Deploy to a Server via SSH
 
 Add these secrets to your GitHub repository:
+
 - `DEPLOY_HOST` - Your server hostname/IP
 - `DEPLOY_USER` - SSH username
 - `DEPLOY_KEY` - Private SSH key
 - `DEPLOY_PORT` - SSH port (default: 22)
 
 Example deployment script:
+
 ```yaml
 - name: Deploy Backend
   env:
@@ -98,7 +88,7 @@ Example deployment script:
     mkdir -p ~/.ssh
     echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
     chmod 600 ~/.ssh/deploy_key
-    
+
     # Deploy
     ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
       $DEPLOY_USER@$DEPLOY_HOST \
@@ -114,6 +104,7 @@ Example deployment script:
 ### Option 2: Deploy to Cloud Platform
 
 Configure your cloud provider's deployment action:
+
 - **AWS ECS**: Use `aws-actions/amazon-ecs-deploy-task-definition`
 - **Google Cloud Run**: Use `google-github-actions/deploy-cloudrun`
 - **Azure Container Instances**: Use `azure/container-apps-deploy-action`
@@ -122,6 +113,7 @@ Configure your cloud provider's deployment action:
 ### Option 3: Deploy Using Docker Compose
 
 If using Docker Compose on a server:
+
 ```yaml
 - name: Deploy with Docker Compose
   run: |
@@ -174,6 +166,7 @@ az ad app federated-credential create \
 3. **Add Secrets to GitHub Repository:**
 
 Go to **Settings → Secrets and variables → Actions → New repository secret** and add:
+
 - `AZURE_CLIENT_ID` - The `appId` from step 1
 - `AZURE_TENANT_ID` - The `tenant` from step 1
 - `AZURE_SUBSCRIPTION_ID` - Your Azure subscription ID
@@ -197,6 +190,7 @@ az role assignment create \
 ### Deployment Secrets
 
 For deployment, you may also need to add:
+
 - Server credentials (SSH keys, API tokens, etc.)
 - Environment variables for your application
 - Any API keys or secrets needed by your application
@@ -206,6 +200,7 @@ Add secrets in: **Settings → Secrets and variables → Actions → New reposit
 ## Manual Workflow Trigger
 
 You can also trigger the workflow manually:
+
 1. Go to **Actions** tab in GitHub
 2. Select **CI/CD Pipeline**
 3. Click **Run workflow**
@@ -221,16 +216,21 @@ You can also trigger the workflow manually:
 ## Troubleshooting
 
 ### Version bump conflicts
+
 If multiple commits happen quickly, version bumps might conflict. The workflow will fail gracefully and you may need to rerun it.
 
 ### Build failures
+
 Check the job logs in the Actions tab. Common issues:
+
 - Missing dependencies in package.json
 - Dockerfile errors
 - Insufficient permissions
 
 ### Deployment failures
+
 Verify:
+
 - Secrets are correctly configured
 - Server is accessible
 - Docker is installed on the target server
@@ -239,6 +239,7 @@ Verify:
 ## Customization
 
 You can customize the workflow by editing `.github/workflows/ci-cd.yml`:
+
 - Change trigger branches
 - Modify version bump logic
 - Add additional build steps
