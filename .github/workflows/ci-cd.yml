@@ -37,138 +37,9 @@ jobs:
             frontend:
               - 'frontend/**'
 
-  version-backend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      new_version: ${{ steps.bump.outputs.new_version }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-
-      - name: Determine version bump type
-        id: bump-type
-        run: |
-          # Check commit message or PR labels for version bump type
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MSG" =~ \[major\] ]] || [[ "$COMMIT_MSG" =~ BREAKING ]]; then
-            echo "type=major" >> $GITHUB_OUTPUT
-          elif [[ "$COMMIT_MSG" =~ \[minor\] ]]; then
-            echo "type=minor" >> $GITHUB_OUTPUT
-          else
-            echo "type=patch" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Bump version
-        id: bump
-        working-directory: ./backend
-        run: |
-          BUMP_TYPE="${{ steps.bump-type.outputs.type }}"
-          npm version $BUMP_TYPE --no-git-tag-version
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Bumped backend version to $NEW_VERSION"
-
-      - name: Commit version bump
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-          # Check if there are changes to commit
-          if git diff --quiet backend/package.json; then
-            echo "No version changes to commit"
-            exit 0
-          fi
-
-          git add backend/package.json
-          git commit -m "chore(backend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
-
-          # Push changes with proper error handling
-          if ! git push; then
-            echo "Failed to push version bump commit"
-            exit 1
-          fi
-
-  version-frontend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      new_version: ${{ steps.bump.outputs.new_version }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-
-      - name: Determine version bump type
-        id: bump-type
-        run: |
-          # Check commit message or PR labels for version bump type
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MSG" =~ \[major\] ]] || [[ "$COMMIT_MSG" =~ BREAKING ]]; then
-            echo "type=major" >> $GITHUB_OUTPUT
-          elif [[ "$COMMIT_MSG" =~ \[minor\] ]]; then
-            echo "type=minor" >> $GITHUB_OUTPUT
-          else
-            echo "type=patch" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Bump version
-        id: bump
-        working-directory: ./frontend
-        run: |
-          BUMP_TYPE="${{ steps.bump-type.outputs.type }}"
-          npm version $BUMP_TYPE --no-git-tag-version
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Bumped frontend version to $NEW_VERSION"
-
-      - name: Commit version bump
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-          # Check if there are changes to commit
-          if git diff --quiet frontend/package.json; then
-            echo "No version changes to commit"
-            exit 0
-          fi
-
-          git add frontend/package.json
-          git commit -m "chore(frontend): bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
-
-          # Push changes with proper error handling
-          if ! git push; then
-            echo "Failed to push version bump commit"
-            exit 1
-          fi
-
   build-backend:
-    needs: [detect-changes, version-backend]
-    if: |
-      !cancelled() && 
-      needs.detect-changes.outputs.backend == 'true' &&
-      (needs.version-backend.result == 'success' || github.event_name == 'pull_request')
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -178,6 +49,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: ./backend
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Backend version: $VERSION"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -201,8 +80,8 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
           tags: |
             type=ref,event=pr,prefix=pr-
-            type=semver,pattern={{version}},value=${{ needs.version-backend.outputs.new_version }},enable=${{ needs.version-backend.outputs.new_version != '' }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-backend.outputs.new_version }},enable=${{ needs.version-backend.outputs.new_version != '' }}
+            type=semver,pattern={{version}},value=${{ steps.package-version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.package-version.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
@@ -216,11 +95,8 @@ jobs:
           cache-to: type=gha,mode=max
 
   build-frontend:
-    needs: [detect-changes, version-frontend]
-    if: |
-      !cancelled() && 
-      needs.detect-changes.outputs.frontend == 'true' &&
-      (needs.version-frontend.result == 'success' || github.event_name == 'pull_request')
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -230,6 +106,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: ./frontend
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Frontend version: $VERSION"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -253,8 +137,8 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
           tags: |
             type=ref,event=pr,prefix=pr-
-            type=semver,pattern={{version}},value=${{ needs.version-frontend.outputs.new_version }},enable=${{ needs.version-frontend.outputs.new_version != '' }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version-frontend.outputs.new_version }},enable=${{ needs.version-frontend.outputs.new_version != '' }}
+            type=semver,pattern={{version}},value=${{ steps.package-version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.package-version.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
@@ -270,13 +154,23 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-backend:
-    needs: [build-backend, version-backend]
+    needs: build-backend
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: ./backend
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -288,16 +182,26 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: jauntdetour-backend # Your Azure Web App name
-          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ needs.version-backend.outputs.new_version }}
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.package-version.outputs.version }}
 
   deploy-frontend:
-    needs: [build-frontend, version-frontend]
+    needs: build-frontend
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: ./frontend
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -309,4 +213,4 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: jauntdetour-frontend # Your Azure Web App name
-          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ needs.version-frontend.outputs.new_version }}
+          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.package-version.outputs.version }}
