@@ -1,5 +1,7 @@
 FROM node:lts-alpine
 
+ARG REACT_APP_GOOGLE_API_KEY
+ENV REACT_APP_GOOGLE_API_KEY=$REACT_APP_GOOGLE_API_KEY
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
@@ -10,9 +12,6 @@ RUN apk add --no-cache bash
 RUN npm install -g npm@11.4.2
 RUN npm ci --verbose
 RUN npm install -g serve
-
-# Copy .env file if it exists
-COPY .env.production ./
 
 COPY . .
 
