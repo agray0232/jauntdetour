@@ -16,6 +16,8 @@ env:
 jobs:
   # First ensure linting and tests pass
   lint-and-test:
+    permissions:
+      contents: read
     uses: ./.github/workflows/lint-and-test.yml
 
   detect-changes:
