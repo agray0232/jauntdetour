@@ -22,7 +22,9 @@ The main express app is located in `/<backend-root>/index.js`
 Node modules used by the express app are located in `/<backend-root>/app/modules`
 
 #### PlacesAPI
+
 PlacesAPI interfaces with the Google Places API
 
 #### RouteAPI
+
 RouteAPI interfaces with the Google Route API
