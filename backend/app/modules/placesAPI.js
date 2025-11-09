@@ -14,18 +14,18 @@ const axios = require("axios");
  * @param input - Place search text and parameters received from client
  */
 module.exports = {
-  getPlaces: function(input) {
-    var promise = new Promise(function(resolve, reject) {
+  getPlaces: function (input) {
+    var promise = new Promise(function (resolve, reject) {
       // Create the URL
       const url = createURL(input);
 
       // Send an axios GET request to the Google Places api
       axios
         .get(url)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(
             "ERROR: Unable to get response from the Google Places API\n User input may be formatted incorrectly" +
               error.response
@@ -35,7 +35,7 @@ module.exports = {
     });
 
     return promise;
-  }
+  },
 };
 
 /**
