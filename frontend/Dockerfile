@@ -2,7 +2,6 @@ FROM node:lts-alpine
 
 ARG REACT_APP_GOOGLE_API_KEY
 ENV REACT_APP_GOOGLE_API_KEY=$REACT_APP_GOOGLE_API_KEY
-ENV NODE_ENV=production
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
 WORKDIR /usr/src/app
@@ -15,6 +14,7 @@ RUN npm install -g serve
 
 COPY . .
 
+ENV NODE_ENV=production
 RUN npm run build
 
 EXPOSE 3000
