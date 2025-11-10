@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 class DetourSettings extends React.Component {
   constructor() {
@@ -32,5 +33,9 @@ class DetourSettings extends React.Component {
     );
   }
 }
+
+DetourSettings.propTypes = {
+  setDetourType: PropTypes.func,
+};
 
 export default DetourSettings;

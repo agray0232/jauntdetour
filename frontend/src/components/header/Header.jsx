@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import UserInput from "../sidebar/UserInput";
 
 class Header extends React.Component {
@@ -20,5 +21,15 @@ class Header extends React.Component {
     );
   }
 }
+
+Header.propTypes = {
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  setOrigin: PropTypes.func,
+  setDestination: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  clearAll: PropTypes.func,
+};
 
 export default Header;

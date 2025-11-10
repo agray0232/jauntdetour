@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Button from "../Button";
 import TripTimeline from "./TripTimeline";
 import { exportToGoogleMaps } from "../../utils/googleMapsExport";
@@ -70,5 +71,18 @@ class TripSummary extends React.Component {
     );
   }
 }
+
+TripSummary.propTypes = {
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  tripSummary: PropTypes.object,
+  detourList: PropTypes.array,
+  showDetourButton: PropTypes.bool,
+  removeDetour: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  setDetourList: PropTypes.func,
+  getDetourForm: PropTypes.func,
+};
 
 export default TripSummary;

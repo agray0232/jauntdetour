@@ -1,7 +1,9 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Button from "../Button";
 import RouteRequester from "../../scripts/RouteRequester.js";
 import { getDetourIconComponent } from "../../utils/detourIcons.js";
+import log from "../../utils/logger";
 
 class TimelineItem extends React.Component {
   constructor() {
@@ -40,7 +42,7 @@ class TimelineItem extends React.Component {
           }
         })
         .catch(function (error) {
-          console.log("Error: " + error);
+          log.error("Error removing detour:", error);
         });
 
       this.props.removeDetour(this.props.detourIndex);
@@ -79,7 +81,7 @@ class TimelineItem extends React.Component {
           }
         })
         .catch(function (error) {
-          console.log("Error: " + error);
+          log.error("Error moving detour up:", error);
         });
 
       this.props.setDetourList(newDetourList);
@@ -118,7 +120,7 @@ class TimelineItem extends React.Component {
           }
         })
         .catch(function (error) {
-          console.log("Error: " + error);
+          log.error("Error moving detour down:", error);
         });
 
       this.props.setDetourList(newDetourList);
@@ -206,5 +208,21 @@ class TimelineItem extends React.Component {
     );
   }
 }
+
+TimelineItem.propTypes = {
+  type: PropTypes.string,
+  title: PropTypes.string,
+  mutedText: PropTypes.string,
+  addedTimeTxt: PropTypes.string,
+  badgeClass: PropTypes.string,
+  detourIndex: PropTypes.number,
+  detourList: PropTypes.array,
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  removeDetour: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  setDetourList: PropTypes.func,
+};
 
 export default TimelineItem;

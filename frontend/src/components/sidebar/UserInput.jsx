@@ -1,6 +1,8 @@
 import React from "react";
+import PropTypes from "prop-types";
 import RouteRequester from "../../scripts/RouteRequester.js";
 import Button from "../Button";
+import log from "../../utils/logger";
 
 class UserInput extends React.Component {
   constructor() {
@@ -11,7 +13,7 @@ class UserInput extends React.Component {
 
   requestRoute(e) {
     e.preventDefault();
-    console.log("route");
+    log.debug("Requesting route");
     var origin = e.target[0].value;
     var destination = e.target[1].value;
     this.props.setOrigin(origin);
@@ -22,12 +24,12 @@ class UserInput extends React.Component {
       .then((data) => {
         if (data.routes.length > 0) {
           this.props.setRoute(data.routes[0]);
-          console.log(data.routes[0].summary);
+          log.debug("Route summary:", data.routes[0].summary);
           this.props.setTripSummary(data.routes[0].summary);
         }
       })
       .catch(function (error) {
-        console.log("Error: " + error);
+        log.error("Error requesting route:", error);
       });
   }
 
@@ -81,5 +83,15 @@ class UserInput extends React.Component {
     );
   }
 }
+
+UserInput.propTypes = {
+  type: PropTypes.string,
+  classes: PropTypes.string,
+  setOrigin: PropTypes.func,
+  setDestination: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  clearAll: PropTypes.func,
+};
 
 export default UserInput;

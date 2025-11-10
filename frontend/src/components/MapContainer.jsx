@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 //import { Map, Circle , Polyline, Marker, GoogleApiWrapper } from 'google-maps-react';
 import {
   AdvancedMarker,
@@ -259,5 +260,31 @@ function MapContainer(props) {
     </APIProvider>
   );
 }
+
+MapContainer.propTypes = {
+  route: PropTypes.object,
+  showRoute: PropTypes.bool,
+  detourSearchLocation: PropTypes.number,
+  detourSearchRadius: PropTypes.number,
+  showDetourSearchPoint: PropTypes.bool,
+  detourOptions: PropTypes.array,
+  detourHighlight: PropTypes.array,
+  detourList: PropTypes.array,
+};
+
+MapBounds.propTypes = {
+  route: PropTypes.object,
+};
+
+RoutePolyline.propTypes = {
+  route: PropTypes.object,
+  showRoute: PropTypes.bool,
+};
+
+DetourCircle.propTypes = {
+  detourPoint: PropTypes.object,
+  detourSearchRadius: PropTypes.number,
+  showDetourSearchPoint: PropTypes.bool,
+};
 
 export default MapContainer;

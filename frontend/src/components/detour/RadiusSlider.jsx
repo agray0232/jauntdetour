@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 class RadiusSlider extends React.Component {
   render() {
@@ -18,5 +19,9 @@ class RadiusSlider extends React.Component {
     );
   }
 }
+
+RadiusSlider.propTypes = {
+  setDetourSearchRadius: PropTypes.func,
+};
 
 export default RadiusSlider;

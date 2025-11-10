@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import $ from "jquery";
 import TripSummary from "../sidebar/TripSummary";
 import DetourForm from "../detour/DetourForm";
@@ -92,5 +93,34 @@ class FooterMenu extends React.Component {
     );
   }
 }
+
+FooterMenu.propTypes = {
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  tripSummary: PropTypes.object,
+  detourList: PropTypes.array,
+  detourOptions: PropTypes.array,
+  detourHighlight: PropTypes.array,
+  route: PropTypes.object,
+  detourType: PropTypes.string,
+  detourSearchLocation: PropTypes.number,
+  detourSearchRadius: PropTypes.number,
+  showDetourButton: PropTypes.bool,
+  showDetourForm: PropTypes.bool,
+  showDetourOptions: PropTypes.bool,
+  removeDetour: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  setDetourList: PropTypes.func,
+  getDetourForm: PropTypes.func,
+  clearAll: PropTypes.func,
+  setDetourSearchLocation: PropTypes.func,
+  setDetourSearchRadius: PropTypes.func,
+  setDetourType: PropTypes.func,
+  setDetourOptions: PropTypes.func,
+  setDetourHighlight: PropTypes.func,
+  addDetour: PropTypes.func,
+  clearDetourOptions: PropTypes.func,
+};
 
 export default FooterMenu;

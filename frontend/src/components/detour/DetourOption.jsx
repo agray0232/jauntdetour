@@ -1,6 +1,8 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Button from "../Button";
 import RouteRequester from "../../scripts/RouteRequester.js";
+import log from "../../utils/logger";
 
 class DetourOption extends React.Component {
   constructor() {
@@ -65,7 +67,7 @@ class DetourOption extends React.Component {
         });
       })
       .catch(function (error) {
-        console.log("Error: " + error);
+        log.error("Error adding detour:", error);
       });
   }
 
@@ -94,5 +96,25 @@ class DetourOption extends React.Component {
     );
   }
 }
+
+DetourOption.propTypes = {
+  detourHighlight: PropTypes.array,
+  detourList: PropTypes.array,
+  tripSummary: PropTypes.object,
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  placeId: PropTypes.string,
+  name: PropTypes.string,
+  type: PropTypes.string,
+  lat: PropTypes.number,
+  lng: PropTypes.number,
+  id: PropTypes.string,
+  rating: PropTypes.number,
+  setDetourHighlight: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  clearDetourOptions: PropTypes.func,
+  addDetour: PropTypes.func,
+};
 
 export default DetourOption;

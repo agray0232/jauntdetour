@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import DetourOption from "./DetourOption";
 
 class DetourOptionsList extends React.Component {
@@ -44,5 +45,20 @@ class DetourOptionsList extends React.Component {
     );
   }
 }
+
+DetourOptionsList.propTypes = {
+  detourOptions: PropTypes.array,
+  detourList: PropTypes.array,
+  detourHighlight: PropTypes.array,
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  tripSummary: PropTypes.object,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  addDetour: PropTypes.func,
+  setDetourOptions: PropTypes.func,
+  setDetourHighlight: PropTypes.func,
+  clearDetourOptions: PropTypes.func,
+};
 
 export default DetourOptionsList;

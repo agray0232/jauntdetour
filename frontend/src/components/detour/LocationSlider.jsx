@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 class LocationSlider extends React.Component {
   render() {
@@ -18,5 +19,9 @@ class LocationSlider extends React.Component {
     );
   }
 }
+
+LocationSlider.propTypes = {
+  setDetourSearchLocation: PropTypes.func,
+};
 
 export default LocationSlider;
