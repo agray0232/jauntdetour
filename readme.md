@@ -127,6 +127,86 @@ npm start
 
 View the running application in your browser of choice by going to `http://localhost:3001` (frontend) or `http://localhost:3000` (backend API)
 
+## Testing
+
+This project includes comprehensive unit tests and linting to ensure code quality.
+
+### Running Tests Locally
+
+#### Frontend Tests
+```bash
+cd frontend
+
+# Run tests once
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+#### Backend Tests
+```bash
+cd backend
+
+# Run tests once
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### Running Linters
+
+#### Frontend Linting
+```bash
+cd frontend
+
+# Check for linting errors
+npm run lint
+
+# Automatically fix linting errors
+npm run lint:fix
+
+# Check code formatting
+npm run format:check
+
+# Format code
+npm run format
+```
+
+#### Backend Linting
+```bash
+cd backend
+
+# Check for linting errors
+npm run lint
+
+# Automatically fix linting errors
+npm run lint:fix
+
+# Check code formatting
+npm run format:check
+
+# Format code
+npm run format
+```
+
+### Continuous Integration
+
+All pushes and pull requests automatically trigger the CI pipeline which:
+- Runs ESLint on both frontend and backend
+- Runs Prettier to check code formatting
+- Executes all unit tests
+- Builds the application
+
+**The pipeline must pass before any pull request can be merged.**
+
 ## Built With
 
 * [Node v10.15.3](https://nodejs.org/en/download/) - Runtime environment
@@ -141,14 +221,26 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## CI/CD
 
-This project uses GitHub Actions for continuous integration and deployment. The pipeline automatically:
+This project uses GitHub Actions for continuous integration and deployment. 
+
+### Continuous Integration (CI)
+Every push and pull request triggers automated checks:
+- **Linting**: ESLint validates code quality for both frontend (React best practices) and backend (Node.js best practices)
+- **Formatting**: Prettier ensures consistent code formatting
+- **Unit Tests**: All tests must pass before merging
+- **Build**: Verifies the application builds successfully
+
+### Continuous Deployment (CD)
+The deployment pipeline automatically:
 - Detects changes in backend and frontend directories
 - Builds Docker containers (`jauntdetour-backend` and `jauntdetour-frontend`)
 - Automatically bumps versions (patch by default, configurable via commit messages)
 - Pushes images to Azure Container Registry
 - Deploys to production
 
-For detailed information about the CI/CD pipeline, version management, and deployment options, see [CI-CD.md](CI-CD.md). 
+**Pull requests cannot be merged if the CI pipeline fails.**
+
+For detailed information about the CI/CD pipeline, version management, and deployment options, see [CI-CD.md](CI-CD.md).
 
 ## Authors
 

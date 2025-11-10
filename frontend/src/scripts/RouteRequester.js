@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from "../config/config.js";
+import log from "../utils/logger";
 
 export default class RouteRequester {
   getRoute(origin, destination, type, opts) {
@@ -22,9 +23,9 @@ export default class RouteRequester {
           resolve(response.data);
         })
         .catch((error) => {
-          console.log(
-            "ERROR: Unable to get response from the server\n User input may be formatted incorrectly" +
-              error.response
+          log.error(
+            "Unable to get response from the server. User input may be formatted incorrectly:",
+            error.response
           );
           reject(error);
         });

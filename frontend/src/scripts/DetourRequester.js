@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from "../config/config.js";
+import log from "../utils/logger";
 
 export default class DetourRequester {
   getDetours(lat, lng, radius, type) {
@@ -8,29 +9,29 @@ export default class DetourRequester {
       searchText: type,
       lat: lat,
       lng: lng,
-      radius: radius
+      radius: radius,
     };
 
     // Get the url base
     var requestURL = this.getUrlBase() + "/places";
 
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise(function (resolve, reject) {
       // Send an axios GET request to the server
       axios
         .get(requestURL, {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          params: parameters
+          params: parameters,
         })
-        .then(response => {
+        .then((response) => {
           // Decode and send the response
           resolve(response.data);
         })
-        .catch(error => {
-          console.log(
-            "ERROR: Unable to get response from the server\n User input may be formatted incorrectly" +
-              error.response
+        .catch((error) => {
+          log.error(
+            "Unable to get response from the server. User input may be formatted incorrectly:",
+            error.response
           );
           reject(error);
         });

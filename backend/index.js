@@ -3,10 +3,8 @@ var session = require("express-session");
 var cors = require("cors");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
-const https = require("https");
 const routeAPI = require("./app/modules/routeAPI");
 const placesAPI = require("./app/modules/placesAPI");
-const path = require("path");
 
 var app = express();
 app.use(cookieParser());

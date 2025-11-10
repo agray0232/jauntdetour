@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import TimelineItem from "./TimelineItem";
 
 class TripTimeline extends React.Component {
@@ -110,5 +111,15 @@ class TripTimeline extends React.Component {
     );
   }
 }
+
+TripTimeline.propTypes = {
+  detourList: PropTypes.array,
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  removeDetour: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  setDetourList: PropTypes.func,
+};
 
 export default TripTimeline;

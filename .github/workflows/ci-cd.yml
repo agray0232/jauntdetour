@@ -14,7 +14,14 @@ env:
   FRONTEND_IMAGE_NAME: jauntdetour-frontend
 
 jobs:
+  # First ensure linting and tests pass
+  lint-and-test:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/lint-and-test.yml
+
   detect-changes:
+    needs: lint-and-test
     runs-on: ubuntu-latest
     permissions:
       contents: read

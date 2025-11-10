@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Header from "./header/Header";
 import FooterMenu from "./footer-menu/FooterMenu";
 import MapContainer from "./MapContainer";
@@ -91,5 +92,38 @@ class Main extends React.Component {
     );
   }
 }
+
+Main.propTypes = {
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  tripSummary: PropTypes.object,
+  route: PropTypes.object,
+  detourList: PropTypes.array,
+  detourOptions: PropTypes.array,
+  detourHighlight: PropTypes.array,
+  detourType: PropTypes.string,
+  detourSearchLocation: PropTypes.object,
+  detourSearchRadius: PropTypes.number,
+  showRoute: PropTypes.bool,
+  showDetourButton: PropTypes.bool,
+  showDetourForm: PropTypes.bool,
+  showDetourOptions: PropTypes.bool,
+  showDetourSearchPoint: PropTypes.bool,
+  setOrigin: PropTypes.func,
+  setDestination: PropTypes.func,
+  setRoute: PropTypes.func,
+  setTripSummary: PropTypes.func,
+  setDetourType: PropTypes.func,
+  setDetourSearchLocation: PropTypes.func,
+  setDetourSearchRadius: PropTypes.func,
+  setDetourOptions: PropTypes.func,
+  setDetourHighlight: PropTypes.func,
+  setDetourList: PropTypes.func,
+  addDetour: PropTypes.func,
+  removeDetour: PropTypes.func,
+  getDetourForm: PropTypes.func,
+  clearAll: PropTypes.func,
+  clearDetourOptions: PropTypes.func,
+};
 
 export default Main;

@@ -1,108 +1,108 @@
 import Main from "../components/Main";
 import { connect } from "react-redux";
 
-let matchStateToProps = state => {
+let matchStateToProps = (state) => {
   return { ...state };
 };
 
-let matchDispatchToProps = dispatch => {
+let matchDispatchToProps = (dispatch) => {
   return {
-    setOrigin: origin =>
+    setOrigin: (origin) =>
       dispatch({
         type: "SET_ORIGIN",
         data: {
-          origin: origin
-        }
+          origin: origin,
+        },
       }),
-    setDestination: destination =>
+    setDestination: (destination) =>
       dispatch({
         type: "SET_DESTINATION",
         data: {
-          destination: destination
-        }
+          destination: destination,
+        },
       }),
-    setRoute: route =>
+    setRoute: (route) =>
       dispatch({
         type: "SET_ROUTE",
         data: {
-          route: route
-        }
+          route: route,
+        },
       }),
-    setTripSummary: summary =>
+    setTripSummary: (summary) =>
       dispatch({
         type: "SET_TRIP_SUMMARY",
         data: {
-          tripSummary: summary
-        }
+          tripSummary: summary,
+        },
       }),
     getDetourForm: () =>
       dispatch({
-        type: "GET_DETOUR_FORM"
+        type: "GET_DETOUR_FORM",
       }),
-    setDetourType: detourType =>
+    setDetourType: (detourType) =>
       dispatch({
         type: "SET_DETOUR_TYPE",
         data: {
-          detourType: detourType
-        }
+          detourType: detourType,
+        },
       }),
-    setDetourSearchLocation: detourSearchLocation =>
+    setDetourSearchLocation: (detourSearchLocation) =>
       dispatch({
         type: "SET_DETOUR_SEARCH_LOCATION",
         data: {
-          detourSearchLocation: detourSearchLocation
-        }
+          detourSearchLocation: detourSearchLocation,
+        },
       }),
-    setDetourSearchRadius: detourSearchRadius =>
+    setDetourSearchRadius: (detourSearchRadius) =>
       dispatch({
         type: "SET_DETOUR_SEARCH_RADIUS",
         data: {
-          detourSearchRadius: detourSearchRadius
-        }
+          detourSearchRadius: detourSearchRadius,
+        },
       }),
-    setDetourOptions: detourOptions =>
+    setDetourOptions: (detourOptions) =>
       dispatch({
         type: "SET_DETOUR_OPTIONS",
         data: {
-          detourOptions: detourOptions
-        }
+          detourOptions: detourOptions,
+        },
       }),
-    setDetourHighlight: detourHighlight =>
+    setDetourHighlight: (detourHighlight) =>
       dispatch({
         type: "SET_DETOUR_HIGHLIGHT",
         data: {
-          detourHighlight: detourHighlight
-        }
+          detourHighlight: detourHighlight,
+        },
       }),
     clearDetourOptions: () =>
       dispatch({
-        type: "CLEAR_DETOUR_OPTIONS"
+        type: "CLEAR_DETOUR_OPTIONS",
       }),
-    addDetour: detour =>
+    addDetour: (detour) =>
       dispatch({
         type: "ADD_DETOUR",
         data: {
-          detour: detour
-        }
+          detour: detour,
+        },
       }),
-    removeDetour: index =>
+    removeDetour: (index) =>
       dispatch({
         type: "REMOVE_DETOUR",
         data: {
-          index: index
-        }
+          index: index,
+        },
       }),
-    setDetourList: detourList =>
+    setDetourList: (detourList) =>
       dispatch({
         type: "SET_DETOUR_LIST",
         data: {
-          detourList: detourList
-        }
+          detourList: detourList,
+        },
       }),
     clearAll: () =>
       dispatch({
-        type: "CLEAR_ALL"
-      })
+        type: "CLEAR_ALL",
+      }),
   };
 };
 

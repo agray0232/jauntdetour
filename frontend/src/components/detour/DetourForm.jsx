@@ -1,9 +1,11 @@
 import React from "react";
+import PropTypes from "prop-types";
 import DetourSettings from "./DetourSettings";
 import LocationSlider from "./LocationSlider";
 import RadiusSlider from "./RadiusSlider";
 import Button from "../Button";
 import DetourRequester from "../../scripts/DetourRequester";
+import log from "../../utils/logger";
 
 class DetourForm extends React.Component {
   constructor() {
@@ -45,7 +47,7 @@ class DetourForm extends React.Component {
         this.props.setDetourOptions(data.results);
       })
       .catch(function (error) {
-        console.log("Error: " + error);
+        log.error("Error getting detours:", error);
       });
   }
 
@@ -71,5 +73,17 @@ class DetourForm extends React.Component {
     );
   }
 }
+
+DetourForm.propTypes = {
+  route: PropTypes.object,
+  detourSearchLocation: PropTypes.number,
+  detourSearchRadius: PropTypes.number,
+  detourType: PropTypes.string,
+  setDetourType: PropTypes.func,
+  setDetourSearchLocation: PropTypes.func,
+  setDetourSearchRadius: PropTypes.func,
+  setDetourHighlight: PropTypes.func,
+  setDetourOptions: PropTypes.func,
+};
 
 export default DetourForm;
