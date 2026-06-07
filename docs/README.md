@@ -28,8 +28,11 @@ Persistence for users, trips, and detours.
 
 Managed identity for end users.
 
-1. **[Authentication](authentication/authentication.md)** — decision and rationale (why Entra External ID, user experience, how tokens map to the `users` table, setup overview, security essentials).
+1. **[Authentication](authentication/authentication.md)** — decision and rationale (why Entra External ID, options compared, cost, user experience, how tokens map to the `users` table, setup overview).
 2. **[Implementation Guide](authentication/implementation-guide.md)** — Node.js login/callback flow, token verification, and per-user route scoping.
+3. **[Security](authentication/security.md)** — token storage, validation, CSRF, CORS, rate limiting, MFA, secrets, logging.
+4. **[Session Management](authentication/session-management.md)** — token lifetimes, logout/revocation, timeouts (lean IdP-managed default, optional Redis store).
+5. **[Compliance](authentication/compliance.md)** — GDPR data-subject rights, retention, cookie policy, data residency.
 
 ---
 
@@ -88,6 +91,9 @@ Managed identity for end users.
 | database/implementation-guide.md | ✅ | Jun 2, 2026 |
 | authentication/authentication.md | ✅ | Jun 2, 2026 |
 | authentication/implementation-guide.md | ✅ | Jun 2, 2026 |
+| authentication/security.md | ✅ | Jun 2, 2026 |
+| authentication/session-management.md | ✅ | Jun 2, 2026 |
+| authentication/compliance.md | ✅ | Jun 2, 2026 |
 
 ---
 

@@ -12,6 +12,8 @@ Use **Microsoft Entra External ID** as the managed identity provider for JauntDe
 
 We do **not** build our own password authentication, and we do **not** store credentials in our database.
 
+> **Note on naming:** Microsoft Entra External ID is the **successor to Azure AD B2C**. Microsoft stopped onboarding new B2C tenants (May 2025) and B2C is on a retirement path, so new builds use External ID. Earlier spike material that says "Azure AD B2C" refers to the same Azure CIAM platform — the recommendation is unchanged, only the product name and tenant URLs (`*.ciamlogin.com`, not `*.b2clogin.com`).
+
 > Verified against Microsoft Learn (External ID supported features and Google federation, docs updated March 2026).
 
 ---
@@ -26,6 +28,38 @@ Rolling our own username/password auth means owning hashing/salting, reset flows
 | Auth0 / Clerk | Excellent DX and free tiers; viable, but adds a separate vendor outside Azure. |
 | Social OAuth directly (e.g. Google only) | Simple if we only ever want Google; we own more plumbing and no local accounts. |
 | Roll your own password auth | Avoid — high security burden, easy to get wrong. |
+
+### Detailed comparison
+
+| Capability | **Entra External ID** ✅ | Auth0 | Firebase Auth | Custom JWT |
+|------------|:---:|:---:|:---:|:---:|
+| Azure-native | ✅ | ❌ 3rd-party | ❌ Google | ⚠️ self-hosted |
+| Email/password + social in one flow | ✅ | ✅ | ✅ | ❌ build |
+| MFA built in | ✅ | ✅ | ⚠️ limited | ❌ build |
+| GDPR tooling (DPA, residency) | ✅ | ✅ | ⚠️ config | ❌ build |
+| Cost at 50K MAU | ✅ free | ❌ paid | ✅ free | ⚠️ dev/maint |
+| Build effort | ⚠️ moderate | ✅ fast | ✅ fast | ❌ weeks |
+| Maintenance burden | ✅ minimal | ✅ minimal | ✅ minimal | ❌ high |
+
+Firebase is ruled out by the Azure-first preference; Auth0 is a viable non-Azure fallback; custom auth is rejected on security and maintenance grounds.
+
+---
+
+## Cost
+
+External ID bills on **monthly active users (MAU)** — a user counts once no matter how many times they sign in. JauntDetour's expected volume sits comfortably in the free tier.
+
+| MAU | Indicative monthly cost |
+|-----|------------------------|
+| Up to 50,000 | **$0** (free tier) |
+| 50,001 – 100,000 | low per-MAU tiered rate |
+| 100,000+ | progressively lower per-MAU rate |
+
+- The first **50,000 MAU are free**; MFA via the Authenticator app is included.
+- SMS-based MFA and some premium (P1/P2) features carry add-on charges.
+- Figures are **point-in-time** — confirm current rates on the [Azure pricing page](https://azure.microsoft.com/pricing/details/microsoft-entra-external-id/) before a budget decision.
+
+For comparison, Auth0 starts charging well before 50K MAU and a custom build costs roughly $19K+/year in development and maintenance — External ID is both the cheapest and the lowest-effort option.
 
 ---
 
@@ -103,6 +137,8 @@ These matter as much as authentication for a public app:
 - **TLS in transit** — Azure databases enforce SSL by default; keep it on.
 - **Network isolation** — DB behind a VNet/private endpoint in production.
 - **Restrict the Google Maps API key** — scope to specific APIs and referrers.
+
+See [security.md](security.md) for the full hardening detail (token storage, CSRF, CORS, rate limiting, MFA, logging), [session-management.md](session-management.md) for the session lifecycle, and [compliance.md](compliance.md) for GDPR/privacy.
 
 ---
 
