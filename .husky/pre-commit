@@ -1,0 +1,12 @@
+# Run lint-staged in each package that has staged changes, using that
+# package's own ESLint/Prettier install and config.
+
+if git diff --cached --name-only | grep -q '^backend/'; then
+  echo "→ Checking staged backend files..."
+  (cd backend && npx lint-staged) || exit 1
+fi
+
+if git diff --cached --name-only | grep -q '^frontend/'; then
+  echo "→ Checking staged frontend files..."
+  (cd frontend && npx lint-staged) || exit 1
+fi

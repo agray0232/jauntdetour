@@ -27,6 +27,10 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,css,md}\"",
     "eject": "react-scripts eject"
   },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,css,md}": "prettier --write",
+    "src/**/*.{js,jsx}": "eslint --fix"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
