@@ -24,8 +24,12 @@ one-off experimentation.
 ### Option A — Terraform (recommended)
 
 The Terraform configuration lives in [`/infra`](../../infra/README.md) and
-provisions the resource group, the Flexible Server (dev free tier), the database,
-firewall rules, and enforced TLS.
+references an existing resource group and provisions the Flexible Server (dev
+free tier), the database, firewall rules, and enforced TLS.
+
+> **The resource group must already exist.** Terraform reads it via a
+> `data "azurerm_resource_group"` source (read-only) and will **error** if it is
+> not found — it does not create the resource group.
 
 ```pwsh
 az login
