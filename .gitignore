@@ -75,6 +75,19 @@ typings/
 .env
 .env.production
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
 # next.js build output
 .next
 

@@ -1,0 +1,21 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is gitignored — never commit real credentials.
+
+# Must be an EXISTING resource group. The database is created inside it;
+# the server inherits the resource group's region.
+resource_group_name   = "jauntdetour-rg"
+environment           = "development"
+server_name           = "jauntdetour-db-dev"
+database_name         = "jauntdetour"
+postgres_version      = "14"
+sku_name              = "B_Standard_B1ms"
+storage_mb            = 32768
+backup_retention_days = 7
+admin_login           = ""
+
+# Provide the admin password securely instead of storing it here, e.g.:
+#   $env:TF_VAR_admin_password = "<strong-password>"   (PowerShell)
+# admin_password = "set-via-TF_VAR_admin_password"
+
+# Your current public IP, to allow local psql access (optional).
+# dev_client_ip = ""
