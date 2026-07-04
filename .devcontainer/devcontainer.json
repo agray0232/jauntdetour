@@ -2,8 +2,10 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
   "name": "Jauntdetour Full Stack",
-  // Use the Node.js image with additional tools
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+  // Use Docker Compose: the `app` dev container plus a PostgreSQL `db` sidecar.
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/jauntdetour",
 
   // Features to add to the dev container
   "features": {
@@ -12,7 +14,7 @@
   },
 
   // Forward ports for both frontend and backend
-  "forwardPorts": [3000, 3001, 8080],
+  "forwardPorts": [3000, 3001, 8080, 5432],
   "portsAttributes": {
     "3000": {
       "label": "Backend API",
@@ -25,10 +27,19 @@
     "8080": {
       "label": "Frontend Production",
       "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
     }
   },
-  // Install dependencies for both frontend and backend after container creation
-  //"postCreateCommand": "npm install --prefix ./backend && npm install --prefix ./frontend && npm install",
+  // Install system packages once at container creation. postgresql-client provides
+  // the `psql` CLI for inspecting the local database.
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y postgresql-client",
+  // Install dependencies for root, backend, and frontend after the container is created.
+  // The node_modules named volumes are created root-owned, so hand them to the `node`
+  // user first (they're empty at this point, so the chown is instant).
+  "postCreateCommand": "sudo chown node:node node_modules backend/node_modules frontend/node_modules && npm install && npm install --prefix ./backend && npm install --prefix ./frontend",
 
   // Configure VS Code extensions and settings
   "customizations": {
@@ -56,11 +67,13 @@
   // Set environment variables for development
   "containerEnv": {
     "NODE_ENV": "development",
-    "NODE_OPTIONS": "--openssl-legacy-provider"
+    "NODE_OPTIONS": "--openssl-legacy-provider",
+    // Let VS Code's port forwarding open the browser for 3001; stop react-scripts
+    // from opening a second one.
+    "BROWSER": "none"
   },
-  // Load .env file if it exists
-  //"onCreateCommand": "if [ -f .env ]; then echo 'Found .env file for environment variables'; else echo 'No .env file found - create one with GOOGLE_API_KEY=your_key_here'; fi",
+  // Environment variables (Google keys, DB_*, ports) are also provided via the
+  // Compose `env_file` (.devcontainer/devcontainer.env). See devcontainer.env.example.
 
-  "remoteUser": "node",
-  "runArgs": ["--env-file", ".devcontainer/devcontainer.env"]
+  "remoteUser": "node"
 }
