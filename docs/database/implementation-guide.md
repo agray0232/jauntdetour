@@ -9,14 +9,52 @@ A concise, step-by-step path from provisioning to a working Node.js integration.
 
 ## Prerequisites
 
-- Azure CLI 2.30+, `psql` (PostgreSQL 14+), Node.js 16+
+- Azure CLI 2.30+, `psql` (PostgreSQL 14+), Node.js 18+
+- Terraform 1.5+ (for the Infrastructure-as-Code path below)
 - An active Azure subscription with Contributor/Owner on the target resource group
 
 ---
 
 ## 1. Provision the server
 
-### Development (free tier)
+Two paths are documented: the **Terraform path (recommended)** for repeatable
+Infrastructure-as-Code, and the **manual Azure CLI path** as a fallback or for
+one-off experimentation.
+
+### Option A — Terraform (recommended)
+
+The Terraform configuration lives in [`/infra`](../../infra/README.md) and
+references an existing resource group and provisions the Flexible Server (dev
+free tier), the database, firewall rules, and enforced TLS.
+
+> **The resource group must already exist.** Terraform reads it via a
+> `data "azurerm_resource_group"` source (read-only) and will **error** if it is
+> not found — it does not create the resource group.
+
+```pwsh
+az login
+az account set --subscription "<your-subscription-id>"
+
+cd infra
+Copy-Item terraform.tfvars.example terraform.tfvars   # then edit values
+$env:TF_VAR_admin_password = "<strong-password>"      # keep secrets out of files
+
+terraform init
+terraform validate
+terraform plan
+terraform apply        # type "yes" to confirm
+```
+
+Read the connection details back out:
+
+```pwsh
+terraform output server_fqdn      # -> DB_HOST
+terraform output database_name    # -> DB_NAME
+```
+
+### Option B — Manual Azure CLI
+
+#### Development (free tier)
 ```bash
 az group create --name jauntdetour-rg --location eastus
 
@@ -32,7 +70,7 @@ az postgres flexible-server create \
   --tags Environment=Development Project=JauntDetour
 ```
 
-### Production
+#### Production
 ```bash
 az postgres flexible-server create \
   --resource-group jauntdetour-rg \
@@ -76,28 +114,33 @@ psql "...dbname=jauntdetour..." -c "\dt"
 ### Install the driver
 ```bash
 cd backend
-npm install pg dotenv
+npm install   # pg and dotenv are declared in package.json
 ```
 
-### Connection module — `backend/config/database.js`
+### Connection pool — `backend/app/db/pool.js`
+
+A single shared `pg` Pool is created from environment variables. Pooling keeps a
+set of open connections ready so each request reuses one instead of paying a fresh
+TCP + TLS + auth handshake. Azure requires SSL.
+
 ```javascript
-const { Pool } = require('pg');
-require('dotenv').config();
+const { Pool } = require("pg");
+const logger = require("../utils/logger");
 
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT || 5432,
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,        // from Key Vault in production
-  ssl: { rejectUnauthorized: true },        // Azure requires SSL
+  password: process.env.DB_PASSWORD, // from Key Vault in production
+  ssl: process.env.DB_SSL === "false" ? false : { rejectUnauthorized: true },
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });
 
-pool.on('error', (err) => {
-  console.error('Unexpected idle client error', err);
+pool.on("error", (err) => {
+  logger.error("Unexpected error on idle PostgreSQL client", err);
   process.exit(-1);
 });
 
@@ -108,151 +151,107 @@ module.exports = {
 };
 ```
 
-### Environment variables — `backend/.env.example`
+### Environment variables — root `.env`
+
+Copy `.env.example` to `.env` and fill in the values from the Terraform outputs:
+
 ```bash
 DB_HOST=jauntdetour-db-dev.postgres.database.azure.com
 DB_PORT=5432
 DB_NAME=jauntdetour
 DB_USER=jauntdetour_app
 DB_PASSWORD=            # local dev only; use Key Vault in production
-GOOGLE_API_KEY=
-NODE_ENV=development
 ```
 
-Add `.env` to `.gitignore`. In production, inject secrets from **Azure Key Vault**, not files.
+`.env` is gitignored. In production, inject secrets from **Azure Key Vault**, not files.
 
 ---
 
 ## 4. Data access layer
 
-User records key off the Entra `external_id` (the token `sub` claim) — there is no password column. See [../authentication/authentication.md](../authentication/authentication.md).
+User records key off the Entra `external_id` (the token `sub` claim) — there is no
+password column. See [../authentication/authentication.md](../authentication/authentication.md).
 
-### `backend/app/models/User.js`
+Repositories are ES classes with a **constructor-injected pool**, which keeps them
+trivial to unit test (pass a mock pool). All queries use parameterized placeholders
+(`$1, $2, ...`) to prevent SQL injection.
+
+### `backend/app/repositories/UserRepository.js`
 ```javascript
-const db = require('../../config/database');
+const logger = require("../utils/logger");
 
-class User {
-  // Create or fetch the user that matches a verified token's subject claim.
-  static async upsertByExternalId({ externalId, email, displayName }) {
-    const query = `
-      INSERT INTO users (external_id, email, display_name)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (external_id) DO UPDATE
-        SET email = EXCLUDED.email,
-            last_login = CURRENT_TIMESTAMP
-      RETURNING user_id, external_id, email, display_name, preferences
+class UserRepository {
+  constructor(pool) {
+    if (!pool || typeof pool.query !== "function") {
+      throw new Error("UserRepository requires a database pool with a query method");
+    }
+    this.pool = pool;
+  }
+
+  async createUser({ externalId, email, displayName = null, preferences = {} }) {
+    const text = `
+      INSERT INTO users (external_id, email, display_name, preferences)
+      VALUES ($1, $2, $3, $4)
+      RETURNING user_id, external_id, email, display_name, preferences,
+                is_active, created_at, updated_at, last_login
     `;
-    const result = await db.query(query, [externalId, email, displayName]);
+    const result = await this.pool.query(text, [externalId, email, displayName, preferences]);
     return result.rows[0];
   }
 
-  static async findById(userId) {
-    const result = await db.query(
-      'SELECT * FROM users WHERE user_id = $1 AND is_active = true',
-      [userId]
+  async getUserByExternalId(externalId) {
+    const result = await this.pool.query(
+      "SELECT * FROM users WHERE external_id = $1",
+      [externalId]
     );
     return result.rows[0] || null;
   }
+
+  // getUserById, getUserByEmail, updateUser,
+  // deleteUser (soft: is_active = false), hardDeleteUser (cascade) ...
 }
 
-module.exports = User;
+module.exports = UserRepository;
 ```
 
-### `backend/app/models/Trip.js`
+Wire it up with the shared pool:
+
 ```javascript
-const db = require('../../config/database');
-
-class Trip {
-  static async create({ userId, tripName, origin, destination, routePolyline, distanceMeters, durationSeconds, departureTime }) {
-    const query = `
-      INSERT INTO trips (user_id, trip_name, origin, destination, route_polyline, distance_meters, duration_seconds, departure_time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING trip_id, trip_name, origin, destination, distance_meters, duration_seconds, status, created_at
-    `;
-    const values = [userId, tripName, JSON.stringify(origin), JSON.stringify(destination),
-                    routePolyline, distanceMeters, durationSeconds, departureTime];
-    const result = await db.query(query, values);
-    return result.rows[0];
-  }
-
-  // Always scope by user_id — the authorization boundary.
-  static async findByUserId(userId) {
-    const result = await db.query(
-      `SELECT trip_id, trip_name, origin, destination, distance_meters,
-              duration_seconds, status, created_at
-       FROM trips WHERE user_id = $1 ORDER BY created_at DESC`,
-      [userId]
-    );
-    return result.rows;
-  }
-
-  static async findByIdWithDetours(tripId, userId) {
-    const query = `
-      SELECT t.*,
-        COALESCE(json_agg(
-          json_build_object(
-            'detour_id', d.detour_id, 'place_name', d.place_name,
-            'place_type', d.place_type, 'latitude', d.latitude,
-            'longitude', d.longitude, 'rating', d.rating,
-            'position_on_route', d.position_on_route, 'notes', d.notes
-          ) ORDER BY d.position_on_route
-        ) FILTER (WHERE d.detour_id IS NOT NULL), '[]') AS detours
-      FROM trips t
-      LEFT JOIN detours d ON t.trip_id = d.trip_id
-      WHERE t.trip_id = $1 AND t.user_id = $2
-      GROUP BY t.trip_id
-    `;
-    const result = await db.query(query, [tripId, userId]);
-    return result.rows[0] || null;
-  }
-}
-
-module.exports = Trip;
+const pool = require("../db/pool");
+const UserRepository = require("../repositories/UserRepository");
+const users = new UserRepository(pool);
 ```
 
-### `backend/app/models/Detour.js`
-```javascript
-const db = require('../../config/database');
-
-class Detour {
-  static async create({ tripId, placeId, placeName, placeType, latitude, longitude, address, positionOnRoute, rating, priceLevel, stopDurationMinutes, notes }) {
-    const query = `
-      INSERT INTO detours (trip_id, place_id, place_name, place_type, latitude, longitude,
-                           address, position_on_route, rating, price_level, stop_duration_minutes, notes)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-      RETURNING detour_id, place_name, place_type, latitude, longitude, rating, created_at
-    `;
-    const values = [tripId, placeId, placeName, placeType, latitude, longitude,
-                    address, positionOnRoute, rating, priceLevel, stopDurationMinutes, notes];
-    const result = await db.query(query, values);
-    return result.rows[0];
-  }
-}
-
-module.exports = Detour;
-```
-
-> Note: there is no `findNearby` / `ST_DWithin` method. Proximity search is performed by the Google Places API in `placesAPI.js`; the database only stores the chosen results.
+`deleteUser` performs a **soft delete** (`is_active = false`) for routine
+deactivation; `hardDeleteUser` performs a permanent `DELETE` that cascades to the
+user's trips and detours, intended for GDPR account erasure. Trip and detour
+repositories follow the same pattern and are always scoped by `user_id` — the
+authorization boundary.
 
 ---
 
 ## 5. Testing
 
-```javascript
-// backend/app/models/__tests__/Trip.test.js
-const db = require('../../../config/database');
-jest.mock('../../../config/database');
-const Trip = require('../Trip');
+Unit tests inject a mock pool, so no live database is needed. Assert on the SQL
+text and parameter array captured in `pool.query.mock.calls`.
 
-test('findByUserId scopes by user and orders by created_at', async () => {
-  db.query.mockResolvedValue({ rows: [{ trip_id: 't1' }] });
-  const trips = await Trip.findByUserId('u1');
-  expect(trips).toHaveLength(1);
-  expect(db.query.mock.calls[0][1]).toEqual(['u1']);
+```javascript
+// backend/app/repositories/UserRepository.test.js
+const UserRepository = require("./UserRepository");
+
+test("createUser inserts with parameterized values", async () => {
+  const pool = { query: jest.fn().mockResolvedValue({ rows: [{ user_id: "u1" }] }) };
+  const repo = new UserRepository(pool);
+
+  await repo.createUser({ externalId: "x", email: "a@example.com" });
+
+  const [sql, params] = pool.query.mock.calls[0];
+  expect(sql).toContain("INSERT INTO users");
+  expect(params).toEqual(["x", "a@example.com", null, {}]);
 });
 ```
 
-Run with `npm test`.
+Run with `npm test` (from `backend/`).
 
 ---
 

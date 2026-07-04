@@ -1,0 +1,5 @@
+# Run the root-pinned lint-staged. It auto-discovers each package's config
+# (backend/, frontend/) and applies it to that package's staged files, using
+# that package's local ESLint/Prettier. --no-install keeps it deterministic:
+# it uses the installed root binary and never downloads an arbitrary version.
+npx --no-install lint-staged
