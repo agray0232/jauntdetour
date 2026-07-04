@@ -72,7 +72,7 @@ so you can develop against a local database with no Azure dependency or cost.
   (password `localdev`) is used only for initialization.
 
 ### Resetting the database
-Init scripts run only when the data volume is empty (first boot). To wipe and reseed:
+Init scripts run only when the data volume is empty (first boot). To wipe and reseed (note: `-v` also removes node_modules_* volumes, so deps will reinstall on next start):
 ```bash
 docker compose -f .devcontainer/docker-compose.yml down -v
 ```
