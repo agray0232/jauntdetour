@@ -116,7 +116,7 @@ Local development uses a PostgreSQL database that runs automatically inside the
 DevContainer (see Option 1 above) — no manual database install needed. The backend
 connects through the `DB_*` environment variables. For the schema, the data-access
 layer, resetting local data, and Azure/production provisioning (Terraform), see
-[DEV-SETUP.md](DEV-SETUP.md) and [docs/database/](docs/database/implementation-guide.md).
+[DEV-SETUP.md](DEV-SETUP.md) and [docs/database/implementation-guide.md](docs/database/implementation-guide.md).
 
 ## Original Manual Setup
 
