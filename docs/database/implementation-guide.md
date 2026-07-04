@@ -9,7 +9,7 @@ A concise, step-by-step path from provisioning to a working Node.js integration.
 
 ## Prerequisites
 
-- Azure CLI 2.30+, `psql` (PostgreSQL 14+), Node.js 16+
+- Azure CLI 2.30+, `psql` (PostgreSQL 14+), Node.js 18+
 - Terraform 1.5+ (for the Infrastructure-as-Code path below)
 - An active Azure subscription with Contributor/Owner on the target resource group
 
