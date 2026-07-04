@@ -14,17 +14,17 @@
  * @returns {string} The formatted prefix + message.
  */
 function format(level, message) {
-    return `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`;
+  return `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`;
 }
 
 module.exports = {
-    info: function (message, ...meta) {
-        console.log(format("info", message), ...meta);
-    },
-    warn: function (message, ...meta) {
-        console.warn(format("warn", message), ...meta);
-    },
-    error: function (message, ...meta) {
-        console.error(format("error", message), ...meta);
-    },
+  info: function (message, ...meta) {
+    console.log(format("info", message), ...meta);
+  },
+  warn: function (message, ...meta) {
+    console.warn(format("warn", message), ...meta);
+  },
+  error: function (message, ...meta) {
+    console.error(format("error", message), ...meta);
+  },
 };
