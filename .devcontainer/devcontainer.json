@@ -34,8 +34,9 @@
     }
   },
   // Install system packages once at container creation. postgresql-client provides
-  // the `psql` CLI for inspecting the local database.
-  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y postgresql-client",
+  // the `psql` CLI for inspecting the local database. Clean up apt lists afterward
+  // to keep the container lean.
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y postgresql-client && sudo rm -rf /var/lib/apt/lists/*",
   // Install dependencies for root, backend, and frontend after the container is created.
   // The node_modules named volumes are created root-owned, so hand them to the `node`
   // user first (they're empty at this point, so the chown is instant).
