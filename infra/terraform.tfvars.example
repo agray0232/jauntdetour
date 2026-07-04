@@ -2,7 +2,7 @@
 # terraform.tfvars is gitignored — never commit real credentials.
 
 # Must be an EXISTING resource group. The database is created inside it;
-# the server inherits the resource group's region.
+# The server's region is controlled by the `location` variable (default: centralus).
 resource_group_name   = "jauntdetour-rg"
 environment           = "development"
 server_name           = "jauntdetour-db-dev"

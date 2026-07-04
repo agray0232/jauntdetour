@@ -52,8 +52,8 @@ see [../docs/database/implementation-guide.md](../docs/database/implementation-g
 
 - The `resource_group_name` must be an **existing** resource group. Terraform references it as a
   data source — it does not create, modify, or delete the resource group or anything else already
-  in it. Only the database server, database, firewall rules, and TLS setting are created. The
-  server is deployed in the resource group's region.
+  in it. Only the database server, database, firewall rules, and TLS setting are created. The server 
+  is deployed to `var.location` (default `centralus`), which may differ from the resource group's region.
 - `admin_password` is **sensitive** — pass it via `TF_VAR_admin_password` or a gitignored
   `terraform.tfvars`. Never commit it.
 - `terraform.tfvars`, `*.tfstate`, and `.terraform/` are gitignored.

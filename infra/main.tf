@@ -28,7 +28,7 @@ resource "azurerm_postgresql_flexible_server" "main" {
   }
 
   lifecycle {
-    # Storage can only grow; ignore drift if Azure auto-grows it.
+    # Azure may assign/adjust the availability zone; ignore drift to avoid noisy plans.
     ignore_changes = [zone]
   }
 }
