@@ -238,7 +238,7 @@ All pushes and pull requests automatically trigger the CI pipeline which:
 
 ## Built With
 
-* [Node v10.15.3](https://nodejs.org/en/download/) - Runtime environment
+* [Node.js (>=18.12.0)](https://nodejs.org/en/download/) - Runtime environment
 * [Express](https://expressjs.com/) - Web framework used for backend
 * [PostgreSQL](https://www.postgresql.org/) - Relational database, accessed via [node-postgres (`pg`)](https://node-postgres.com/)
 * [React](https://reactjs.org/) - Library used to build the frontend
