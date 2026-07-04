@@ -1,0 +1,55 @@
+# Docker Compose for the local development container.
+# Provides the Node dev environment (`app`) plus a PostgreSQL 14 sidecar (`db`).
+# This is for LOCAL DEVELOPMENT ONLY — it does not use the production Dockerfiles.
+
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye
+    init: true
+    # Keep the container running so VS Code can attach and open a shell.
+    command: sleep infinity
+    volumes:
+      # Mount the repository into the container workspace.
+      - ..:/workspaces/jauntdetour:cached
+      # Container-only node_modules (named volumes) so the container's Linux-built
+      # dependencies never collide with the host's copies via the bind mount.
+      - node_modules_root:/workspaces/jauntdetour/node_modules
+      - node_modules_backend:/workspaces/jauntdetour/backend/node_modules
+      - node_modules_frontend:/workspaces/jauntdetour/frontend/node_modules
+    env_file:
+      # Local secrets + config (gitignored). See devcontainer.env.example.
+      - devcontainer.env
+    # Wait for the database to be accepting connections before the app is usable.
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      # Superuser used only for initialization; the app connects as jauntdetour_app.
+      POSTGRES_USER: dbadmin
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: jauntdetour
+    volumes:
+      # Persist database data across container restarts.
+      - pgdata:/var/lib/postgresql/data
+      # Init scripts run in filename order, and ONLY when pgdata is empty (first boot).
+      # 01 creates the schema (tables must exist before 02 grants on them).
+      - ../docs/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./init/02-create-app-user.sql:/docker-entrypoint-initdb.d/02-create-app-user.sql:ro
+    ports:
+      # Exposed to the host so GUI tools (DBeaver/pgAdmin) can connect on localhost:5432.
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dbadmin -d jauntdetour"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
+  node_modules_root:
+  node_modules_backend:
+  node_modules_frontend:
