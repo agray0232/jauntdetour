@@ -1,4 +1,5 @@
 let initialState = {
+  user: null,
   origin: "",
   destination: "",
   detourType: "Hike",
@@ -19,6 +20,16 @@ let initialState = {
 
 const mainReducer = (state = initialState, action) => {
   switch (action.type) {
+    case "SET_USER":
+      return {
+        ...state,
+        user: action.data.user,
+      };
+    case "CLEAR_USER":
+      return {
+        ...state,
+        user: null,
+      };
     case "SET_ORIGIN":
       return {
         ...state,
@@ -103,6 +114,7 @@ const mainReducer = (state = initialState, action) => {
       };
     case "CLEAR_ALL":
       return {
+        user: state.user,
         origin: "",
         destination: "",
         detourType: "Hike",

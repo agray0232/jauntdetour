@@ -150,6 +150,39 @@ class UserRepository {
   }
 
   /**
+   * Create the user if they do not yet exist, otherwise refresh their profile
+   * and login timestamp. Called on every successful sign-in: the Entra
+   * `external_id` (token `sub`) is the identity key. First login creates the
+   * row; subsequent logins update email/display name (in case they changed at
+   * the IdP) and stamp `last_login`.
+   *
+   * @param {object} identity
+   * @param {string} identity.externalId - Entra `sub` claim (unique).
+   * @param {string} identity.email - User email from the ID token.
+   * @param {string} [identity.displayName] - Display name from the ID token.
+   * @returns {Promise<object>} The created or updated user row.
+   */
+  async upsertByExternalId({ externalId, email, displayName = null }) {
+    const existing = await this.getUserByExternalId(externalId);
+
+    if (existing) {
+      // Always stamp the login time, but only refresh profile fields the IdP
+      // actually provided — otherwise a missing claim would overwrite existing
+      // non-null data with null.
+      const updates = { lastLogin: new Date() };
+      if (email != null) {
+        updates.email = email;
+      }
+      if (displayName != null) {
+        updates.displayName = displayName;
+      }
+      return this.updateUser(existing.user_id, updates);
+    }
+
+    return this.createUser({ externalId, email, displayName });
+  }
+
+  /**
    * Update an allowed subset of a user's columns. `updated_at` is maintained by
    * a database trigger.
    *

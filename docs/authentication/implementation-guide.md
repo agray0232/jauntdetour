@@ -24,30 +24,36 @@ We use **OpenID Connect / authorization-code + PKCE**. Most teams use **MSAL** (
 ## 1. Configuration
 
 `backend/.env.example`:
+
 ```bash
 ENTRA_TENANT_SUBDOMAIN=jauntdetour           # <subdomain>.ciamlogin.com
+ENTRA_TENANT_ID=8edf3fc2-4cde-4c70-9cae-f95870994488  # tenant (directory) GUID
 ENTRA_CLIENT_ID=00001111-aaaa-2222-bbbb-3333cccc4444
 ENTRA_CLIENT_SECRET=                          # from Key Vault in production
 ENTRA_REDIRECT_URI=https://app.jauntdetour.com/auth/callback
 ```
 
 Authority URL format for external tenants:
-`https://<ENTRA_TENANT_SUBDOMAIN>.ciamlogin.com/`
+`https://<ENTRA_TENANT_SUBDOMAIN>.ciamlogin.com/<ENTRA_TENANT_ID>`
+
+The tenant ID must be in the authority path. The CIAM discovery document's
+`issuer` uses the tenant-GUID host, so a tenant-less authority fails MSAL's
+authority-alias validation with `endpoints_resolution_error`.
 
 ---
 
 ## 2. MSAL client — `backend/config/auth.js`
 
 ```javascript
-const { ConfidentialClientApplication } = require('@azure/msal-node');
-require('dotenv').config();
+const { ConfidentialClientApplication } = require("@azure/msal-node");
+require("dotenv").config();
 
-const authority = `https://${process.env.ENTRA_TENANT_SUBDOMAIN}.ciamlogin.com/`;
+const authority = `https://${process.env.ENTRA_TENANT_SUBDOMAIN}.ciamlogin.com/${process.env.ENTRA_TENANT_ID}`;
 
 const msalClient = new ConfidentialClientApplication({
   auth: {
     clientId: process.env.ENTRA_CLIENT_ID,
-    clientSecret: process.env.ENTRA_CLIENT_SECRET,  // from Key Vault in prod
+    clientSecret: process.env.ENTRA_CLIENT_SECRET, // from Key Vault in prod
     authority,
     knownAuthorities: [`${process.env.ENTRA_TENANT_SUBDOMAIN}.ciamlogin.com`],
   },
@@ -61,15 +67,17 @@ module.exports = { msalClient, authority };
 ## 3. Login + callback routes
 
 ```javascript
-const express = require('express');
-const { msalClient } = require('../config/auth');
-const User = require('../app/models/User');
+const express = require("express");
+const { msalClient } = require("../config/auth");
+const UserRepository = require("../app/repositories/UserRepository");
+const db = require("../app/db/pool");
 
+const userRepository = new UserRepository(db);
 const router = express.Router();
-const SCOPES = ['openid', 'profile', 'email'];
+const SCOPES = ["openid", "profile", "email"];
 
 // (1) Redirect the browser to the hosted Entra login flow.
-router.get('/auth/login', async (req, res) => {
+router.get("/auth/login", async (req, res) => {
   const url = await msalClient.getAuthCodeUrl({
     scopes: SCOPES,
     redirectUri: process.env.ENTRA_REDIRECT_URI,
@@ -78,7 +86,7 @@ router.get('/auth/login', async (req, res) => {
 });
 
 // (3-5) Exchange the code, verify the token, upsert the user.
-router.get('/auth/callback', async (req, res, next) => {
+router.get("/auth/callback", async (req, res, next) => {
   try {
     const result = await msalClient.acquireTokenByCode({
       code: req.query.code,
@@ -89,14 +97,14 @@ router.get('/auth/callback', async (req, res, next) => {
     // MSAL validates the token signature/issuer/audience for us.
     const { sub, email, name } = result.idTokenClaims;
 
-    const user = await User.upsertByExternalId({
-      externalId: sub,       // stable subject claim → users.external_id
+    const user = await userRepository.upsertByExternalId({
+      externalId: sub, // stable subject claim → users.external_id
       email,
       displayName: name,
     });
 
-    req.session.userId = user.user_id;  // or issue your own signed JWT
-    res.redirect('/');
+    req.session.userId = user.user_id; // or issue your own signed JWT
+    res.redirect("/");
   } catch (err) {
     next(err);
   }
@@ -112,30 +120,28 @@ module.exports = router;
 For APIs called with a bearer access token, validate it against the tenant's JWKS. `jose` keeps this small:
 
 ```javascript
-const { createRemoteJWKSet, jwtVerify } = require('jose');
-const { authority } = require('../config/auth');
+const { createRemoteJWKSet, jwtVerify } = require("jose");
+const { authority } = require("../config/auth");
 
-const JWKS = createRemoteJWKSet(
-  new URL(`${authority}discovery/v2.0/keys`)
-);
+const JWKS = createRemoteJWKSet(new URL(`${authority}/discovery/v2.0/keys`));
 
 async function requireAuth(req, res, next) {
   try {
-    const token = (req.headers.authorization || '').replace('Bearer ', '');
+    const token = (req.headers.authorization || "").replace("Bearer ", "");
     const { payload } = await jwtVerify(token, JWKS, {
       audience: process.env.ENTRA_CLIENT_ID,
     });
 
-    const user = await User.upsertByExternalId({
+    const user = await userRepository.upsertByExternalId({
       externalId: payload.sub,
       email: payload.email,
       displayName: payload.name,
     });
 
-    req.userId = user.user_id;  // the authorization boundary
+    req.userId = user.user_id; // the authorization boundary
     next();
   } catch {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: "Unauthorized" });
   }
 }
 
@@ -145,8 +151,8 @@ module.exports = requireAuth;
 Usage — every data route is scoped to `req.userId`:
 
 ```javascript
-router.get('/api/trips', requireAuth, async (req, res) => {
-  const trips = await Trip.findByUserId(req.userId);  // WHERE user_id = $1
+router.get("/api/trips", requireAuth, async (req, res) => {
+  const trips = await tripRepository.getTripsByUserId(req.userId); // WHERE user_id = $1
   res.json(trips);
 });
 ```
