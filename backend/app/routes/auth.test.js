@@ -162,6 +162,20 @@ describe("auth routes", () => {
 
       expect(res.status).toBe(400);
     });
+
+    it("returns 400 and does not upsert when the ID token has no email claim", async () => {
+      msalClient.acquireTokenByCode.mockResolvedValue({
+        idTokenClaims: { sub: "entra-sub-1", name: "Alice" },
+      });
+
+      app = buildApp({ authState: "state-1", pkceVerifier: "verifier-1" });
+      const res = await request(app)
+        .get("/auth/callback")
+        .query({ code: "auth-code", state: "state-1" });
+
+      expect(res.status).toBe(400);
+      expect(userRepository.upsertByExternalId).not.toHaveBeenCalled();
+    });
   });
 
   describe("GET /auth/me", () => {

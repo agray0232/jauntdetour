@@ -97,6 +97,13 @@ function createAuthRouter({ userRepository }) {
         return res.status(400).json({ error: "Invalid identity token" });
       }
 
+      // email is NOT NULL (and format-checked) in the users table, so a missing
+      // email claim would fail the upsert. Reject before touching the DB.
+      if (!email) {
+        logger.error("/auth/callback: ID token missing email claim");
+        return res.status(400).json({ error: "Invalid identity token" });
+      }
+
       const user = await userRepository.upsertByExternalId({
         externalId,
         email,
