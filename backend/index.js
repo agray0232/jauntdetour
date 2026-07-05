@@ -46,7 +46,12 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
+      // Frontend and backend are cross-site in production (separate
+      // *.azurewebsites.net hosts, which the Public Suffix List treats as
+      // distinct sites), so the cookie must be SameSite=None to be sent on
+      // cross-site XHR. SameSite=None requires Secure. Locally both run on
+      // localhost (same site), where Lax works and avoids needing HTTPS.
+      sameSite: IS_PROD ? "none" : "lax",
       secure: IS_PROD,
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
     },
