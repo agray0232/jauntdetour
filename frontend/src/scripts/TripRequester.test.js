@@ -1,4 +1,13 @@
-import { buildTripPayload } from "./TripRequester";
+import axios from "axios";
+import TripRequester, { buildTripPayload } from "./TripRequester";
+
+jest.mock("axios");
+
+jest.mock("../utils/logger", () => ({
+  error: jest.fn(),
+  info: jest.fn(),
+  debug: jest.fn(),
+}));
 
 describe("buildTripPayload", () => {
   const state = {
@@ -87,5 +96,41 @@ describe("buildTripPayload", () => {
     expect(payload.durationSeconds).toBeNull();
     expect(payload.routePolyline).toBeNull();
     expect(payload.detours).toEqual([]);
+  });
+});
+
+describe("TripRequester.listTrips", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("requests the given page/limit with credentials and returns the data", async () => {
+    const data = { trips: [{ trip_id: "t1" }], total: 1, page: 2, limit: 5 };
+    axios.get.mockResolvedValue({ data });
+
+    const result = await new TripRequester().listTrips(2, 5);
+
+    const [url, options] = axios.get.mock.calls[0];
+    expect(url).toContain("/api/trips");
+    expect(options).toMatchObject({
+      params: { page: 2, limit: 5 },
+      withCredentials: true,
+    });
+    expect(result).toBe(data);
+  });
+
+  it("defaults to page 1 and limit 10", async () => {
+    axios.get.mockResolvedValue({ data: {} });
+
+    await new TripRequester().listTrips();
+
+    const [, options] = axios.get.mock.calls[0];
+    expect(options.params).toEqual({ page: 1, limit: 10 });
+  });
+
+  it("propagates errors", async () => {
+    axios.get.mockRejectedValue(new Error("network"));
+
+    await expect(new TripRequester().listTrips()).rejects.toThrow("network");
   });
 });

@@ -15,6 +15,10 @@ const logger = require("../utils/logger");
 const TripRepository = require("../repositories/TripRepository");
 const DetourRepository = require("../repositories/DetourRepository");
 
+// Pagination defaults for GET /api/trips.
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+
 /**
  * @param {object} deps
  * @param {import('../repositories/TripRepository')} deps.tripRepository
@@ -31,11 +35,19 @@ function createTripsRouter({ tripRepository, db }) {
 
   const router = express.Router();
 
-  // List the signed-in user's trips, newest first.
+  // List the signed-in user's trips, newest first, paginated.
   router.get("/", requireAuth, async (req, res) => {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const requestedLimit = parseInt(req.query.limit, 10) || DEFAULT_LIMIT;
+    const limit = Math.min(MAX_LIMIT, Math.max(1, requestedLimit));
+    const offset = (page - 1) * limit;
+
     try {
-      const trips = await tripRepository.getTripsByUserId(req.userId);
-      return res.json({ trips });
+      const [trips, total] = await Promise.all([
+        tripRepository.getTripsByUserId(req.userId, { limit, offset }),
+        tripRepository.countTripsByUserId(req.userId),
+      ]);
+      return res.json({ trips, total, page, limit });
     } catch (err) {
       logger.error("GET /api/trips failed", err);
       return res.status(500).json({ error: "Failed to load trips" });

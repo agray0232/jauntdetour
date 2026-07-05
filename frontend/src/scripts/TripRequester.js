@@ -89,4 +89,24 @@ export default class TripRequester {
         throw error;
       });
   }
+
+  /**
+   * List the signed-in user's saved trips, newest first, paginated.
+   *
+   * @param {number} [page=1] - 1-based page number.
+   * @param {number} [limit=10] - Page size.
+   * @returns {Promise<object>} { trips, total, page, limit }
+   */
+  listTrips(page = 1, limit = 10) {
+    return axios
+      .get(this.getUrlBase() + "/api/trips", {
+        params: { page, limit },
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to load trips:", error);
+        throw error;
+      });
+  }
 }

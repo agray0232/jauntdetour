@@ -28,7 +28,10 @@ describe("trips routes", () => {
 
   // Fake session middleware so we can toggle authentication per test.
   function buildApp(userId) {
-    tripRepository = { getTripsByUserId: jest.fn() };
+    tripRepository = {
+      getTripsByUserId: jest.fn(),
+      countTripsByUserId: jest.fn(),
+    };
     client = {
       query: jest.fn().mockResolvedValue({}),
       release: jest.fn(),
@@ -72,21 +75,57 @@ describe("trips routes", () => {
       expect(tripRepository.getTripsByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns the authenticated user's trips scoped by user id", async () => {
+    it("returns a paginated, user-scoped page of trips (defaults)", async () => {
       const trips = [{ trip_id: "t1", user_id: "user-1" }];
       const app = buildApp("user-1");
       tripRepository.getTripsByUserId.mockResolvedValue(trips);
+      tripRepository.countTripsByUserId.mockResolvedValue(1);
 
       const res = await request(app).get("/api/trips");
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual({ trips });
-      expect(tripRepository.getTripsByUserId).toHaveBeenCalledWith("user-1");
+      expect(res.body).toEqual({ trips, total: 1, page: 1, limit: 10 });
+      expect(tripRepository.getTripsByUserId).toHaveBeenCalledWith("user-1", {
+        limit: 10,
+        offset: 0,
+      });
+      expect(tripRepository.countTripsByUserId).toHaveBeenCalledWith("user-1");
+    });
+
+    it("honors page and limit query params (offset computed)", async () => {
+      const app = buildApp("user-1");
+      tripRepository.getTripsByUserId.mockResolvedValue([]);
+      tripRepository.countTripsByUserId.mockResolvedValue(25);
+
+      const res = await request(app).get("/api/trips?page=3&limit=5");
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ total: 25, page: 3, limit: 5 });
+      expect(tripRepository.getTripsByUserId).toHaveBeenCalledWith("user-1", {
+        limit: 5,
+        offset: 10,
+      });
+    });
+
+    it("clamps limit to the maximum and page to at least 1", async () => {
+      const app = buildApp("user-1");
+      tripRepository.getTripsByUserId.mockResolvedValue([]);
+      tripRepository.countTripsByUserId.mockResolvedValue(0);
+
+      const res = await request(app).get("/api/trips?page=0&limit=999");
+
+      expect(res.body.page).toBe(1);
+      expect(res.body.limit).toBe(50);
+      expect(tripRepository.getTripsByUserId).toHaveBeenCalledWith("user-1", {
+        limit: 50,
+        offset: 0,
+      });
     });
 
     it("returns 500 when the repository throws", async () => {
       const app = buildApp("user-1");
       tripRepository.getTripsByUserId.mockRejectedValue(new Error("DB down"));
+      tripRepository.countTripsByUserId.mockResolvedValue(0);
 
       const res = await request(app).get("/api/trips");
 

@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Header from "./header/Header";
 import AuthButton from "./header/AuthButton";
+import MyTrips from "./sidebar/MyTrips";
 import FooterMenu from "./footer-menu/FooterMenu";
 import MapContainer from "./MapContainer";
 import Sidebar from "./sidebar/Sidebar";
@@ -10,11 +11,14 @@ class Main extends React.Component {
   render() {
     return (
       <div className="app-container">
-        <AuthButton
-          user={this.props.user}
-          setUser={this.props.setUser}
-          clearUser={this.props.clearUser}
-        ></AuthButton>
+        <div className="app-toolbar">
+          <MyTrips></MyTrips>
+          <AuthButton
+            user={this.props.user}
+            setUser={this.props.setUser}
+            clearUser={this.props.clearUser}
+          ></AuthButton>
+        </div>
         <Header
           origin={this.props.origin}
           destination={this.props.destination}

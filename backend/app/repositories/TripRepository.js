@@ -135,17 +135,62 @@ class TripRepository {
   }
 
   /**
-   * List a user's trips, newest first. Optionally filter by status.
+   * List a user's trips, newest first. Optionally filter by status and
+   * paginate with limit/offset.
    *
    * @param {string} userId - Owning user's UUID (authorization scope).
    * @param {object} [options]
    * @param {string} [options.status] - Filter to a single status value.
+   * @param {number} [options.limit] - Max rows to return (pagination).
+   * @param {number} [options.offset] - Rows to skip (pagination).
    * @returns {Promise<object[]>} Array of trip rows (empty if none).
    */
-  async getTripsByUserId(userId, { status } = {}) {
+  async getTripsByUserId(userId, { status, limit, offset } = {}) {
     const params = [userId];
+    let position = 1;
     let text = `
       SELECT ${RETURNING_COLUMNS}
+      FROM trips
+      WHERE user_id = $1
+    `;
+    if (status !== undefined) {
+      position += 1;
+      params.push(status);
+      text += ` AND status = $${position}`;
+    }
+    text += ` ORDER BY created_at DESC`;
+    if (limit !== undefined) {
+      position += 1;
+      params.push(limit);
+      text += ` LIMIT $${position}`;
+    }
+    if (offset !== undefined) {
+      position += 1;
+      params.push(offset);
+      text += ` OFFSET $${position}`;
+    }
+
+    try {
+      const result = await this.pool.query(text, params);
+      return result.rows;
+    } catch (err) {
+      logger.error("getTripsByUserId failed", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Count a user's trips (for pagination). Optionally filter by status.
+   *
+   * @param {string} userId - Owning user's UUID (authorization scope).
+   * @param {object} [options]
+   * @param {string} [options.status] - Filter to a single status value.
+   * @returns {Promise<number>} Total matching trips.
+   */
+  async countTripsByUserId(userId, { status } = {}) {
+    const params = [userId];
+    let text = `
+      SELECT COUNT(*)::int AS total
       FROM trips
       WHERE user_id = $1
     `;
@@ -153,13 +198,12 @@ class TripRepository {
       params.push(status);
       text += ` AND status = $2`;
     }
-    text += ` ORDER BY created_at DESC`;
 
     try {
       const result = await this.pool.query(text, params);
-      return result.rows;
+      return result.rows[0].total;
     } catch (err) {
-      logger.error("getTripsByUserId failed", err);
+      logger.error("countTripsByUserId failed", err);
       throw err;
     }
   }
