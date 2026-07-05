@@ -27,13 +27,18 @@ We use **OpenID Connect / authorization-code + PKCE**. Most teams use **MSAL** (
 
 ```bash
 ENTRA_TENANT_SUBDOMAIN=jauntdetour           # <subdomain>.ciamlogin.com
+ENTRA_TENANT_ID=8edf3fc2-4cde-4c70-9cae-f95870994488  # tenant (directory) GUID
 ENTRA_CLIENT_ID=00001111-aaaa-2222-bbbb-3333cccc4444
 ENTRA_CLIENT_SECRET=                          # from Key Vault in production
 ENTRA_REDIRECT_URI=https://app.jauntdetour.com/auth/callback
 ```
 
 Authority URL format for external tenants:
-`https://<ENTRA_TENANT_SUBDOMAIN>.ciamlogin.com/`
+`https://<ENTRA_TENANT_SUBDOMAIN>.ciamlogin.com/<ENTRA_TENANT_ID>`
+
+The tenant ID must be in the authority path. The CIAM discovery document's
+`issuer` uses the tenant-GUID host, so a tenant-less authority fails MSAL's
+authority-alias validation with `endpoints_resolution_error`.
 
 ---
 
@@ -43,7 +48,7 @@ Authority URL format for external tenants:
 const { ConfidentialClientApplication } = require("@azure/msal-node");
 require("dotenv").config();
 
-const authority = `https://${process.env.ENTRA_TENANT_SUBDOMAIN}.ciamlogin.com/`;
+const authority = `https://${process.env.ENTRA_TENANT_SUBDOMAIN}.ciamlogin.com/${process.env.ENTRA_TENANT_ID}`;
 
 const msalClient = new ConfidentialClientApplication({
   auth: {
@@ -118,7 +123,7 @@ For APIs called with a bearer access token, validate it against the tenant's JWK
 const { createRemoteJWKSet, jwtVerify } = require("jose");
 const { authority } = require("../config/auth");
 
-const JWKS = createRemoteJWKSet(new URL(`${authority}discovery/v2.0/keys`));
+const JWKS = createRemoteJWKSet(new URL(`${authority}/discovery/v2.0/keys`));
 
 async function requireAuth(req, res, next) {
   try {
