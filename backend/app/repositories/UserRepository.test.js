@@ -156,6 +156,94 @@ describe("UserRepository", () => {
     });
   });
 
+  describe("upsertByExternalId", () => {
+    it("creates a new user when none exists for the external_id", async () => {
+      const created = {
+        user_id: "u-new",
+        external_id: "entra-sub-9",
+        email: "new@example.com",
+        display_name: "New User",
+      };
+      // First query: getUserByExternalId -> no rows. Second query: createUser insert.
+      pool.query
+        .mockResolvedValueOnce({ rows: [] })
+        .mockResolvedValueOnce({ rows: [created] });
+
+      const result = await repo.upsertByExternalId({
+        externalId: "entra-sub-9",
+        email: "new@example.com",
+        displayName: "New User",
+      });
+
+      expect(pool.query).toHaveBeenCalledTimes(2);
+      const [insertSql, insertParams] = pool.query.mock.calls[1];
+      expect(insertSql).toContain("INSERT INTO users");
+      expect(insertParams).toEqual([
+        "entra-sub-9",
+        "new@example.com",
+        "New User",
+        {},
+      ]);
+      expect(result).toBe(created);
+    });
+
+    it("updates email, display name, and last_login when the user exists", async () => {
+      const existing = {
+        user_id: "u-existing",
+        external_id: "entra-sub-1",
+        email: "old@example.com",
+        display_name: "Old Name",
+      };
+      const updated = {
+        ...existing,
+        email: "fresh@example.com",
+        display_name: "Fresh",
+      };
+      // First query: getUserByExternalId -> the existing row. Second: updateUser.
+      pool.query
+        .mockResolvedValueOnce({ rows: [existing] })
+        .mockResolvedValueOnce({ rows: [updated] });
+
+      const result = await repo.upsertByExternalId({
+        externalId: "entra-sub-1",
+        email: "fresh@example.com",
+        displayName: "Fresh",
+      });
+
+      expect(pool.query).toHaveBeenCalledTimes(2);
+      const [updateSql, updateParams] = pool.query.mock.calls[1];
+      expect(updateSql).toContain("UPDATE users");
+      expect(updateSql).toContain("email = $1");
+      expect(updateSql).toContain("display_name = $2");
+      expect(updateSql).toContain("last_login = $3");
+      // email, displayName, lastLogin (a Date), then the user_id in the WHERE clause.
+      expect(updateParams[0]).toBe("fresh@example.com");
+      expect(updateParams[1]).toBe("Fresh");
+      expect(updateParams[2]).toBeInstanceOf(Date);
+      expect(updateParams[3]).toBe("u-existing");
+      expect(result).toBe(updated);
+    });
+
+    it("defaults displayName to null when omitted", async () => {
+      pool.query
+        .mockResolvedValueOnce({ rows: [] })
+        .mockResolvedValueOnce({ rows: [{ user_id: "u2" }] });
+
+      await repo.upsertByExternalId({
+        externalId: "entra-sub-2",
+        email: "noname@example.com",
+      });
+
+      const [, insertParams] = pool.query.mock.calls[1];
+      expect(insertParams).toEqual([
+        "entra-sub-2",
+        "noname@example.com",
+        null,
+        {},
+      ]);
+    });
+  });
+
   describe("updateUser", () => {
     it("builds a parameterized SET clause for provided fields only", async () => {
       const updated = { user_id: "u1", display_name: "New Name" };

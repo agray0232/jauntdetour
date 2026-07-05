@@ -28,6 +28,42 @@
   flex-direction: column;
 }
 
+/* Sign in / sign out control, pinned top-right above all layouts. */
+.auth-button {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-button button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1a73e8;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.auth-button button:hover {
+  background-color: #1666c9;
+}
+
+.auth-button__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  background: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+}
+
 /* Desktop: sidebar is visible, so add left margin to avoid overlap */
 @media only screen and (min-width: 1025px) {
   .app-container {

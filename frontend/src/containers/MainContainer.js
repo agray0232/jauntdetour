@@ -103,6 +103,17 @@ let matchDispatchToProps = (dispatch) => {
       dispatch({
         type: "CLEAR_ALL",
       }),
+    setUser: (user) =>
+      dispatch({
+        type: "SET_USER",
+        data: {
+          user: user,
+        },
+      }),
+    clearUser: () =>
+      dispatch({
+        type: "CLEAR_USER",
+      }),
   };
 };
 

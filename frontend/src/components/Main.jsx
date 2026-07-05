@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Header from "./header/Header";
+import AuthButton from "./header/AuthButton";
 import FooterMenu from "./footer-menu/FooterMenu";
 import MapContainer from "./MapContainer";
 import Sidebar from "./sidebar/Sidebar";
@@ -9,6 +10,11 @@ class Main extends React.Component {
   render() {
     return (
       <div className="app-container">
+        <AuthButton
+          user={this.props.user}
+          setUser={this.props.setUser}
+          clearUser={this.props.clearUser}
+        ></AuthButton>
         <Header
           origin={this.props.origin}
           destination={this.props.destination}
@@ -17,6 +23,9 @@ class Main extends React.Component {
           setRoute={this.props.setRoute}
           setTripSummary={this.props.setTripSummary}
           clearAll={this.props.clearAll}
+          user={this.props.user}
+          setUser={this.props.setUser}
+          clearUser={this.props.clearUser}
         ></Header>
         <Sidebar
           origin={this.props.origin}
@@ -124,6 +133,9 @@ Main.propTypes = {
   getDetourForm: PropTypes.func,
   clearAll: PropTypes.func,
   clearDetourOptions: PropTypes.func,
+  user: PropTypes.object,
+  setUser: PropTypes.func,
+  clearUser: PropTypes.func,
 };
 
 export default Main;

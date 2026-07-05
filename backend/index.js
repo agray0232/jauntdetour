@@ -6,23 +6,59 @@ var bodyParser = require("body-parser");
 const routeAPI = require("./app/modules/routeAPI");
 const placesAPI = require("./app/modules/placesAPI");
 
+const db = require("./app/db/pool");
+const UserRepository = require("./app/repositories/UserRepository");
+const TripRepository = require("./app/repositories/TripRepository");
+const createAuthRouter = require("./app/routes/auth");
+const createTripsRouter = require("./app/routes/trips");
+
+const IS_PROD = process.env.NODE_ENV === "production";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3001";
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
+if (!SESSION_SECRET) {
+  throw new Error("SESSION_SECRET environment variable is required");
+}
+
 var app = express();
+
+// Behind a reverse proxy in production (e.g. Azure), trust the first proxy so
+// secure cookies work over the terminated TLS connection.
+if (IS_PROD) {
+  app.set("trust proxy", 1);
+}
+
 app.use(cookieParser());
 
 // This body parser is needed to access the body of a request cleanly
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
-app.use(cors());
+// Explicit origin + credentials so the browser sends/accepts the session cookie
+// on cross-origin XHR from the frontend dev server. A wildcard origin cannot be
+// combined with credentials.
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 
 app.use(
   session({
-    secret: "temporarySecretKey",
+    secret: SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 100000000 },
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: IS_PROD,
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    },
   })
 );
+
+// Compose the data-access layer once and inject it into the routers.
+const userRepository = new UserRepository(db);
+const tripRepository = new TripRepository(db);
+
+app.use("/auth", createAuthRouter({ userRepository }));
+app.use("/api/trips", createTripsRouter({ tripRepository }));
 
 app.get("/test", function (req, res) {
   res.send({ message: "Hello" });
