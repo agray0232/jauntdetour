@@ -18,10 +18,14 @@ class AuthButton extends React.Component {
   }
 
   componentDidMount() {
-    // Resolve login state from the backend session on first render.
+    // Resolve login state from the backend session on first render, syncing
+    // Redux to the backend's truth: set the user when signed in, clear it
+    // otherwise (getCurrentUser resolves to null on a 401 or any error).
     this.auth.getCurrentUser().then((user) => {
       if (user) {
         this.props.setUser(user);
+      } else {
+        this.props.clearUser();
       }
     });
   }
