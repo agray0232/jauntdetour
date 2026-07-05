@@ -166,11 +166,17 @@ class UserRepository {
     const existing = await this.getUserByExternalId(externalId);
 
     if (existing) {
-      return this.updateUser(existing.user_id, {
-        email,
-        displayName,
-        lastLogin: new Date(),
-      });
+      // Always stamp the login time, but only refresh profile fields the IdP
+      // actually provided — otherwise a missing claim would overwrite existing
+      // non-null data with null.
+      const updates = { lastLogin: new Date() };
+      if (email != null) {
+        updates.email = email;
+      }
+      if (displayName != null) {
+        updates.displayName = displayName;
+      }
+      return this.updateUser(existing.user_id, updates);
     }
 
     return this.createUser({ externalId, email, displayName });

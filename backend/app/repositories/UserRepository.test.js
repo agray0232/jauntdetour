@@ -224,6 +224,24 @@ describe("UserRepository", () => {
       expect(result).toBe(updated);
     });
 
+    it("only stamps last_login (no profile overwrite) when claims are omitted", async () => {
+      const existing = { user_id: "u-existing", external_id: "entra-sub-1" };
+      pool.query
+        .mockResolvedValueOnce({ rows: [existing] })
+        .mockResolvedValueOnce({ rows: [existing] });
+
+      await repo.upsertByExternalId({ externalId: "entra-sub-1" });
+
+      const [updateSql, updateParams] = pool.query.mock.calls[1];
+      expect(updateSql).toContain("UPDATE users");
+      expect(updateSql).not.toContain("email =");
+      expect(updateSql).not.toContain("display_name =");
+      expect(updateSql).toContain("last_login = $1");
+      // Only last_login (a Date), then the user_id in the WHERE clause.
+      expect(updateParams[0]).toBeInstanceOf(Date);
+      expect(updateParams[1]).toBe("u-existing");
+    });
+
     it("defaults displayName to null when omitted", async () => {
       pool.query
         .mockResolvedValueOnce({ rows: [] })
