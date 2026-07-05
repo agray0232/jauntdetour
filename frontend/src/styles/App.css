@@ -260,6 +260,23 @@
   color: #6c757d;
 }
 
+/* Save Trip — pill shape to match the detour/route buttons; green to signal a
+   positive "save/commit" action, distinct from the blue Add Detour button. */
+.save-trip-btn {
+  width: 100%;
+  border-radius: 1.5rem !important;
+  background-color: #188038 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.save-trip-btn:hover,
+.save-trip-btn:active {
+  background-color: #146c2e !important;
+  color: #ffffff !important;
+}
+
 /* Apply rounded pill-like styling to all buttons */
 .btn {
   border-radius: 1.5rem !important;
