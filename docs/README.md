@@ -8,10 +8,11 @@ JauntDetour uses the Google Maps APIs to build routes and find detours along the
 
 ## Architecture Decisions
 
-| Area | Decision |
-|------|----------|
-| **Database** | Azure Database for PostgreSQL (Flexible Server) — relational, no PostGIS |
-| **Authentication** | Microsoft Entra External ID (email/password + social login) |
+| Area               | Decision                                                                      |
+| ------------------ | ----------------------------------------------------------------------------- |
+| **Database**       | Azure Database for PostgreSQL (Flexible Server) — relational, no PostGIS      |
+| **Authentication** | Microsoft Entra External ID (email/password + social login)                   |
+| **Frontend UI**    | Fluent 2 (`@fluentui/react-components`) for new UI (dialogs, drawers, toasts) |
 
 ---
 
@@ -39,11 +40,13 @@ Managed identity for end users.
 ## Key Findings
 
 ### Database — Azure Database for PostgreSQL
+
 - **Right fit:** Google APIs handle all geospatial work, so the data model is plainly relational (`users → trips → detours`) with JSONB for API responses — no spatial extension needed.
 - **Cost-effective:** lowest 3-year TCO of all options (~$5,484 vs ~$21,624 for Cosmos DB). Free for the first 12 months (B1ms, 32 GB).
 - **Future-ready:** `pgvector` + the `azure_ai` extension add semantic search in-place if the AI agent needs it later — no second datastore.
 
 ### Authentication — Microsoft Entra External ID
+
 - **Managed and secure:** Microsoft hosts sign-up/sign-in and handles password storage, MFA, lockout, and reset. We never store credentials.
 - **Flexible login:** email/password **and** Google (plus Apple/Facebook/Microsoft) in one hosted, brandable flow.
 - **Clean DB tie-in:** the token's `sub` claim is stored as `users.external_id` — no `password_hash`. The resolved `user_id` is the authorization boundary for both the API and a future Foundry agent tool.
@@ -83,17 +86,17 @@ Managed identity for end users.
 
 ## Document Status
 
-| Document | Status | Last Updated |
-|----------|--------|--------------|
-| database/selection.md | ✅ | Jun 2, 2026 |
-| database/schema.sql | ✅ | Jun 2, 2026 |
-| database/cost-comparison.md | ✅ | Jun 2, 2026 |
-| database/implementation-guide.md | ✅ | Jun 2, 2026 |
-| authentication/authentication.md | ✅ | Jun 2, 2026 |
-| authentication/implementation-guide.md | ✅ | Jun 2, 2026 |
-| authentication/security.md | ✅ | Jun 2, 2026 |
-| authentication/session-management.md | ✅ | Jun 2, 2026 |
-| authentication/compliance.md | ✅ | Jun 2, 2026 |
+| Document                               | Status | Last Updated |
+| -------------------------------------- | ------ | ------------ |
+| database/selection.md                  | ✅     | Jun 2, 2026  |
+| database/schema.sql                    | ✅     | Jun 2, 2026  |
+| database/cost-comparison.md            | ✅     | Jun 2, 2026  |
+| database/implementation-guide.md       | ✅     | Jun 2, 2026  |
+| authentication/authentication.md       | ✅     | Jun 2, 2026  |
+| authentication/implementation-guide.md | ✅     | Jun 2, 2026  |
+| authentication/security.md             | ✅     | Jun 2, 2026  |
+| authentication/session-management.md   | ✅     | Jun 2, 2026  |
+| authentication/compliance.md           | ✅     | Jun 2, 2026  |
 
 ---
 

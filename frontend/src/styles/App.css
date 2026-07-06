@@ -28,12 +28,19 @@
   flex-direction: column;
 }
 
-/* Sign in / sign out control, pinned top-right above all layouts. */
-.auth-button {
+/* Top-right toolbar holding the My Trips + sign-in/out controls. */
+.app-toolbar {
   position: fixed;
   top: 12px;
   right: 12px;
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sign in / sign out control. */
+.auth-button {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -62,6 +69,27 @@
   padding: 6px 10px;
   border-radius: 4px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* My Trips drawer list. */
+.my-trips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.my-trips-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.my-trips-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 /* Desktop: sidebar is visible, so add left margin to avoid overlap */
@@ -230,6 +258,23 @@
   cursor: not-allowed;
   background-color: transparent;
   color: #6c757d;
+}
+
+/* Save Trip — pill shape to match the detour/route buttons; green to signal a
+   positive "save/commit" action, distinct from the blue Add Detour button. */
+.save-trip-btn {
+  width: 100%;
+  border-radius: 1.5rem !important;
+  background-color: #188038 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.save-trip-btn:hover,
+.save-trip-btn:active {
+  background-color: #146c2e !important;
+  color: #ffffff !important;
 }
 
 /* Apply rounded pill-like styling to all buttons */

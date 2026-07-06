@@ -182,9 +182,69 @@ describe("TripRepository", () => {
       expect(params).toEqual([USER_ID, "completed"]);
     });
 
+    it("appends LIMIT and OFFSET when paginating", async () => {
+      pool.query.mockResolvedValue({ rows: [] });
+
+      await repo.getTripsByUserId(USER_ID, { limit: 10, offset: 20 });
+
+      const [sql, params] = pool.query.mock.calls[0];
+      expect(sql).toContain("LIMIT $2");
+      expect(sql).toContain("OFFSET $3");
+      expect(params).toEqual([USER_ID, 10, 20]);
+    });
+
+    it("numbers pagination placeholders after a status filter", async () => {
+      pool.query.mockResolvedValue({ rows: [] });
+
+      await repo.getTripsByUserId(USER_ID, {
+        status: "planned",
+        limit: 5,
+        offset: 5,
+      });
+
+      const [sql, params] = pool.query.mock.calls[0];
+      expect(sql).toContain("AND status = $2");
+      expect(sql).toContain("LIMIT $3");
+      expect(sql).toContain("OFFSET $4");
+      expect(params).toEqual([USER_ID, "planned", 5, 5]);
+    });
+
     it("rethrows database errors", async () => {
       pool.query.mockRejectedValue(new Error("DB down"));
       await expect(repo.getTripsByUserId(USER_ID)).rejects.toThrow("DB down");
+    });
+  });
+
+  describe("countTripsByUserId", () => {
+    it("counts a user's trips scoped by user id", async () => {
+      pool.query.mockResolvedValue({ rows: [{ total: 7 }] });
+
+      const result = await repo.countTripsByUserId(USER_ID);
+
+      const [sql, params] = pool.query.mock.calls[0];
+      expect(sql).toContain("SELECT COUNT(*)::int AS total");
+      expect(sql).toContain("WHERE user_id = $1");
+      expect(sql).not.toContain("status = $2");
+      expect(params).toEqual([USER_ID]);
+      expect(result).toBe(7);
+    });
+
+    it("adds a status filter when provided", async () => {
+      pool.query.mockResolvedValue({ rows: [{ total: 2 }] });
+
+      const result = await repo.countTripsByUserId(USER_ID, {
+        status: "completed",
+      });
+
+      const [sql, params] = pool.query.mock.calls[0];
+      expect(sql).toContain("AND status = $2");
+      expect(params).toEqual([USER_ID, "completed"]);
+      expect(result).toBe(2);
+    });
+
+    it("rethrows database errors", async () => {
+      pool.query.mockRejectedValue(new Error("DB down"));
+      await expect(repo.countTripsByUserId(USER_ID)).rejects.toThrow("DB down");
     });
   });
 

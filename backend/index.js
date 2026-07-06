@@ -63,7 +63,7 @@ const userRepository = new UserRepository(db);
 const tripRepository = new TripRepository(db);
 
 app.use("/auth", createAuthRouter({ userRepository }));
-app.use("/api/trips", createTripsRouter({ tripRepository }));
+app.use("/api/trips", createTripsRouter({ tripRepository, db }));
 
 app.get("/test", function (req, res) {
   res.send({ message: "Hello" });
