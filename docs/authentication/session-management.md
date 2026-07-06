@@ -68,6 +68,13 @@ Short access-token lifetimes (15 min) mean a revoked or expired session is rejec
 
 ## Optional: server-side session store
 
+> **Current build:** sessions use `express-session`'s default in-memory
+> `MemoryStore`. That's fine for local dev and a single instance, but it loses
+> sessions on restart and does not scale across instances. Before running more
+> than one backend instance, switch to a persistent store — `connect-pg-simple`
+> (reuses the existing Postgres pool) is the low-friction option; Redis (below)
+> is the alternative when you also need global revocation.
+
 Adopt this only if you need **immediate, global revocation** or **concurrent-session limits** — e.g. an admin "sign out all devices" feature. It adds a Redis dependency and rotation code.
 
 ```javascript

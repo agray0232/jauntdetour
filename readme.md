@@ -10,7 +10,9 @@ Jauntdetour consists of a lightweight frontend that is built in React that inter
 
 ### Prerequisites
 
-This project was built with NodeJS (v10.15.3). You can obtain the latest version from the URL below.
+This project requires **Node.js >= 20** (`@azure/msal-node`, used for
+authentication, requires Node 20+). The dev container already provides Node 20.
+For a local install, get the latest LTS from the URL below.
 
 ```
 https://nodejs.org/en/download/
@@ -43,10 +45,29 @@ DB_USER=<user>
 DB_PASSWORD=<password>
 DB_SSL=false   # local Postgres; leave unset for Azure (SSL required)
 ```
+
+Authentication & session (backend) — Microsoft Entra External ID
+```
+ENTRA_TENANT_SUBDOMAIN=<subdomain>        # the <sub> in <sub>.ciamlogin.com
+ENTRA_TENANT_ID=<tenant directory GUID>   # required in the CIAM authority path
+ENTRA_CLIENT_ID=<app registration client id>
+ENTRA_CLIENT_SECRET=<app registration client secret>
+ENTRA_REDIRECT_URI=http://localhost:3000/auth/callback
+SESSION_SECRET=<long random string>       # e.g. openssl rand -base64 32
+FRONTEND_URL=http://localhost:3001        # CORS origin + post-login redirect
+```
+
+Frontend
+```
+REACT_APP_GOOGLE_API_KEY=<key>
+REACT_APP_BACKEND_URL=<backend base URL>   # optional; defaults by NODE_ENV
+```
 When using the DevContainer, the `DB_*` values are provided automatically from
 `.devcontainer/devcontainer.env` and point at the bundled local PostgreSQL database.
 For the schema, data-access layer, and Azure/production setup, see
 [docs/database/implementation-guide.md](docs/database/implementation-guide.md).
+For authentication setup, see
+[docs/authentication/implementation-guide.md](docs/authentication/implementation-guide.md).
 
 ### Installing
 

@@ -12,6 +12,7 @@ JauntDetour uses the Google Maps APIs to build routes and find detours along the
 |------|----------|
 | **Database** | Azure Database for PostgreSQL (Flexible Server) — relational, no PostGIS |
 | **Authentication** | Microsoft Entra External ID (email/password + social login) |
+| **Frontend UI** | Fluent 2 (`@fluentui/react-components`) for new UI (dialogs, drawers, toasts) |
 
 ---
 
