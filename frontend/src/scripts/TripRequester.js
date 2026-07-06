@@ -30,6 +30,8 @@ export function buildTripPayload(state, tripName) {
     (sum, leg) => sum + ((leg.duration && leg.duration.value) || 0),
     0
   );
+  // Only report distance/duration when there is a route; preserve a genuine 0.
+  const hasLegs = legs.length > 0;
   const routePolyline =
     (route && route.overview_polyline && route.overview_polyline.points) ||
     null;
@@ -47,8 +49,8 @@ export function buildTripPayload(state, tripName) {
       lng: endLocation.lng ?? null,
     },
     routePolyline,
-    distanceMeters: distanceMeters || null,
-    durationSeconds: durationSeconds || null,
+    distanceMeters: hasLegs ? distanceMeters : null,
+    durationSeconds: hasLegs ? durationSeconds : null,
     detours: (detourList || []).map((detour) => ({
       placeName: detour.name,
       placeType: detour.type || null,

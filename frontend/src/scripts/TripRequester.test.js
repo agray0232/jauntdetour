@@ -97,6 +97,30 @@ describe("buildTripPayload", () => {
     expect(payload.routePolyline).toBeNull();
     expect(payload.detours).toEqual([]);
   });
+
+  it("preserves a computed 0 distance/duration when a route (legs) exists", () => {
+    const payload = buildTripPayload(
+      {
+        origin: "A",
+        destination: "A",
+        route: {
+          legs: [
+            {
+              start_location: { lat: 1, lng: 2 },
+              end_location: { lat: 1, lng: 2 },
+              distance: { value: 0 },
+              duration: { value: 0 },
+            },
+          ],
+        },
+        detourList: [],
+      },
+      "Zero"
+    );
+
+    expect(payload.distanceMeters).toBe(0);
+    expect(payload.durationSeconds).toBe(0);
+  });
 });
 
 describe("TripRequester.listTrips", () => {
