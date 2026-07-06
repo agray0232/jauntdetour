@@ -243,5 +243,18 @@ describe("trips routes", () => {
       // No transaction was started and no create was attempted.
       expect(mockCreateTrip).not.toHaveBeenCalled();
     });
+
+    it("preserves a numeric 0 for distance/duration (does not coerce to null)", async () => {
+      const app = buildApp("user-1");
+      mockCreateTrip.mockResolvedValue({ trip_id: "t1" });
+
+      await request(app)
+        .post("/api/trips")
+        .send({ ...validBody, distanceMeters: 0, durationSeconds: 0 });
+
+      expect(mockCreateTrip).toHaveBeenCalledWith(
+        expect.objectContaining({ distanceMeters: 0, durationSeconds: 0 })
+      );
+    });
   });
 });

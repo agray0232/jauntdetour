@@ -27,11 +27,11 @@ This needs **no Redis** and no hand-rolled refresh logic.
 
 ## Token lifetimes
 
-| Token | Lifetime | Storage |
-|-------|----------|---------|
-| Access token | 15–60 min | Browser memory |
-| Refresh token | 7–30 days (rotated by Entra) | MSAL cache / `httpOnly` cookie |
-| App session | Match refresh window; absolute cap 90 days | `httpOnly` cookie |
+| Token         | Lifetime                                   | Storage                        |
+| ------------- | ------------------------------------------ | ------------------------------ |
+| Access token  | 15–60 min                                  | Browser memory                 |
+| Refresh token | 7–30 days (rotated by Entra)               | MSAL cache / `httpOnly` cookie |
+| App session   | Match refresh window; absolute cap 90 days | `httpOnly` cookie              |
 
 The frontend refreshes the access token shortly before expiry (MSAL `acquireTokenSilent` handles this transparently).
 
@@ -44,9 +44,9 @@ The frontend refreshes the access token shortly before expiry (MSAL `acquireToke
 - **Force sign-out everywhere** — see the optional server-side store below; without it, revocation is bounded by access-token lifetime (keep it short, 15 min).
 
 ```javascript
-router.post('/auth/logout', (req, res) => {
+router.post("/auth/logout", (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie('connect.sid');
+    res.clearCookie("connect.sid");
     const logoutUrl =
       `${authority}oauth2/v2.0/logout` +
       `?post_logout_redirect_uri=${encodeURIComponent(process.env.FRONTEND_URL)}`;
@@ -79,8 +79,16 @@ Adopt this only if you need **immediate, global revocation** or **concurrent-ses
 
 ```javascript
 // Store session metadata for revocation
-await redis.setex(`session:${userId}:${sessionId}`, 7 * 24 * 60 * 60,
-  JSON.stringify({ userId, createdAt: Date.now(), lastActivity: Date.now(), ip: req.ip }));
+await redis.setex(
+  `session:${userId}:${sessionId}`,
+  7 * 24 * 60 * 60,
+  JSON.stringify({
+    userId,
+    createdAt: Date.now(),
+    lastActivity: Date.now(),
+    ip: req.ip,
+  })
+);
 
 // Revoke a single session or all of a user's sessions
 async function revokeAllUserSessions(userId) {

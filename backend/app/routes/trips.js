@@ -113,8 +113,8 @@ function createTripsRouter({ tripRepository, db }) {
         origin,
         destination,
         routePolyline: routePolyline || null,
-        distanceMeters: distanceMeters || null,
-        durationSeconds: durationSeconds || null,
+        distanceMeters: distanceMeters ?? null,
+        durationSeconds: durationSeconds ?? null,
       });
 
       const savedDetours = [];
