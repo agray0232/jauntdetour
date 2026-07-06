@@ -65,6 +65,14 @@ trips.
 - Frontend: `cd frontend && CI=true npm test`.
 - Keep the suite green and add tests for new backend routes/repos.
 
+## Pull Requests
+
+- When asked for a PR description, provide a summary of the change, what files were modified, how to test the
+  changes, and any other relevant information or assumtpions. Provide all of this in markdown to be copy and pasted.
+- Once a PR is active, the user will review the changes with you based on feedback from a Github Copilot agent.
+  For each comment, do not assume the comment is correct, but investigate if the feedback is accurate and within
+  scope of this PR. If it is, work with the user to make changes based on the feedback.
+
 ## Known constraints / follow-ups
 
 - `@azure/msal-node` requires **Node >= 20** (dev container is 20). CI still uses
