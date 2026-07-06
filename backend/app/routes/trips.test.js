@@ -232,5 +232,16 @@ describe("trips routes", () => {
       expect(mockCreateDetour).not.toHaveBeenCalled();
       expect(client.query).toHaveBeenCalledWith("COMMIT");
     });
+
+    it("returns 500 when acquiring a DB client fails", async () => {
+      const app = buildApp("user-1");
+      db.getClient.mockRejectedValue(new Error("pool exhausted"));
+
+      const res = await request(app).post("/api/trips").send(validBody);
+
+      expect(res.status).toBe(500);
+      // No transaction was started and no create was attempted.
+      expect(mockCreateTrip).not.toHaveBeenCalled();
+    });
   });
 });

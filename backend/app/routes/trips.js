@@ -92,7 +92,14 @@ function createTripsRouter({ tripRepository, db }) {
       }
     }
 
-    const client = await db.getClient();
+    let client;
+    try {
+      client = await db.getClient();
+    } catch (err) {
+      logger.error("POST /api/trips failed to acquire DB client", err);
+      return res.status(500).json({ error: "Failed to save trip" });
+    }
+
     try {
       await client.query("BEGIN");
 
