@@ -14,20 +14,30 @@ const requireAuth = require("../middleware/requireAuth");
 const logger = require("../utils/logger");
 const TripRepository = require("../repositories/TripRepository");
 const DetourRepository = require("../repositories/DetourRepository");
+const { buildTripView } = require("../modules/tripView");
 
 // Pagination defaults for GET /api/trips.
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
 
+// trip_id is a uuid column, so reject malformed ids up front (otherwise
+// Postgres throws 22P02 and the request surfaces as a 500).
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * @param {object} deps
  * @param {import('../repositories/TripRepository')} deps.tripRepository
+ * @param {import('../repositories/DetourRepository')} deps.detourRepository
  * @param {{ getClient: Function }} deps.db - Pool with getClient() for transactions.
  * @returns {import('express').Router}
  */
-function createTripsRouter({ tripRepository, db }) {
+function createTripsRouter({ tripRepository, detourRepository, db }) {
   if (!tripRepository) {
     throw new Error("createTripsRouter requires a tripRepository");
+  }
+  if (!detourRepository) {
+    throw new Error("createTripsRouter requires a detourRepository");
   }
   if (!db || typeof db.getClient !== "function") {
     throw new Error("createTripsRouter requires a db with a getClient method");
@@ -51,6 +61,32 @@ function createTripsRouter({ tripRepository, db }) {
     } catch (err) {
       logger.error("GET /api/trips failed", err);
       return res.status(500).json({ error: "Failed to load trips" });
+    }
+  });
+
+  // Load a single trip (with its detours) for the signed-in user, reconstructed
+  // into a render-ready view (decoded route + bounds + summary). Scoped by
+  // req.userId — getTripById returns null for a trip the user does not own.
+  router.get("/:tripId", requireAuth, async (req, res) => {
+    if (!UUID_RE.test(req.params.tripId)) {
+      return res.status(404).json({ error: "Trip not found" });
+    }
+    try {
+      const trip = await tripRepository.getTripById(
+        req.params.tripId,
+        req.userId
+      );
+      if (!trip) {
+        return res.status(404).json({ error: "Trip not found" });
+      }
+      const detours = await detourRepository.getDetoursByTripId(
+        req.params.tripId,
+        req.userId
+      );
+      return res.json(buildTripView(trip, detours));
+    } catch (err) {
+      logger.error("GET /api/trips/:tripId failed", err);
+      return res.status(500).json({ error: "Failed to load trip" });
     }
   });
 

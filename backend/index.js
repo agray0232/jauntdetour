@@ -9,6 +9,7 @@ const placesAPI = require("./app/modules/placesAPI");
 const db = require("./app/db/pool");
 const UserRepository = require("./app/repositories/UserRepository");
 const TripRepository = require("./app/repositories/TripRepository");
+const DetourRepository = require("./app/repositories/DetourRepository");
 const createAuthRouter = require("./app/routes/auth");
 const createTripsRouter = require("./app/routes/trips");
 
@@ -61,9 +62,13 @@ app.use(
 // Compose the data-access layer once and inject it into the routers.
 const userRepository = new UserRepository(db);
 const tripRepository = new TripRepository(db);
+const detourRepository = new DetourRepository(db);
 
 app.use("/auth", createAuthRouter({ userRepository }));
-app.use("/api/trips", createTripsRouter({ tripRepository, db }));
+app.use(
+  "/api/trips",
+  createTripsRouter({ tripRepository, detourRepository, db })
+);
 
 app.get("/test", function (req, res) {
   res.send({ message: "Hello" });
