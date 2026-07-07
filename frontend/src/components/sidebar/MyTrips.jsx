@@ -202,7 +202,6 @@ export default function MyTrips() {
                   <Card
                     key={trip.trip_id}
                     className="my-trips-card"
-                    style={{ position: "relative" }}
                     role="button"
                     tabIndex={0}
                     aria-label={`Load trip ${trip.trip_name}`}
@@ -217,7 +216,7 @@ export default function MyTrips() {
                   >
                     {loadingTripId === trip.trip_id && (
                       <div
-                        style={{ position: "absolute", top: 8, right: 8 }}
+                        className="my-trips-card__spinner"
                         aria-hidden="true"
                       >
                         <Spinner size="tiny" />
