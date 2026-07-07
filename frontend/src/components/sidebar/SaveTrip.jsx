@@ -24,15 +24,15 @@ import AuthRequester from "../../scripts/AuthRequester";
 const RESUME_SAVE_KEY = "jaunt.resumeSaveTrip";
 
 /**
- * SaveTrip — the trip name field plus the "Save Trip" control and its dialogs.
+ * SaveTrip — the "Save Trip" control and its dialogs.
  *
- * Reads the current trip straight from Redux. The trip name is a first-class,
- * editable field (Redux `tripName`): when a saved trip is loaded its name
- * populates here. The button always reads "Save Trip"; under the hood it updates
- * the loaded trip in place when one is loaded (`currentTrip`), otherwise creates
- * a new trip. If the loaded trip no longer exists (e.g. deleted elsewhere), the
- * update falls back to creating a new trip. Signed-out users are prompted to
- * sign in.
+ * Reads the current trip straight from Redux. The trip name is edited in the
+ * separate TripNameField component (Redux `tripName`); SaveTrip only renders the
+ * Save button plus its dialogs. The button always reads "Save Trip"; under the
+ * hood it updates the loaded trip in place when one is loaded (`currentTrip`),
+ * otherwise creates a new trip. If the loaded trip no longer exists (e.g. deleted
+ * elsewhere), the update falls back to creating a new trip. Signed-out users are
+ * prompted to sign in.
  */
 export default function SaveTrip() {
   const {

@@ -32,8 +32,8 @@ function validateDetours(detours) {
     if (
       !d ||
       !d.placeName ||
-      typeof d.latitude !== "number" ||
-      typeof d.longitude !== "number"
+      !Number.isFinite(d.latitude) ||
+      !Number.isFinite(d.longitude)
     ) {
       return "Each detour requires placeName, latitude, and longitude";
     }
@@ -172,7 +172,7 @@ function createTripsRouter({ tripRepository, detourRepository, db }) {
           placeId: d.placeId || null,
           placeType: d.placeType || null,
           address: d.address || null,
-          rating: d.rating || null,
+          rating: d.rating != null ? Number(d.rating) : null,
           metadata: d.metadata || {},
         });
         savedDetours.push(detour);
@@ -271,7 +271,7 @@ function createTripsRouter({ tripRepository, detourRepository, db }) {
           placeId: d.placeId || null,
           placeType: d.placeType || null,
           address: d.address || null,
-          rating: d.rating || null,
+          rating: d.rating != null ? Number(d.rating) : null,
           metadata: d.metadata || {},
         });
         savedDetours.push(detour);
