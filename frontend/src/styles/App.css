@@ -83,13 +83,23 @@
   flex-direction: column;
   gap: 4px;
   position: relative;
+  /* Leave room in the top-right corner for the options (ellipsis) menu. */
+  padding-right: 40px;
 }
 
-/* Overlay the load spinner in the corner so it never resizes the card. */
+/* Overlay the load spinner in the corner so it never resizes the card. Sits to
+   the left of the options menu so the two never overlap. */
 .my-trips-card__spinner {
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 44px;
+}
+
+/* Options (ellipsis) menu pinned to the card's top-right corner. */
+.my-trips-card__menu {
+  position: absolute;
+  top: 4px;
+  right: 4px;
 }
 
 .my-trips-pager {

@@ -9,12 +9,28 @@ import {
   Card,
   Text,
   Spinner,
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
+  Dialog,
+  DialogSurface,
+  DialogBody,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Toaster,
   Toast,
   ToastTitle,
   useToastController,
   useId,
 } from "@fluentui/react-components";
+import {
+  MoreHorizontalRegular,
+  CopyRegular,
+  DeleteRegular,
+} from "@fluentui/react-icons";
 import TripRequester from "../../scripts/TripRequester";
 import log from "../../utils/logger";
 
@@ -36,7 +52,8 @@ function formatEndpoint(point) {
 
 // Rebuild the planning state from a loaded trip view. clearAll first so a loaded
 // trip never merges with an in-progress one; SET_ROUTE also flips showRoute /
-// showDetourButton so the map and sidebar render.
+// showDetourButton so the map and sidebar render. Record which saved trip is
+// loaded (currentTrip) and its name so the sidebar can offer "Update Trip".
 function applyTripView(dispatch, { trip, route, detours }) {
   dispatch({ type: "CLEAR_ALL" });
   dispatch({
@@ -55,6 +72,17 @@ function applyTripView(dispatch, { trip, route, detours }) {
     });
   }
   dispatch({ type: "SET_DETOUR_LIST", data: { detourList: detours || [] } });
+  dispatch({ type: "SET_TRIP_NAME", data: { tripName: trip.tripName || "" } });
+  dispatch({
+    type: "SET_CURRENT_TRIP",
+    data: {
+      currentTrip: {
+        tripId: trip.tripId,
+        tripName: trip.tripName,
+        updatedAt: trip.updatedAt,
+      },
+    },
+  });
 }
 
 /**
@@ -74,6 +102,11 @@ export default function MyTrips() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [loadingTripId, setLoadingTripId] = useState(null);
+  // Trip pending delete confirmation (null when the dialog is closed).
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  // Trip currently being duplicated (drives the per-card spinner).
+  const [duplicatingTripId, setDuplicatingTripId] = useState(null);
 
   // Monotonic token for load requests. Only the most recent click's response is
   // applied, so quick successive clicks can't resolve out of order and load the
@@ -152,6 +185,79 @@ export default function MyTrips() {
     [dispatch, dispatchToast]
   );
 
+  // Duplicate a trip, then refresh the list so the new "Copy of ..." appears
+  // (it sorts to the top by created_at). The copy is created server-side.
+  const handleDuplicate = useCallback(
+    (trip) => {
+      setDuplicatingTripId(trip.trip_id);
+      new TripRequester()
+        .duplicateTrip(trip.trip_id)
+        .then(() => {
+          load(page);
+          dispatchToast(
+            <Toast>
+              <ToastTitle>Trip duplicated</ToastTitle>
+            </Toast>,
+            { intent: "success" }
+          );
+        })
+        .catch((err) => {
+          log.error("Failed to duplicate trip:", err);
+          dispatchToast(
+            <Toast>
+              <ToastTitle>
+                Could not duplicate that trip. Please try again.
+              </ToastTitle>
+            </Toast>,
+            { intent: "error" }
+          );
+        })
+        .finally(() => setDuplicatingTripId(null));
+    },
+    [load, page, dispatchToast]
+  );
+
+  // Delete the trip awaiting confirmation, then update the list in place. If the
+  // last trip on a page beyond the first is removed, step back a page so the
+  // user isn't left on an empty page.
+  const handleConfirmDelete = useCallback(() => {
+    const trip = deleteTarget;
+    if (!trip) {
+      return;
+    }
+    setDeleting(true);
+    new TripRequester()
+      .deleteTrip(trip.trip_id)
+      .then(() => {
+        setDeleteTarget(null);
+        const remaining = trips.filter((t) => t.trip_id !== trip.trip_id);
+        if (remaining.length === 0 && page > 1) {
+          load(page - 1);
+        } else {
+          setTrips(remaining);
+          setTotal((prev) => Math.max(0, prev - 1));
+        }
+        dispatchToast(
+          <Toast>
+            <ToastTitle>Trip deleted</ToastTitle>
+          </Toast>,
+          { intent: "success" }
+        );
+      })
+      .catch((err) => {
+        log.error("Failed to delete trip:", err);
+        dispatchToast(
+          <Toast>
+            <ToastTitle>
+              Could not delete that trip. Please try again.
+            </ToastTitle>
+          </Toast>,
+          { intent: "error" }
+        );
+      })
+      .finally(() => setDeleting(false));
+  }, [deleteTarget, trips, page, load, dispatchToast]);
+
   if (!user) {
     return null;
   }
@@ -205,7 +311,10 @@ export default function MyTrips() {
                     role="button"
                     tabIndex={0}
                     aria-label={`Load trip ${trip.trip_name}`}
-                    aria-busy={loadingTripId === trip.trip_id}
+                    aria-busy={
+                      loadingTripId === trip.trip_id ||
+                      duplicatingTripId === trip.trip_id
+                    }
                     onClick={() => loadTrip(trip.trip_id)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
@@ -214,7 +323,8 @@ export default function MyTrips() {
                       }
                     }}
                   >
-                    {loadingTripId === trip.trip_id && (
+                    {(loadingTripId === trip.trip_id ||
+                      duplicatingTripId === trip.trip_id) && (
                       <div
                         className="my-trips-card__spinner"
                         aria-hidden="true"
@@ -222,6 +332,39 @@ export default function MyTrips() {
                         <Spinner size="tiny" />
                       </div>
                     )}
+                    {/* Options menu — stop propagation so opening it (or picking
+                        an item) never triggers the card's load-trip click. */}
+                    <div
+                      className="my-trips-card__menu"
+                      onClick={(event) => event.stopPropagation()}
+                      onKeyDown={(event) => event.stopPropagation()}
+                    >
+                      <Menu>
+                        <MenuTrigger disableButtonEnhancement>
+                          <Button
+                            appearance="subtle"
+                            icon={<MoreHorizontalRegular />}
+                            aria-label={`Options for ${trip.trip_name}`}
+                          />
+                        </MenuTrigger>
+                        <MenuPopover>
+                          <MenuList>
+                            <MenuItem
+                              icon={<CopyRegular />}
+                              onClick={() => handleDuplicate(trip)}
+                            >
+                              Duplicate
+                            </MenuItem>
+                            <MenuItem
+                              icon={<DeleteRegular />}
+                              onClick={() => setDeleteTarget(trip)}
+                            >
+                              Delete
+                            </MenuItem>
+                          </MenuList>
+                        </MenuPopover>
+                      </Menu>
+                    </div>
                     <Text weight="semibold">{trip.trip_name}</Text>
                     <Text size={200}>
                       {formatEndpoint(trip.origin)} &rarr;{" "}
@@ -257,6 +400,44 @@ export default function MyTrips() {
           )}
         </DrawerBody>
       </OverlayDrawer>
+
+      {/* Delete confirmation — driven by deleteTarget so a single dialog serves
+          every card. */}
+      <Dialog
+        open={deleteTarget !== null}
+        onOpenChange={(event, data) => {
+          if (!data.open) {
+            setDeleteTarget(null);
+          }
+        }}
+      >
+        <DialogSurface>
+          <DialogBody>
+            <DialogTitle>Delete trip?</DialogTitle>
+            <DialogContent>
+              This permanently deletes
+              {deleteTarget ? ` "${deleteTarget.trip_name}"` : " this trip"} and
+              its detours. This can&apos;t be undone.
+            </DialogContent>
+            <DialogActions>
+              <Button
+                appearance="secondary"
+                disabled={deleting}
+                onClick={() => setDeleteTarget(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                appearance="primary"
+                disabled={deleting}
+                onClick={handleConfirmDelete}
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
     </>
   );
 }

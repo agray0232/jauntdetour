@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@fluentui/react-components": "^9.74.3",
+    "@fluentui/react-icons": "^2.0.331",
     "@fortawesome/free-solid-svg-icons": "6.7.2",
     "@fortawesome/react-fontawesome": "0.2.2",
     "@vis.gl/react-google-maps": "1.5.4",

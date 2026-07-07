@@ -2,6 +2,12 @@ let initialState = {
   user: null,
   origin: "",
   destination: "",
+  // The name the user has given the in-progress trip (bound to the sidebar
+  // name field). currentTrip identifies which saved trip, if any, is loaded —
+  // null means an unsaved/new trip. Both persist to sessionStorage (see
+  // index.js) so they survive the sign-in redirect.
+  tripName: "",
+  currentTrip: null,
   detourType: "Hike",
   detourList: [],
   tripSummary: {},
@@ -39,6 +45,16 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         destination: action.data.destination,
+      };
+    case "SET_TRIP_NAME":
+      return {
+        ...state,
+        tripName: action.data.tripName,
+      };
+    case "SET_CURRENT_TRIP":
+      return {
+        ...state,
+        currentTrip: action.data.currentTrip,
       };
     case "SET_ROUTE":
       return {
@@ -117,6 +133,8 @@ const mainReducer = (state = initialState, action) => {
         user: state.user,
         origin: "",
         destination: "",
+        tripName: "",
+        currentTrip: null,
         detourType: "Hike",
         detourList: [],
         tripSummary: {},

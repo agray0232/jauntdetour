@@ -129,4 +129,62 @@ export default class TripRequester {
         throw error;
       });
   }
+
+  /**
+   * Update an existing saved trip (and replace its detours). Resolves to the
+   * reconstructed trip view on success.
+   *
+   * @param {string} tripId - The trip's UUID.
+   * @param {object} payload - Body from buildTripPayload.
+   * @returns {Promise<object>} { trip, route, detours }
+   */
+  updateTrip(tripId, payload) {
+    return axios
+      .put(this.getUrlBase() + "/api/trips/" + tripId, payload, {
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to update trip:", error);
+        throw error;
+      });
+  }
+
+  /**
+   * Duplicate a saved trip (and all of its detours). Resolves to the new trip.
+   *
+   * @param {string} tripId - The source trip's UUID.
+   * @returns {Promise<object>} { trip, detours }
+   */
+  duplicateTrip(tripId) {
+    return axios
+      .post(
+        this.getUrlBase() + "/api/trips/" + tripId + "/duplicate",
+        {},
+        { withCredentials: true }
+      )
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to duplicate trip:", error);
+        throw error;
+      });
+  }
+
+  /**
+   * Delete a saved trip (and its detours, via ON DELETE CASCADE).
+   *
+   * @param {string} tripId - The trip's UUID.
+   * @returns {Promise<object>} { message }
+   */
+  deleteTrip(tripId) {
+    return axios
+      .delete(this.getUrlBase() + "/api/trips/" + tripId, {
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to delete trip:", error);
+        throw error;
+      });
+  }
 }

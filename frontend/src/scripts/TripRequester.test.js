@@ -184,3 +184,82 @@ describe("TripRequester.getTrip", () => {
     );
   });
 });
+
+describe("TripRequester.updateTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("PUTs the payload to the trip id with credentials and returns the data", async () => {
+    const payload = { tripName: "Updated" };
+    const data = { trip: { tripId: "t1", tripName: "Updated" } };
+    axios.put.mockResolvedValue({ data });
+
+    const result = await new TripRequester().updateTrip("t1", payload);
+
+    const [url, body, options] = axios.put.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(body).toBe(payload);
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.put.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().updateTrip("t1", {})).rejects.toThrow(
+      "boom"
+    );
+  });
+});
+
+describe("TripRequester.duplicateTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("POSTs to the duplicate endpoint with credentials and returns the data", async () => {
+    const data = { trip: { trip_id: "copy-1" } };
+    axios.post.mockResolvedValue({ data });
+
+    const result = await new TripRequester().duplicateTrip("t1");
+
+    const [url, body, options] = axios.post.mock.calls[0];
+    expect(url).toContain("/api/trips/t1/duplicate");
+    expect(body).toEqual({});
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.post.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().duplicateTrip("t1")).rejects.toThrow(
+      "boom"
+    );
+  });
+});
+
+describe("TripRequester.deleteTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("DELETEs the trip by id with credentials and returns the data", async () => {
+    const data = { message: "Trip deleted" };
+    axios.delete.mockResolvedValue({ data });
+
+    const result = await new TripRequester().deleteTrip("t1");
+
+    const [url, options] = axios.delete.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.delete.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().deleteTrip("t1")).rejects.toThrow("boom");
+  });
+});
