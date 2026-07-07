@@ -83,13 +83,23 @@
   flex-direction: column;
   gap: 4px;
   position: relative;
+  /* Leave room in the top-right corner for the options (ellipsis) menu. */
+  padding-right: 40px;
 }
 
-/* Overlay the load spinner in the corner so it never resizes the card. */
+/* Overlay the load spinner in the corner so it never resizes the card. Sits to
+   the left of the options menu so the two never overlap. */
 .my-trips-card__spinner {
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 44px;
+}
+
+/* Options (ellipsis) menu pinned to the card's top-right corner. */
+.my-trips-card__menu {
+  position: absolute;
+  top: 4px;
+  right: 4px;
 }
 
 .my-trips-pager {
@@ -283,6 +293,55 @@
 .save-trip-btn:active {
   background-color: #146c2e !important;
   color: #ffffff !important;
+}
+
+/* Save Trip section — sits at the bottom of the trip timeline. Left-aligned to
+   override the app-wide centered text, with sidebar-matching side padding. */
+.save-trip-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 15px 20px;
+  text-align: left;
+}
+
+/* Trip name — sits above the trip timeline, sidebar-matching side padding. */
+.trip-name-section {
+  padding: 10px 15px 4px;
+  text-align: left;
+}
+
+/* Trip name — full width, left-aligned, with a bit of polish over the plain
+   default input. */
+.trip-name-field {
+  width: 100%;
+}
+
+.trip-name-field label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: #1f3d2b;
+  margin-bottom: 4px;
+}
+
+.trip-name-input {
+  width: 100%;
+  border-radius: 8px;
+  background-color: #f4f9f5;
+  border-color: #cfe3d5;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out;
+}
+
+.trip-name-input:hover {
+  background-color: #eef6f0;
+}
+
+.trip-name-input:focus-within {
+  background-color: #ffffff;
+  border-color: #188038;
 }
 
 /* Apply rounded pill-like styling to all buttons */

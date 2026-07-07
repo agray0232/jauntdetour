@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@fluentui/react-components": "^9.74.3",
+    "@fluentui/react-icons": "^2.0.331",
     "@fortawesome/free-solid-svg-icons": "6.7.2",
     "@fortawesome/react-fontawesome": "0.2.2",
     "@vis.gl/react-google-maps": "1.5.4",
@@ -17,8 +18,8 @@
     "redux": "5.0.1"
   },
   "scripts": {
-    "start": "PORT=3001 react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts build",
+    "start": "GENERATE_SOURCEMAP=false PORT=3001 react-scripts --openssl-legacy-provider start",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test --watchAll=false",
     "test:watch": "react-scripts test",
     "test:coverage": "react-scripts test --coverage --watchAll=false",

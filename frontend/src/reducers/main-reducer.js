@@ -2,6 +2,15 @@ let initialState = {
   user: null,
   origin: "",
   destination: "",
+  // The name the user has given the in-progress trip (bound to the sidebar
+  // name field). currentTrip identifies which saved trip, if any, is loaded —
+  // null means an unsaved/new trip. Both persist to sessionStorage (see
+  // index.js) so they survive the sign-in redirect.
+  tripName: "",
+  currentTrip: null,
+  // Bumped whenever a trip is created/updated/deleted/duplicated so an open
+  // "My Trips" list can refresh itself without being closed and reopened.
+  tripsRevision: 0,
   detourType: "Hike",
   detourList: [],
   tripSummary: {},
@@ -39,6 +48,21 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         destination: action.data.destination,
+      };
+    case "SET_TRIP_NAME":
+      return {
+        ...state,
+        tripName: action.data.tripName,
+      };
+    case "SET_CURRENT_TRIP":
+      return {
+        ...state,
+        currentTrip: action.data.currentTrip,
+      };
+    case "BUMP_TRIPS_REVISION":
+      return {
+        ...state,
+        tripsRevision: (state.tripsRevision || 0) + 1,
       };
     case "SET_ROUTE":
       return {
@@ -117,6 +141,11 @@ const mainReducer = (state = initialState, action) => {
         user: state.user,
         origin: "",
         destination: "",
+        tripName: "",
+        currentTrip: null,
+        // Preserve the revision counter so clearing the planner doesn't look
+        // like a trip mutation to an open list.
+        tripsRevision: state.tripsRevision,
         detourType: "Hike",
         detourList: [],
         tripSummary: {},

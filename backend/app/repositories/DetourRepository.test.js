@@ -292,4 +292,33 @@ describe("DetourRepository", () => {
       );
     });
   });
+
+  describe("deleteByTripId", () => {
+    it("deletes all detours on a trip, scoped via the parent trip", async () => {
+      pool.query.mockResolvedValue({ rowCount: 3 });
+
+      const result = await repo.deleteByTripId(TRIP_ID, USER_ID);
+
+      const [sql, params] = pool.query.mock.calls[0];
+      expect(sql).toContain("DELETE FROM detours");
+      expect(sql).toContain("WHERE trip_id = $1");
+      expect(sql).toContain(
+        "trip_id IN (SELECT trip_id FROM trips WHERE user_id = $2)"
+      );
+      expect(params).toEqual([TRIP_ID, USER_ID]);
+      expect(result).toBe(3);
+    });
+
+    it("returns 0 when the trip has no detours or is not owned", async () => {
+      pool.query.mockResolvedValue({ rowCount: 0 });
+      expect(await repo.deleteByTripId(TRIP_ID, "not-the-owner")).toBe(0);
+    });
+
+    it("rethrows database errors", async () => {
+      pool.query.mockRejectedValue(new Error("DB down"));
+      await expect(repo.deleteByTripId(TRIP_ID, USER_ID)).rejects.toThrow(
+        "DB down"
+      );
+    });
+  });
 });

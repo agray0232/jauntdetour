@@ -121,6 +121,69 @@ describe("buildTripPayload", () => {
     expect(payload.distanceMeters).toBe(0);
     expect(payload.durationSeconds).toBe(0);
   });
+
+  it("falls back to saved values when there are no route legs (rename)", () => {
+    // A loaded trip's route has an encoded polyline but no legs, so the payload
+    // must preserve the saved distance/duration/coords instead of nulling them.
+    const fallback = {
+      origin: { address: "San Francisco, CA", lat: 37.77, lng: -122.42 },
+      destination: { address: "Los Angeles, CA", lat: 34.05, lng: -118.24 },
+      routePolyline: "saved_polyline",
+      distanceMeters: 616000,
+      durationSeconds: 32400,
+    };
+    const payload = buildTripPayload(
+      {
+        origin: "San Francisco, CA",
+        destination: "Los Angeles, CA",
+        route: { overview_polyline: { points: "saved_polyline" } },
+        detourList: [],
+      },
+      "Renamed trip",
+      fallback
+    );
+
+    expect(payload.distanceMeters).toBe(616000);
+    expect(payload.durationSeconds).toBe(32400);
+    expect(payload.origin).toEqual(fallback.origin);
+    expect(payload.destination).toEqual(fallback.destination);
+    expect(payload.routePolyline).toBe("saved_polyline");
+  });
+
+  it("prefers live route legs over the fallback when the trip was re-routed", () => {
+    const fallback = {
+      origin: { address: "Old", lat: 1, lng: 1 },
+      destination: { address: "Old", lat: 2, lng: 2 },
+      routePolyline: "old",
+      distanceMeters: 100,
+      durationSeconds: 100,
+    };
+    const payload = buildTripPayload(
+      {
+        origin: "New A",
+        destination: "New B",
+        route: {
+          overview_polyline: { points: "new" },
+          legs: [
+            {
+              start_location: { lat: 10, lng: 20 },
+              end_location: { lat: 30, lng: 40 },
+              distance: { value: 5000 },
+              duration: { value: 600 },
+            },
+          ],
+        },
+        detourList: [],
+      },
+      "Re-routed",
+      fallback
+    );
+
+    expect(payload.distanceMeters).toBe(5000);
+    expect(payload.durationSeconds).toBe(600);
+    expect(payload.origin).toEqual({ address: "New A", lat: 10, lng: 20 });
+    expect(payload.routePolyline).toBe("new");
+  });
 });
 
 describe("TripRequester.listTrips", () => {
@@ -182,5 +245,84 @@ describe("TripRequester.getTrip", () => {
     await expect(new TripRequester().getTrip("bad")).rejects.toThrow(
       "not found"
     );
+  });
+});
+
+describe("TripRequester.updateTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("PUTs the payload to the trip id with credentials and returns the data", async () => {
+    const payload = { tripName: "Updated" };
+    const data = { trip: { tripId: "t1", tripName: "Updated" } };
+    axios.put.mockResolvedValue({ data });
+
+    const result = await new TripRequester().updateTrip("t1", payload);
+
+    const [url, body, options] = axios.put.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(body).toBe(payload);
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.put.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().updateTrip("t1", {})).rejects.toThrow(
+      "boom"
+    );
+  });
+});
+
+describe("TripRequester.duplicateTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("POSTs to the duplicate endpoint with credentials and returns the data", async () => {
+    const data = { trip: { trip_id: "copy-1" } };
+    axios.post.mockResolvedValue({ data });
+
+    const result = await new TripRequester().duplicateTrip("t1");
+
+    const [url, body, options] = axios.post.mock.calls[0];
+    expect(url).toContain("/api/trips/t1/duplicate");
+    expect(body).toEqual({});
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.post.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().duplicateTrip("t1")).rejects.toThrow(
+      "boom"
+    );
+  });
+});
+
+describe("TripRequester.deleteTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("DELETEs the trip by id with credentials and returns the data", async () => {
+    const data = { message: "Trip deleted" };
+    axios.delete.mockResolvedValue({ data });
+
+    const result = await new TripRequester().deleteTrip("t1");
+
+    const [url, options] = axios.delete.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.delete.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().deleteTrip("t1")).rejects.toThrow("boom");
   });
 });

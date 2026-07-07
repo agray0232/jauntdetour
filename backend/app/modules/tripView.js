@@ -111,6 +111,11 @@ function buildTripView(trip, detours = []) {
       tripName: trip.trip_name,
       origin: trip.origin,
       destination: trip.destination,
+      updatedAt: trip.updated_at,
+      // Raw stored values so the client can persist them back on an update that
+      // hasn't re-routed (a rename), without recomputing from a route it lacks.
+      distanceMeters: trip.distance_meters ?? null,
+      durationSeconds: trip.duration_seconds ?? null,
     },
     route,
     detours: (detours || []).map(mapDetour),

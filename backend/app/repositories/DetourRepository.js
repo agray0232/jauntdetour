@@ -265,6 +265,31 @@ class DetourRepository {
       throw err;
     }
   }
+
+  /**
+   * Delete every detour on a trip. Used by "update trip" to replace the trip's
+   * detours wholesale (delete-all then re-insert) inside a transaction. Scoped
+   * by user_id via the parent trip, so a user cannot clear detours on a trip
+   * they do not own (the subquery matches no trip and nothing is deleted).
+   *
+   * @param {string} tripId - Parent trip UUID.
+   * @param {string} userId - Owning user's UUID (authorization scope).
+   * @returns {Promise<number>} The number of detours deleted.
+   */
+  async deleteByTripId(tripId, userId) {
+    const text = `
+      DELETE FROM detours
+      WHERE trip_id = $1
+        AND trip_id IN (SELECT trip_id FROM trips WHERE user_id = $2)
+    `;
+    try {
+      const result = await this.pool.query(text, [tripId, userId]);
+      return result.rowCount;
+    } catch (err) {
+      logger.error("deleteByTripId failed", err);
+      throw err;
+    }
+  }
 }
 
 module.exports = DetourRepository;

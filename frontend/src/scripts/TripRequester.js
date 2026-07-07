@@ -10,11 +10,18 @@ import log from "../utils/logger";
  * no extra API calls. `origin`/`destination` in state are the address strings
  * the user typed; we pair them with the resolved leg coordinates.
  *
+ * When there are no route legs (e.g. a loaded trip that hasn't been re-routed,
+ * such as a plain rename), the live route can't supply distance/duration/coords,
+ * so we fall back to `fallback` — the saved values captured when the trip was
+ * loaded — to avoid wiping them on update.
+ *
  * @param {object} state - Redux state ({ origin, destination, route, detourList }).
  * @param {string} tripName - The name the user entered for the trip.
- * @returns {object} The request body for POST /api/trips.
+ * @param {object} [fallback] - Saved trip values ({ origin, destination,
+ *   routePolyline, distanceMeters, durationSeconds }) used when no live legs.
+ * @returns {object} The request body for POST/PUT /api/trips.
  */
-export function buildTripPayload(state, tripName) {
+export function buildTripPayload(state, tripName, fallback = null) {
   const { origin, destination, route, detourList } = state;
   const legs = (route && route.legs) || [];
   const firstLeg = legs[0] || {};
@@ -32,25 +39,31 @@ export function buildTripPayload(state, tripName) {
   );
   // Only report distance/duration when there is a route; preserve a genuine 0.
   const hasLegs = legs.length > 0;
+  const fb = fallback || {};
   const routePolyline =
     (route && route.overview_polyline && route.overview_polyline.points) ||
+    fb.routePolyline ||
     null;
 
   return {
     tripName,
-    origin: {
-      address: origin || "",
-      lat: startLocation.lat ?? null,
-      lng: startLocation.lng ?? null,
-    },
-    destination: {
-      address: destination || "",
-      lat: endLocation.lat ?? null,
-      lng: endLocation.lng ?? null,
-    },
+    origin: hasLegs
+      ? {
+          address: origin || "",
+          lat: startLocation.lat ?? null,
+          lng: startLocation.lng ?? null,
+        }
+      : fb.origin || { address: origin || "", lat: null, lng: null },
+    destination: hasLegs
+      ? {
+          address: destination || "",
+          lat: endLocation.lat ?? null,
+          lng: endLocation.lng ?? null,
+        }
+      : fb.destination || { address: destination || "", lat: null, lng: null },
     routePolyline,
-    distanceMeters: hasLegs ? distanceMeters : null,
-    durationSeconds: hasLegs ? durationSeconds : null,
+    distanceMeters: hasLegs ? distanceMeters : (fb.distanceMeters ?? null),
+    durationSeconds: hasLegs ? durationSeconds : (fb.durationSeconds ?? null),
     detours: (detourList || []).map((detour) => ({
       placeName: detour.name,
       placeType: detour.type || null,
@@ -126,6 +139,64 @@ export default class TripRequester {
       .then((response) => response.data)
       .catch((error) => {
         log.error("Failed to load trip:", error);
+        throw error;
+      });
+  }
+
+  /**
+   * Update an existing saved trip (and replace its detours). Resolves to the
+   * reconstructed trip view on success.
+   *
+   * @param {string} tripId - The trip's UUID.
+   * @param {object} payload - Body from buildTripPayload.
+   * @returns {Promise<object>} { trip, route, detours }
+   */
+  updateTrip(tripId, payload) {
+    return axios
+      .put(this.getUrlBase() + "/api/trips/" + tripId, payload, {
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to update trip:", error);
+        throw error;
+      });
+  }
+
+  /**
+   * Duplicate a saved trip (and all of its detours). Resolves to the new trip.
+   *
+   * @param {string} tripId - The source trip's UUID.
+   * @returns {Promise<object>} { trip, detours }
+   */
+  duplicateTrip(tripId) {
+    return axios
+      .post(
+        this.getUrlBase() + "/api/trips/" + tripId + "/duplicate",
+        {},
+        { withCredentials: true }
+      )
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to duplicate trip:", error);
+        throw error;
+      });
+  }
+
+  /**
+   * Delete a saved trip (and its detours, via ON DELETE CASCADE).
+   *
+   * @param {string} tripId - The trip's UUID.
+   * @returns {Promise<object>} { message }
+   */
+  deleteTrip(tripId) {
+    return axios
+      .delete(this.getUrlBase() + "/api/trips/" + tripId, {
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to delete trip:", error);
         throw error;
       });
   }
