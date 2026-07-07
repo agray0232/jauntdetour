@@ -49,4 +49,17 @@ describe("mainReducer — trip name and current trip", () => {
     expect(cleared.currentTrip).toBeNull();
     expect(cleared.user).toEqual({ id: "u1" });
   });
+
+  it("BUMP_TRIPS_REVISION increments the revision counter", () => {
+    const first = mainReducer(undefined, { type: "BUMP_TRIPS_REVISION" });
+    expect(first.tripsRevision).toBe(1);
+    const second = mainReducer(first, { type: "BUMP_TRIPS_REVISION" });
+    expect(second.tripsRevision).toBe(2);
+  });
+
+  it("CLEAR_ALL preserves the trips revision counter", () => {
+    const bumped = mainReducer(undefined, { type: "BUMP_TRIPS_REVISION" });
+    const cleared = mainReducer(bumped, { type: "CLEAR_ALL" });
+    expect(cleared.tripsRevision).toBe(1);
+  });
 });

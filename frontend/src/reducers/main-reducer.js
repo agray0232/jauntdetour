@@ -8,6 +8,9 @@ let initialState = {
   // index.js) so they survive the sign-in redirect.
   tripName: "",
   currentTrip: null,
+  // Bumped whenever a trip is created/updated/deleted/duplicated so an open
+  // "My Trips" list can refresh itself without being closed and reopened.
+  tripsRevision: 0,
   detourType: "Hike",
   detourList: [],
   tripSummary: {},
@@ -55,6 +58,11 @@ const mainReducer = (state = initialState, action) => {
       return {
         ...state,
         currentTrip: action.data.currentTrip,
+      };
+    case "BUMP_TRIPS_REVISION":
+      return {
+        ...state,
+        tripsRevision: (state.tripsRevision || 0) + 1,
       };
     case "SET_ROUTE":
       return {
@@ -135,6 +143,9 @@ const mainReducer = (state = initialState, action) => {
         destination: "",
         tripName: "",
         currentTrip: null,
+        // Preserve the revision counter so clearing the planner doesn't look
+        // like a trip mutation to an open list.
+        tripsRevision: state.tripsRevision,
         detourType: "Hike",
         detourList: [],
         tripSummary: {},

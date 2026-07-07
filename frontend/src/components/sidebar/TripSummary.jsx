@@ -52,7 +52,6 @@ class TripSummary extends React.Component {
                     id="export-route-button"
                     text="Open in Google Maps"
                   ></Button>
-                  <SaveTrip></SaveTrip>
                 </div>
               </div>
             </div>
@@ -65,6 +64,7 @@ class TripSummary extends React.Component {
               setTripSummary={this.props.setTripSummary}
               setDetourList={this.props.setDetourList}
             ></TripTimeline>
+            <SaveTrip></SaveTrip>
           </div>
         ) : (
           <div></div>
