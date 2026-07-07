@@ -23,6 +23,7 @@ const createTripsRouter = require("./trips");
 
 describe("trips routes", () => {
   let tripRepository;
+  let detourRepository;
   let db;
   let client;
 
@@ -31,6 +32,10 @@ describe("trips routes", () => {
     tripRepository = {
       getTripsByUserId: jest.fn(),
       countTripsByUserId: jest.fn(),
+      getTripById: jest.fn(),
+    };
+    detourRepository = {
+      getDetoursByTripId: jest.fn(),
     };
     client = {
       query: jest.fn().mockResolvedValue({}),
@@ -44,7 +49,10 @@ describe("trips routes", () => {
       req.session = userId ? { userId } : {};
       next();
     });
-    app.use("/api/trips", createTripsRouter({ tripRepository, db }));
+    app.use(
+      "/api/trips",
+      createTripsRouter({ tripRepository, detourRepository, db })
+    );
     return app;
   }
 
@@ -59,10 +67,16 @@ describe("trips routes", () => {
       );
     });
 
+    it("throws when no detourRepository is provided", () => {
+      expect(() =>
+        createTripsRouter({ tripRepository: {}, db: { getClient: jest.fn() } })
+      ).toThrow("createTripsRouter requires a detourRepository");
+    });
+
     it("throws when no db with getClient is provided", () => {
-      expect(() => createTripsRouter({ tripRepository: {} })).toThrow(
-        "createTripsRouter requires a db with a getClient method"
-      );
+      expect(() =>
+        createTripsRouter({ tripRepository: {}, detourRepository: {} })
+      ).toThrow("createTripsRouter requires a db with a getClient method");
     });
   });
 
@@ -255,6 +269,102 @@ describe("trips routes", () => {
       expect(mockCreateTrip).toHaveBeenCalledWith(
         expect.objectContaining({ distanceMeters: 0, durationSeconds: 0 })
       );
+    });
+  });
+
+  describe("GET /api/trips/:tripId", () => {
+    const TRIP_ID = "11111111-1111-4111-8111-111111111111";
+    const tripRow = {
+      trip_id: TRIP_ID,
+      trip_name: "Coastal drive",
+      origin: { address: "SF", lat: 37.77, lng: -122.42 },
+      destination: { address: "LA", lat: 34.05, lng: -118.24 },
+      route_polyline: "_p~iF~ps|U_ulLnnqC_mqNvxq`@",
+      distance_meters: 3218.68,
+      duration_seconds: 5400,
+    };
+
+    it("returns 401 when unauthenticated", async () => {
+      const app = buildApp(null);
+      const res = await request(app).get(`/api/trips/${TRIP_ID}`);
+
+      expect(res.status).toBe(401);
+      expect(tripRepository.getTripById).not.toHaveBeenCalled();
+    });
+
+    it("returns 404 for a malformed (non-UUID) tripId without querying", async () => {
+      const app = buildApp("user-1");
+
+      const res = await request(app).get("/api/trips/not-a-uuid");
+
+      expect(res.status).toBe(404);
+      expect(tripRepository.getTripById).not.toHaveBeenCalled();
+    });
+
+    it("returns 404 when the trip is not found / not owned", async () => {
+      const app = buildApp("user-1");
+      tripRepository.getTripById.mockResolvedValue(null);
+
+      const res = await request(app).get(`/api/trips/${TRIP_ID}`);
+
+      expect(res.status).toBe(404);
+      expect(tripRepository.getTripById).toHaveBeenCalledWith(
+        TRIP_ID,
+        "user-1"
+      );
+      expect(detourRepository.getDetoursByTripId).not.toHaveBeenCalled();
+    });
+
+    it("returns the reconstructed trip view (route + detours) for the owner", async () => {
+      const app = buildApp("user-1");
+      tripRepository.getTripById.mockResolvedValue(tripRow);
+      detourRepository.getDetoursByTripId.mockResolvedValue([
+        {
+          place_name: "Big Sur",
+          place_type: "Landmark",
+          latitude: "36.27000000",
+          longitude: "-121.80000000",
+          place_id: "gp-1",
+          rating: "4.8",
+          metadata: { addedTime: 45 },
+        },
+      ]);
+
+      const res = await request(app).get(`/api/trips/${TRIP_ID}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.trip).toMatchObject({
+        tripId: TRIP_ID,
+        tripName: "Coastal drive",
+      });
+      expect(res.body.route.overview_polyline.complete_overview).toHaveLength(
+        3
+      );
+      expect(res.body.route.summary).toEqual({
+        distance: 2,
+        time: { hours: 1, min: 30 },
+      });
+      expect(res.body.detours).toEqual([
+        {
+          name: "Big Sur",
+          type: "Landmark",
+          lat: 36.27,
+          lng: -121.8,
+          id: "gp-1",
+          placeId: "gp-1",
+          rating: 4.8,
+          addedTime: 45,
+        },
+      ]);
+    });
+
+    it("returns 500 when the repository throws", async () => {
+      const app = buildApp("user-1");
+      tripRepository.getTripById.mockRejectedValue(new Error("DB down"));
+
+      const res = await request(app).get(`/api/trips/${TRIP_ID}`);
+
+      expect(res.status).toBe(500);
     });
   });
 });

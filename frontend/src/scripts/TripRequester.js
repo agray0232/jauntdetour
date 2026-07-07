@@ -111,4 +111,22 @@ export default class TripRequester {
         throw error;
       });
   }
+
+  /**
+   * Load a single saved trip, reconstructed for rendering.
+   *
+   * @param {string} tripId - The trip's UUID.
+   * @returns {Promise<object>} { trip, route, detours }
+   */
+  getTrip(tripId) {
+    return axios
+      .get(this.getUrlBase() + "/api/trips/" + tripId, {
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        log.error("Failed to load trip:", error);
+        throw error;
+      });
+  }
 }

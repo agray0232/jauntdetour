@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
   OverlayDrawer,
@@ -9,8 +9,14 @@ import {
   Card,
   Text,
   Spinner,
+  Toaster,
+  Toast,
+  ToastTitle,
+  useToastController,
+  useId,
 } from "@fluentui/react-components";
 import TripRequester from "../../scripts/TripRequester";
+import log from "../../utils/logger";
 
 const PAGE_SIZE = 10;
 
@@ -31,11 +37,12 @@ function formatEndpoint(point) {
 /**
  * MyTrips — a "My Trips" button (shown only when signed in) that opens a
  * non-modal Fluent drawer listing the user's saved trips. The drawer overlays
- * the map without a backdrop, so the map stays visible behind it. List-only for
- * now; loading a trip onto the map is a later story.
+ * the map without a backdrop, so the map stays visible behind it. Clicking a
+ * trip loads it onto the map and into the sidebar; the drawer stays open.
  */
 export default function MyTrips() {
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
   const [trips, setTrips] = useState([]);
@@ -43,6 +50,10 @@ export default function MyTrips() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [loadingTripId, setLoadingTripId] = useState(null);
+
+  const toasterId = useId("my-trips-toaster");
+  const { dispatchToast } = useToastController(toasterId);
 
   const load = useCallback((nextPage) => {
     setLoading(true);
@@ -63,6 +74,65 @@ export default function MyTrips() {
     load(1);
   };
 
+  // Fetch a saved trip and rebuild the planning state from it. clearAll first so
+  // a loaded trip never merges with an in-progress one. The drawer stays open.
+  // Only show the spinner if the load is slow (>250ms); fast loads render
+  // instantly, so a momentary spinner would just be a distracting flash.
+  const loadTrip = useCallback(
+    (tripId) => {
+      let settled = false;
+      const spinnerTimer = setTimeout(() => {
+        if (!settled) {
+          setLoadingTripId(tripId);
+        }
+      }, 250);
+      new TripRequester()
+        .getTrip(tripId)
+        .then((view) => {
+          const { trip, route, detours } = view;
+          dispatch({ type: "CLEAR_ALL" });
+          dispatch({
+            type: "SET_ORIGIN",
+            data: { origin: (trip.origin && trip.origin.address) || "" },
+          });
+          dispatch({
+            type: "SET_DESTINATION",
+            data: {
+              destination: (trip.destination && trip.destination.address) || "",
+            },
+          });
+          if (route) {
+            dispatch({ type: "SET_ROUTE", data: { route } });
+            dispatch({
+              type: "SET_TRIP_SUMMARY",
+              data: { tripSummary: route.summary },
+            });
+          }
+          dispatch({
+            type: "SET_DETOUR_LIST",
+            data: { detourList: detours || [] },
+          });
+        })
+        .catch((err) => {
+          log.error("Failed to load trip:", err);
+          dispatchToast(
+            <Toast>
+              <ToastTitle>
+                Could not load that trip. Please try again.
+              </ToastTitle>
+            </Toast>,
+            { intent: "error" }
+          );
+        })
+        .finally(() => {
+          settled = true;
+          clearTimeout(spinnerTimer);
+          setLoadingTripId(null);
+        });
+    },
+    [dispatch, dispatchToast]
+  );
+
   if (!user) {
     return null;
   }
@@ -71,6 +141,7 @@ export default function MyTrips() {
 
   return (
     <>
+      <Toaster toasterId={toasterId} />
       <Button appearance="secondary" id="my-trips-button" onClick={handleOpen}>
         My Trips
       </Button>
@@ -109,7 +180,30 @@ export default function MyTrips() {
             <>
               <div className="my-trips-list">
                 {trips.map((trip) => (
-                  <Card key={trip.trip_id} className="my-trips-card">
+                  <Card
+                    key={trip.trip_id}
+                    className="my-trips-card"
+                    style={{ position: "relative" }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Load trip ${trip.trip_name}`}
+                    aria-busy={loadingTripId === trip.trip_id}
+                    onClick={() => loadTrip(trip.trip_id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        loadTrip(trip.trip_id);
+                      }
+                    }}
+                  >
+                    {loadingTripId === trip.trip_id && (
+                      <div
+                        style={{ position: "absolute", top: 8, right: 8 }}
+                        aria-hidden="true"
+                      >
+                        <Spinner size="tiny" />
+                      </div>
+                    )}
                     <Text weight="semibold">{trip.trip_name}</Text>
                     <Text size={200}>
                       {formatEndpoint(trip.origin)} &rarr;{" "}

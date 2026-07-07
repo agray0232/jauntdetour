@@ -158,3 +158,29 @@ describe("TripRequester.listTrips", () => {
     await expect(new TripRequester().listTrips()).rejects.toThrow("network");
   });
 });
+
+describe("TripRequester.getTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("requests the trip by id with credentials and returns the data", async () => {
+    const data = { trip: { tripId: "t1" }, route: {}, detours: [] };
+    axios.get.mockResolvedValue({ data });
+
+    const result = await new TripRequester().getTrip("t1");
+
+    const [url, options] = axios.get.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.get.mockRejectedValue(new Error("not found"));
+
+    await expect(new TripRequester().getTrip("bad")).rejects.toThrow(
+      "not found"
+    );
+  });
+});
