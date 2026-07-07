@@ -25,9 +25,11 @@ function buildSummary(distanceMeters, durationSeconds) {
   const min = Math.floor((seconds / 3600 - hours) * 60);
 
   let distance = (distanceMeters || 0) / METERS_PER_MILE;
-  // At least 3 significant digits under 100 mi; whole miles at or above 100.
-  distance =
-    distance < 100 ? Number(distance.toPrecision(3)) : Math.round(distance);
+  // Match routeAPI.createSummaryData exactly: under 100 mi the distance is a
+  // toPrecision(3) STRING (preserving trailing zeros like "2.00"), at/above 100
+  // it is a rounded number. Keeping the string means a loaded trip displays
+  // identically to a freshly planned one.
+  distance = distance < 100 ? distance.toPrecision(3) : Math.round(distance);
 
   return { time: { hours, min }, distance };
 }

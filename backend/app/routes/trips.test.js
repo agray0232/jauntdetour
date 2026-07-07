@@ -341,7 +341,7 @@ describe("trips routes", () => {
         3
       );
       expect(res.body.route.summary).toEqual({
-        distance: 2,
+        distance: "2.00",
         time: { hours: 1, min: 30 },
       });
       expect(res.body.detours).toEqual([

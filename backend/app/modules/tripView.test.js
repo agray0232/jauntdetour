@@ -10,15 +10,16 @@ const SAMPLE_POINTS = [
 
 describe("buildSummary", () => {
   it("converts meters to miles and seconds to hours/min", () => {
-    // 3218.68 m = 2 mi; 5400 s = 1 h 30 m.
+    // 3218.68 m = 2 mi; 5400 s = 1 h 30 m. Under 100 mi is a toPrecision(3)
+    // string (matches routeAPI), so "2.00" not 2.
     const summary = buildSummary(3218.68, 5400);
-    expect(summary.distance).toBe(2);
+    expect(summary.distance).toBe("2.00");
     expect(summary.time).toEqual({ hours: 1, min: 30 });
   });
 
   it("keeps 3 significant digits under 100 miles", () => {
     const summary = buildSummary(16093.4, 0); // ~10 mi
-    expect(summary.distance).toBe(10);
+    expect(summary.distance).toBe("10.0");
     expect(summary.time).toEqual({ hours: 0, min: 0 });
   });
 
@@ -29,7 +30,7 @@ describe("buildSummary", () => {
 
   it("treats null distance/duration as zero", () => {
     expect(buildSummary(null, null)).toEqual({
-      distance: 0,
+      distance: "0.00",
       time: { hours: 0, min: 0 },
     });
   });
@@ -79,7 +80,7 @@ describe("buildTripView", () => {
     expect(view.route.bounds.northeast.lat).toBeCloseTo(43.252, 3);
     expect(view.route.bounds.southwest.lng).toBeCloseTo(-126.453, 3);
     expect(view.route.summary).toEqual({
-      distance: 2,
+      distance: "2.00",
       time: { hours: 1, min: 30 },
     });
   });
