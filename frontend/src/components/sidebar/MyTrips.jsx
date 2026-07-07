@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
@@ -34,6 +34,29 @@ function formatEndpoint(point) {
   return "Unknown";
 }
 
+// Rebuild the planning state from a loaded trip view. clearAll first so a loaded
+// trip never merges with an in-progress one; SET_ROUTE also flips showRoute /
+// showDetourButton so the map and sidebar render.
+function applyTripView(dispatch, { trip, route, detours }) {
+  dispatch({ type: "CLEAR_ALL" });
+  dispatch({
+    type: "SET_ORIGIN",
+    data: { origin: (trip.origin && trip.origin.address) || "" },
+  });
+  dispatch({
+    type: "SET_DESTINATION",
+    data: { destination: (trip.destination && trip.destination.address) || "" },
+  });
+  if (route) {
+    dispatch({ type: "SET_ROUTE", data: { route } });
+    dispatch({
+      type: "SET_TRIP_SUMMARY",
+      data: { tripSummary: route.summary },
+    });
+  }
+  dispatch({ type: "SET_DETOUR_LIST", data: { detourList: detours || [] } });
+}
+
 /**
  * MyTrips — a "My Trips" button (shown only when signed in) that opens a
  * non-modal Fluent drawer listing the user's saved trips. The drawer overlays
@@ -51,6 +74,11 @@ export default function MyTrips() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [loadingTripId, setLoadingTripId] = useState(null);
+
+  // Monotonic token for load requests. Only the most recent click's response is
+  // applied, so quick successive clicks can't resolve out of order and load the
+  // wrong trip (or let an earlier request clear the later one's loading state).
+  const latestRequestRef = useRef(0);
 
   const toasterId = useId("my-trips-toaster");
   const { dispatchToast } = useToastController(toasterId);
@@ -80,41 +108,29 @@ export default function MyTrips() {
   // instantly, so a momentary spinner would just be a distracting flash.
   const loadTrip = useCallback(
     (tripId) => {
+      const requestId = latestRequestRef.current + 1;
+      latestRequestRef.current = requestId;
+      const isLatest = () => latestRequestRef.current === requestId;
+
       let settled = false;
       const spinnerTimer = setTimeout(() => {
-        if (!settled) {
+        if (!settled && isLatest()) {
           setLoadingTripId(tripId);
         }
       }, 250);
       new TripRequester()
         .getTrip(tripId)
         .then((view) => {
-          const { trip, route, detours } = view;
-          dispatch({ type: "CLEAR_ALL" });
-          dispatch({
-            type: "SET_ORIGIN",
-            data: { origin: (trip.origin && trip.origin.address) || "" },
-          });
-          dispatch({
-            type: "SET_DESTINATION",
-            data: {
-              destination: (trip.destination && trip.destination.address) || "",
-            },
-          });
-          if (route) {
-            dispatch({ type: "SET_ROUTE", data: { route } });
-            dispatch({
-              type: "SET_TRIP_SUMMARY",
-              data: { tripSummary: route.summary },
-            });
+          // Ignore a stale response from a superseded click.
+          if (isLatest()) {
+            applyTripView(dispatch, view);
           }
-          dispatch({
-            type: "SET_DETOUR_LIST",
-            data: { detourList: detours || [] },
-          });
         })
         .catch((err) => {
           log.error("Failed to load trip:", err);
+          if (!isLatest()) {
+            return;
+          }
           dispatchToast(
             <Toast>
               <ToastTitle>
@@ -127,7 +143,10 @@ export default function MyTrips() {
         .finally(() => {
           settled = true;
           clearTimeout(spinnerTimer);
-          setLoadingTripId(null);
+          // Only the latest request owns the loading indicator.
+          if (isLatest()) {
+            setLoadingTripId(null);
+          }
         });
     },
     [dispatch, dispatchToast]
