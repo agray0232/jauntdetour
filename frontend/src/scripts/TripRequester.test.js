@@ -1,0 +1,328 @@
+import axios from "axios";
+import TripRequester, { buildTripPayload } from "./TripRequester";
+
+jest.mock("axios");
+
+jest.mock("../utils/logger", () => ({
+  error: jest.fn(),
+  info: jest.fn(),
+  debug: jest.fn(),
+}));
+
+describe("buildTripPayload", () => {
+  const state = {
+    origin: "San Francisco, CA",
+    destination: "Los Angeles, CA",
+    route: {
+      overview_polyline: { points: "encoded_polyline_string" },
+      legs: [
+        {
+          start_location: { lat: 37.77, lng: -122.42 },
+          end_location: { lat: 36.0, lng: -120.0 },
+          distance: { value: 300000 },
+          duration: { value: 18000 },
+        },
+        {
+          start_location: { lat: 36.0, lng: -120.0 },
+          end_location: { lat: 34.05, lng: -118.24 },
+          distance: { value: 316000 },
+          duration: { value: 14400 },
+        },
+      ],
+    },
+    detourList: [
+      {
+        name: "Big Sur",
+        type: "Landmark",
+        lat: 36.27,
+        lng: -121.8,
+        id: "place-1",
+        placeId: "gplace-1",
+        rating: 4.8,
+        addedTime: 45,
+      },
+    ],
+  };
+
+  it("pairs the typed addresses with the resolved leg coordinates", () => {
+    const payload = buildTripPayload(state, "Coastal drive");
+
+    expect(payload.tripName).toBe("Coastal drive");
+    expect(payload.origin).toEqual({
+      address: "San Francisco, CA",
+      lat: 37.77,
+      lng: -122.42,
+    });
+    expect(payload.destination).toEqual({
+      address: "Los Angeles, CA",
+      lat: 34.05,
+      lng: -118.24,
+    });
+  });
+
+  it("sums distance and duration across all legs and takes the encoded polyline", () => {
+    const payload = buildTripPayload(state, "Coastal drive");
+
+    expect(payload.distanceMeters).toBe(616000);
+    expect(payload.durationSeconds).toBe(32400);
+    expect(payload.routePolyline).toBe("encoded_polyline_string");
+  });
+
+  it("maps detours to the backend shape", () => {
+    const payload = buildTripPayload(state, "Coastal drive");
+
+    expect(payload.detours).toEqual([
+      {
+        placeName: "Big Sur",
+        placeType: "Landmark",
+        latitude: 36.27,
+        longitude: -121.8,
+        placeId: "gplace-1",
+        rating: 4.8,
+        metadata: { addedTime: 45 },
+      },
+    ]);
+  });
+
+  it("degrades gracefully when route data is missing", () => {
+    const payload = buildTripPayload(
+      { origin: "A", destination: "B", route: {}, detourList: [] },
+      "Empty"
+    );
+
+    expect(payload.origin).toEqual({ address: "A", lat: null, lng: null });
+    expect(payload.destination).toEqual({ address: "B", lat: null, lng: null });
+    expect(payload.distanceMeters).toBeNull();
+    expect(payload.durationSeconds).toBeNull();
+    expect(payload.routePolyline).toBeNull();
+    expect(payload.detours).toEqual([]);
+  });
+
+  it("preserves a computed 0 distance/duration when a route (legs) exists", () => {
+    const payload = buildTripPayload(
+      {
+        origin: "A",
+        destination: "A",
+        route: {
+          legs: [
+            {
+              start_location: { lat: 1, lng: 2 },
+              end_location: { lat: 1, lng: 2 },
+              distance: { value: 0 },
+              duration: { value: 0 },
+            },
+          ],
+        },
+        detourList: [],
+      },
+      "Zero"
+    );
+
+    expect(payload.distanceMeters).toBe(0);
+    expect(payload.durationSeconds).toBe(0);
+  });
+
+  it("falls back to saved values when there are no route legs (rename)", () => {
+    // A loaded trip's route has an encoded polyline but no legs, so the payload
+    // must preserve the saved distance/duration/coords instead of nulling them.
+    const fallback = {
+      origin: { address: "San Francisco, CA", lat: 37.77, lng: -122.42 },
+      destination: { address: "Los Angeles, CA", lat: 34.05, lng: -118.24 },
+      routePolyline: "saved_polyline",
+      distanceMeters: 616000,
+      durationSeconds: 32400,
+    };
+    const payload = buildTripPayload(
+      {
+        origin: "San Francisco, CA",
+        destination: "Los Angeles, CA",
+        route: { overview_polyline: { points: "saved_polyline" } },
+        detourList: [],
+      },
+      "Renamed trip",
+      fallback
+    );
+
+    expect(payload.distanceMeters).toBe(616000);
+    expect(payload.durationSeconds).toBe(32400);
+    expect(payload.origin).toEqual(fallback.origin);
+    expect(payload.destination).toEqual(fallback.destination);
+    expect(payload.routePolyline).toBe("saved_polyline");
+  });
+
+  it("prefers live route legs over the fallback when the trip was re-routed", () => {
+    const fallback = {
+      origin: { address: "Old", lat: 1, lng: 1 },
+      destination: { address: "Old", lat: 2, lng: 2 },
+      routePolyline: "old",
+      distanceMeters: 100,
+      durationSeconds: 100,
+    };
+    const payload = buildTripPayload(
+      {
+        origin: "New A",
+        destination: "New B",
+        route: {
+          overview_polyline: { points: "new" },
+          legs: [
+            {
+              start_location: { lat: 10, lng: 20 },
+              end_location: { lat: 30, lng: 40 },
+              distance: { value: 5000 },
+              duration: { value: 600 },
+            },
+          ],
+        },
+        detourList: [],
+      },
+      "Re-routed",
+      fallback
+    );
+
+    expect(payload.distanceMeters).toBe(5000);
+    expect(payload.durationSeconds).toBe(600);
+    expect(payload.origin).toEqual({ address: "New A", lat: 10, lng: 20 });
+    expect(payload.routePolyline).toBe("new");
+  });
+});
+
+describe("TripRequester.listTrips", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("requests the given page/limit with credentials and returns the data", async () => {
+    const data = { trips: [{ trip_id: "t1" }], total: 1, page: 2, limit: 5 };
+    axios.get.mockResolvedValue({ data });
+
+    const result = await new TripRequester().listTrips(2, 5);
+
+    const [url, options] = axios.get.mock.calls[0];
+    expect(url).toContain("/api/trips");
+    expect(options).toMatchObject({
+      params: { page: 2, limit: 5 },
+      withCredentials: true,
+    });
+    expect(result).toBe(data);
+  });
+
+  it("defaults to page 1 and limit 10", async () => {
+    axios.get.mockResolvedValue({ data: {} });
+
+    await new TripRequester().listTrips();
+
+    const [, options] = axios.get.mock.calls[0];
+    expect(options.params).toEqual({ page: 1, limit: 10 });
+  });
+
+  it("propagates errors", async () => {
+    axios.get.mockRejectedValue(new Error("network"));
+
+    await expect(new TripRequester().listTrips()).rejects.toThrow("network");
+  });
+});
+
+describe("TripRequester.getTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("requests the trip by id with credentials and returns the data", async () => {
+    const data = { trip: { tripId: "t1" }, route: {}, detours: [] };
+    axios.get.mockResolvedValue({ data });
+
+    const result = await new TripRequester().getTrip("t1");
+
+    const [url, options] = axios.get.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.get.mockRejectedValue(new Error("not found"));
+
+    await expect(new TripRequester().getTrip("bad")).rejects.toThrow(
+      "not found"
+    );
+  });
+});
+
+describe("TripRequester.updateTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("PUTs the payload to the trip id with credentials and returns the data", async () => {
+    const payload = { tripName: "Updated" };
+    const data = { trip: { tripId: "t1", tripName: "Updated" } };
+    axios.put.mockResolvedValue({ data });
+
+    const result = await new TripRequester().updateTrip("t1", payload);
+
+    const [url, body, options] = axios.put.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(body).toBe(payload);
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.put.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().updateTrip("t1", {})).rejects.toThrow(
+      "boom"
+    );
+  });
+});
+
+describe("TripRequester.duplicateTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("POSTs to the duplicate endpoint with credentials and returns the data", async () => {
+    const data = { trip: { trip_id: "copy-1" } };
+    axios.post.mockResolvedValue({ data });
+
+    const result = await new TripRequester().duplicateTrip("t1");
+
+    const [url, body, options] = axios.post.mock.calls[0];
+    expect(url).toContain("/api/trips/t1/duplicate");
+    expect(body).toEqual({});
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.post.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().duplicateTrip("t1")).rejects.toThrow(
+      "boom"
+    );
+  });
+});
+
+describe("TripRequester.deleteTrip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("DELETEs the trip by id with credentials and returns the data", async () => {
+    const data = { message: "Trip deleted" };
+    axios.delete.mockResolvedValue({ data });
+
+    const result = await new TripRequester().deleteTrip("t1");
+
+    const [url, options] = axios.delete.mock.calls[0];
+    expect(url).toContain("/api/trips/t1");
+    expect(options).toMatchObject({ withCredentials: true });
+    expect(result).toBe(data);
+  });
+
+  it("propagates errors", async () => {
+    axios.delete.mockRejectedValue(new Error("boom"));
+
+    await expect(new TripRequester().deleteTrip("t1")).rejects.toThrow("boom");
+  });
+});
