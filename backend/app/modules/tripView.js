@@ -111,6 +111,7 @@ function buildTripView(trip, detours = []) {
       tripName: trip.trip_name,
       origin: trip.origin,
       destination: trip.destination,
+      updatedAt: trip.updated_at,
     },
     route,
     detours: (detours || []).map(mapDetour),

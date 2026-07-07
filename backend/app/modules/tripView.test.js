@@ -58,6 +58,7 @@ describe("buildTripView", () => {
     route_polyline: SAMPLE_POLYLINE,
     distance_meters: 3218.68,
     duration_seconds: 5400,
+    updated_at: "2026-07-07T12:00:00.000Z",
   };
 
   it("decodes the polyline into complete_overview and decodedPoints", () => {
@@ -92,6 +93,7 @@ describe("buildTripView", () => {
       tripName: "Coastal drive",
       origin: { address: "SF", lat: 37.77, lng: -122.42 },
       destination: { address: "LA", lat: 34.05, lng: -118.24 },
+      updatedAt: "2026-07-07T12:00:00.000Z",
     });
   });
 
