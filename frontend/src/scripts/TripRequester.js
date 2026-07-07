@@ -10,11 +10,18 @@ import log from "../utils/logger";
  * no extra API calls. `origin`/`destination` in state are the address strings
  * the user typed; we pair them with the resolved leg coordinates.
  *
+ * When there are no route legs (e.g. a loaded trip that hasn't been re-routed,
+ * such as a plain rename), the live route can't supply distance/duration/coords,
+ * so we fall back to `fallback` — the saved values captured when the trip was
+ * loaded — to avoid wiping them on update.
+ *
  * @param {object} state - Redux state ({ origin, destination, route, detourList }).
  * @param {string} tripName - The name the user entered for the trip.
- * @returns {object} The request body for POST /api/trips.
+ * @param {object} [fallback] - Saved trip values ({ origin, destination,
+ *   routePolyline, distanceMeters, durationSeconds }) used when no live legs.
+ * @returns {object} The request body for POST/PUT /api/trips.
  */
-export function buildTripPayload(state, tripName) {
+export function buildTripPayload(state, tripName, fallback = null) {
   const { origin, destination, route, detourList } = state;
   const legs = (route && route.legs) || [];
   const firstLeg = legs[0] || {};
@@ -32,25 +39,31 @@ export function buildTripPayload(state, tripName) {
   );
   // Only report distance/duration when there is a route; preserve a genuine 0.
   const hasLegs = legs.length > 0;
+  const fb = fallback || {};
   const routePolyline =
     (route && route.overview_polyline && route.overview_polyline.points) ||
+    fb.routePolyline ||
     null;
 
   return {
     tripName,
-    origin: {
-      address: origin || "",
-      lat: startLocation.lat ?? null,
-      lng: startLocation.lng ?? null,
-    },
-    destination: {
-      address: destination || "",
-      lat: endLocation.lat ?? null,
-      lng: endLocation.lng ?? null,
-    },
+    origin: hasLegs
+      ? {
+          address: origin || "",
+          lat: startLocation.lat ?? null,
+          lng: startLocation.lng ?? null,
+        }
+      : fb.origin || { address: origin || "", lat: null, lng: null },
+    destination: hasLegs
+      ? {
+          address: destination || "",
+          lat: endLocation.lat ?? null,
+          lng: endLocation.lng ?? null,
+        }
+      : fb.destination || { address: destination || "", lat: null, lng: null },
     routePolyline,
-    distanceMeters: hasLegs ? distanceMeters : null,
-    durationSeconds: hasLegs ? durationSeconds : null,
+    distanceMeters: hasLegs ? distanceMeters : (fb.distanceMeters ?? null),
+    durationSeconds: hasLegs ? durationSeconds : (fb.durationSeconds ?? null),
     detours: (detourList || []).map((detour) => ({
       placeName: detour.name,
       placeType: detour.type || null,

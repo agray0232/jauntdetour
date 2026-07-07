@@ -89,7 +89,8 @@ export default function SaveTrip() {
       setSaving(true);
       const payload = buildTripPayload(
         { origin, destination, route, detourList },
-        name
+        name,
+        currentTrip
       );
       const requester = new TripRequester();
 
@@ -104,6 +105,11 @@ export default function SaveTrip() {
                 tripId: trip.trip_id,
                 tripName: name,
                 updatedAt: trip.updated_at,
+                origin: trip.origin,
+                destination: trip.destination,
+                routePolyline: trip.route_polyline,
+                distanceMeters: trip.distance_meters,
+                durationSeconds: trip.duration_seconds,
               },
             },
           });
@@ -114,6 +120,7 @@ export default function SaveTrip() {
             .updateTrip(currentTrip.tripId, payload)
             .then((data) => {
               const trip = data.trip || {};
+              const updatedRoute = data.route || {};
               setTripName(trip.tripName || name);
               dispatch({
                 type: "SET_CURRENT_TRIP",
@@ -122,6 +129,15 @@ export default function SaveTrip() {
                     tripId: trip.tripId || currentTrip.tripId,
                     tripName: trip.tripName || name,
                     updatedAt: trip.updatedAt,
+                    origin: trip.origin,
+                    destination: trip.destination,
+                    routePolyline:
+                      (updatedRoute.overview_polyline &&
+                        updatedRoute.overview_polyline.points) ||
+                      currentTrip.routePolyline ||
+                      null,
+                    distanceMeters: trip.distanceMeters,
+                    durationSeconds: trip.durationSeconds,
                   },
                 },
               });

@@ -80,6 +80,18 @@ function applyTripView(dispatch, { trip, route, detours }) {
         tripId: trip.tripId,
         tripName: trip.tripName,
         updatedAt: trip.updatedAt,
+        // Snapshot of the saved values so a later update that hasn't re-routed
+        // (e.g. a rename) preserves distance/duration/coords/polyline instead
+        // of wiping them (the loaded route has no legs to recompute from).
+        origin: trip.origin,
+        destination: trip.destination,
+        routePolyline:
+          (route &&
+            route.overview_polyline &&
+            route.overview_polyline.points) ||
+          null,
+        distanceMeters: trip.distanceMeters,
+        durationSeconds: trip.durationSeconds,
       },
     },
   });

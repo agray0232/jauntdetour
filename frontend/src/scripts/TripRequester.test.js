@@ -121,6 +121,69 @@ describe("buildTripPayload", () => {
     expect(payload.distanceMeters).toBe(0);
     expect(payload.durationSeconds).toBe(0);
   });
+
+  it("falls back to saved values when there are no route legs (rename)", () => {
+    // A loaded trip's route has an encoded polyline but no legs, so the payload
+    // must preserve the saved distance/duration/coords instead of nulling them.
+    const fallback = {
+      origin: { address: "San Francisco, CA", lat: 37.77, lng: -122.42 },
+      destination: { address: "Los Angeles, CA", lat: 34.05, lng: -118.24 },
+      routePolyline: "saved_polyline",
+      distanceMeters: 616000,
+      durationSeconds: 32400,
+    };
+    const payload = buildTripPayload(
+      {
+        origin: "San Francisco, CA",
+        destination: "Los Angeles, CA",
+        route: { overview_polyline: { points: "saved_polyline" } },
+        detourList: [],
+      },
+      "Renamed trip",
+      fallback
+    );
+
+    expect(payload.distanceMeters).toBe(616000);
+    expect(payload.durationSeconds).toBe(32400);
+    expect(payload.origin).toEqual(fallback.origin);
+    expect(payload.destination).toEqual(fallback.destination);
+    expect(payload.routePolyline).toBe("saved_polyline");
+  });
+
+  it("prefers live route legs over the fallback when the trip was re-routed", () => {
+    const fallback = {
+      origin: { address: "Old", lat: 1, lng: 1 },
+      destination: { address: "Old", lat: 2, lng: 2 },
+      routePolyline: "old",
+      distanceMeters: 100,
+      durationSeconds: 100,
+    };
+    const payload = buildTripPayload(
+      {
+        origin: "New A",
+        destination: "New B",
+        route: {
+          overview_polyline: { points: "new" },
+          legs: [
+            {
+              start_location: { lat: 10, lng: 20 },
+              end_location: { lat: 30, lng: 40 },
+              distance: { value: 5000 },
+              duration: { value: 600 },
+            },
+          ],
+        },
+        detourList: [],
+      },
+      "Re-routed",
+      fallback
+    );
+
+    expect(payload.distanceMeters).toBe(5000);
+    expect(payload.durationSeconds).toBe(600);
+    expect(payload.origin).toEqual({ address: "New A", lat: 10, lng: 20 });
+    expect(payload.routePolyline).toBe("new");
+  });
 });
 
 describe("TripRequester.listTrips", () => {

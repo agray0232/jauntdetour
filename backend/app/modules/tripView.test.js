@@ -94,6 +94,8 @@ describe("buildTripView", () => {
       origin: { address: "SF", lat: 37.77, lng: -122.42 },
       destination: { address: "LA", lat: 34.05, lng: -118.24 },
       updatedAt: "2026-07-07T12:00:00.000Z",
+      distanceMeters: 3218.68,
+      durationSeconds: 5400,
     });
   });
 
