@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
@@ -93,6 +93,9 @@ function applyTripView(dispatch, { trip, route, detours }) {
  */
 export default function MyTrips() {
   const user = useSelector((state) => state.user);
+  // Bumped whenever a trip is saved/updated elsewhere (e.g. the Save Trip
+  // button) so the open list can refresh instead of showing stale data.
+  const tripsRevision = useSelector((state) => state.tripsRevision);
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -112,6 +115,9 @@ export default function MyTrips() {
   // applied, so quick successive clicks can't resolve out of order and load the
   // wrong trip (or let an earlier request clear the later one's loading state).
   const latestRequestRef = useRef(0);
+  // Tracks the last trips-revision we reacted to, so we only reload when a trip
+  // actually changed (not on the initial render).
+  const prevRevisionRef = useRef(tripsRevision);
 
   const toasterId = useId("my-trips-toaster");
   const { dispatchToast } = useToastController(toasterId);
@@ -134,6 +140,18 @@ export default function MyTrips() {
     setOpen(true);
     load(1);
   };
+
+  // Refresh the open list when a trip is saved/updated elsewhere so it never
+  // shows stale data (previously required closing and reopening the drawer).
+  useEffect(() => {
+    if (tripsRevision === prevRevisionRef.current) {
+      return;
+    }
+    prevRevisionRef.current = tripsRevision;
+    if (open) {
+      load(page);
+    }
+  }, [tripsRevision, open, page, load]);
 
   // Fetch a saved trip and rebuild the planning state from it. clearAll first so
   // a loaded trip never merges with an in-progress one. The drawer stays open.
