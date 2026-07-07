@@ -305,6 +305,12 @@
   text-align: left;
 }
 
+/* Trip name — sits above the trip timeline, sidebar-matching side padding. */
+.trip-name-section {
+  padding: 10px 15px 4px;
+  text-align: left;
+}
+
 /* Trip name — full width, left-aligned, with a bit of polish over the plain
    default input. */
 .trip-name-field {

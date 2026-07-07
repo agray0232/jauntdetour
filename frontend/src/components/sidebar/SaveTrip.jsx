@@ -198,17 +198,6 @@ export default function SaveTrip() {
       <Toaster toasterId={toasterId} />
 
       <div className="save-trip-section">
-        {/* Editable trip name — populated when a saved trip is loaded. */}
-        <Field className="trip-name-field" label="Trip name">
-          <Input
-            size="large"
-            className="trip-name-input"
-            value={tripName || ""}
-            placeholder="e.g. Coastal weekend"
-            onChange={(event) => setTripName(event.target.value)}
-          />
-        </Field>
-
         <Button
           appearance="primary"
           className="save-trip-btn"

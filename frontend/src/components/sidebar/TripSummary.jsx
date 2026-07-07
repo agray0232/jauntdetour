@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Button from "../Button";
 import TripTimeline from "./TripTimeline";
+import TripNameField from "./TripNameField";
 import SaveTrip from "./SaveTrip";
 import { exportToGoogleMaps } from "../../utils/googleMapsExport";
 
@@ -55,6 +56,7 @@ class TripSummary extends React.Component {
                 </div>
               </div>
             </div>
+            <TripNameField></TripNameField>
             <TripTimeline
               origin={this.props.origin}
               destination={this.props.destination}
