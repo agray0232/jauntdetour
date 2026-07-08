@@ -14,9 +14,27 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 // to sessionStorage so it's per-tab and cleared when the tab closes. `user` is
 // deliberately not persisted: auth state is always re-resolved from /auth/me.
 const PERSIST_KEY = "jaunt.tripState";
+// Set by AuthRequester.logout after a successful sign-out. When present on
+// load, we discard the previous user's persisted planning state instead of
+// rehydrating it — deferring the clear to here means nothing is visibly erased
+// before the Entra logout redirect, and the app returns to a clean, empty
+// state. See the "Planned trip persists after logout" fix.
+const LOGOUT_FLAG = "jaunt.pendingLogout";
 
 function loadState() {
   try {
+    if (sessionStorage.getItem(LOGOUT_FLAG)) {
+      // Returning from a sign-out: drop every app-owned key (all namespaced
+      // under "jaunt.", including the flag itself) so nothing lingers for a
+      // signed-out visitor on a shared browser, and start from empty state.
+      for (let i = sessionStorage.length - 1; i >= 0; i--) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith("jaunt.")) {
+          sessionStorage.removeItem(key);
+        }
+      }
+      return undefined;
+    }
     const saved = sessionStorage.getItem(PERSIST_KEY);
     return saved ? JSON.parse(saved) : undefined;
   } catch {
