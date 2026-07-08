@@ -51,6 +51,12 @@ export default class AuthRequester {
     return axios
       .post(this.getUrlBase() + "/auth/logout", {}, { withCredentials: true })
       .then((response) => {
+        // Mark that a sign-out completed so the app discards the previous
+        // user's persisted planning state on the next load (see loadState in
+        // index.js) — deferred so nothing is visibly erased before the
+        // redirect, and set only after the backend session is actually
+        // destroyed so a failed logout doesn't wipe an in-progress trip.
+        sessionStorage.setItem("jaunt.pendingLogout", "1");
         const logoutUrl = response.data && response.data.logoutUrl;
         if (logoutUrl) {
           window.location.assign(logoutUrl);
