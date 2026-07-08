@@ -59,4 +59,25 @@ describe("AuthRequester.logout", () => {
     expect(window.location.assign).not.toHaveBeenCalled();
     expect(window.location.reload).not.toHaveBeenCalled();
   });
+
+  it("still redirects when setting the logout flag throws", async () => {
+    axios.post.mockResolvedValue({
+      data: { logoutUrl: "http://entra.test/logout" },
+    });
+    const setItemSpy = jest
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new Error("storage disabled");
+      });
+
+    try {
+      await new AuthRequester().logout();
+
+      expect(window.location.assign).toHaveBeenCalledWith(
+        "http://entra.test/logout"
+      );
+    } finally {
+      setItemSpy.mockRestore();
+    }
+  });
 });

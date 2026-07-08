@@ -56,7 +56,13 @@ export default class AuthRequester {
         // index.js) — deferred so nothing is visibly erased before the
         // redirect, and set only after the backend session is actually
         // destroyed so a failed logout doesn't wipe an in-progress trip.
-        sessionStorage.setItem("jaunt.pendingLogout", "1");
+        try {
+          sessionStorage.setItem("jaunt.pendingLogout", "1");
+        } catch (storageError) {
+          // Best-effort UX/privacy helper: if storage is disabled or full,
+          // never let it block the sign-out navigation below.
+          log.error("Failed to set pending logout flag:", storageError);
+        }
         const logoutUrl = response.data && response.data.logoutUrl;
         if (logoutUrl) {
           window.location.assign(logoutUrl);
