@@ -47,12 +47,10 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      // Frontend and backend are cross-site in production (separate
-      // *.azurewebsites.net hosts, which the Public Suffix List treats as
-      // distinct sites), so the cookie must be SameSite=None to be sent on
-      // cross-site XHR. SameSite=None requires Secure. Locally both run on
-      // localhost (same site), where Lax works and avoids needing HTTPS.
-      sameSite: IS_PROD ? "none" : "lax",
+      // The production frontend and API use sibling jauntdetour.com hosts, so
+      // credentialed requests are cross-origin but same-site. Lax avoids any
+      // reliance on third-party cookies while still supporting those requests.
+      sameSite: "lax",
       secure: IS_PROD,
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
     },

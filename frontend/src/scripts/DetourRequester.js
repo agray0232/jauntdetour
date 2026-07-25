@@ -41,24 +41,11 @@ export default class DetourRequester {
   }
 
   /**
-   * Sets the URL base based on the environment
+   * Returns the configured backend URL.
    *
    * @returns - URL base for axios request
    */
   getUrlBase() {
-    var urlBase = "";
-
-    switch (config.NODE_ENV) {
-      case "development":
-        urlBase = "http://localhost:3000";
-        break;
-      case "production":
-        urlBase = "https://jauntdetour-backend.azurewebsites.net";
-        break;
-      default:
-        urlBase = "https://jauntdetour-backend.azurewebsites.net";
-    }
-
-    return urlBase;
+    return config.BACKEND_URL;
   }
 }
