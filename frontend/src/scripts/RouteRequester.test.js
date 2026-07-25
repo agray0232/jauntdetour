@@ -25,11 +25,13 @@ describe("RouteRequester", () => {
       const originalUrl = config.BACKEND_URL;
       config.BACKEND_URL = "https://api.example.com";
 
-      const urlBase = routeRequester.getUrlBase();
+      try {
+        const urlBase = routeRequester.getUrlBase();
 
-      expect(urlBase).toBe("https://api.example.com");
-
-      config.BACKEND_URL = originalUrl;
+        expect(urlBase).toBe("https://api.example.com");
+      } finally {
+        config.BACKEND_URL = originalUrl;
+      }
     });
   });
 

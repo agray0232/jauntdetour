@@ -25,11 +25,13 @@ describe("DetourRequester", () => {
       const originalUrl = config.BACKEND_URL;
       config.BACKEND_URL = "https://api.example.com";
 
-      const urlBase = detourRequester.getUrlBase();
+      try {
+        const urlBase = detourRequester.getUrlBase();
 
-      expect(urlBase).toBe("https://api.example.com");
-
-      config.BACKEND_URL = originalUrl;
+        expect(urlBase).toBe("https://api.example.com");
+      } finally {
+        config.BACKEND_URL = originalUrl;
+      }
     });
   });
 
