@@ -21,37 +21,15 @@ describe("RouteRequester", () => {
   });
 
   describe("getUrlBase", () => {
-    it("should return development URL when NODE_ENV is development", () => {
-      const originalEnv = config.NODE_ENV;
-      config.NODE_ENV = "development";
+    it("should return the configured backend URL", () => {
+      const originalUrl = config.BACKEND_URL;
+      config.BACKEND_URL = "https://api.example.com";
 
       const urlBase = routeRequester.getUrlBase();
 
-      expect(urlBase).toBe("http://localhost:3000");
+      expect(urlBase).toBe("https://api.example.com");
 
-      config.NODE_ENV = originalEnv;
-    });
-
-    it("should return production URL when NODE_ENV is production", () => {
-      const originalEnv = config.NODE_ENV;
-      config.NODE_ENV = "production";
-
-      const urlBase = routeRequester.getUrlBase();
-
-      expect(urlBase).toBe("https://jauntdetour-backend.azurewebsites.net");
-
-      config.NODE_ENV = originalEnv;
-    });
-
-    it("should return production URL by default for unknown environments", () => {
-      const originalEnv = config.NODE_ENV;
-      config.NODE_ENV = "unknown";
-
-      const urlBase = routeRequester.getUrlBase();
-
-      expect(urlBase).toBe("https://jauntdetour-backend.azurewebsites.net");
-
-      config.NODE_ENV = originalEnv;
+      config.BACKEND_URL = originalUrl;
     });
   });
 

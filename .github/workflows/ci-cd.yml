@@ -157,6 +157,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             REACT_APP_GOOGLE_API_KEY=${{ secrets.REACT_APP_GOOGLE_API_KEY }}
+            REACT_APP_BACKEND_URL=https://api.jauntdetour.com
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
