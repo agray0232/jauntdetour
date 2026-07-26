@@ -104,6 +104,21 @@ const useStyles = makeStyles({
     "@media (max-width: 30rem)": {
       fontSize: jauntTypography.size.bodyLarge,
     },
+    "@media (max-width: 20rem)": {
+      display: "none",
+    },
+  },
+  accountLabel: {
+    "@media (max-width: 20rem)": {
+      display: "none",
+    },
+  },
+  ultraCompact: {
+    "@media (max-width: 20rem)": {
+      paddingRight: jauntSpacing[2],
+      paddingLeft: jauntSpacing[2],
+      columnGap: jauntSpacing[2],
+    },
   },
   hideDesktop: {
     "@media (max-width: 48.75rem)": {
@@ -138,8 +153,14 @@ export default function AppHeader() {
     ) : status === "signedIn" ? (
       <Menu>
         <MenuTrigger disableButtonEnhancement>
-          <Button appearance="subtle" icon={<PersonRegular />}>
-            {displayName || "Account"}
+          <Button
+            appearance="subtle"
+            aria-label="Account menu"
+            icon={<PersonRegular />}
+          >
+            <span className={styles.accountLabel}>
+              {displayName || "Account"}
+            </span>
           </Button>
         </MenuTrigger>
         <MenuPopover>
@@ -157,16 +178,20 @@ export default function AppHeader() {
     ) : (
       <Button
         appearance="primary"
+        aria-label="Sign in"
+        icon={<PersonRegular />}
         onClick={() =>
           signIn(`${location.pathname}${location.search}${location.hash}`)
         }
       >
-        Sign in
+        <span className={styles.accountLabel}>Sign in</span>
       </Button>
     );
 
   return (
-    <header className={`${styles.root} ${styles.compact}`}>
+    <header
+      className={`${styles.root} ${styles.compact} ${styles.ultraCompact}`}
+    >
       <Link className={styles.brand} to="/" aria-label="JauntDetour home">
         <BrandMark decorative size={36} />
         <span className={`${styles.wordmark} ${styles.compactBrand}`}>

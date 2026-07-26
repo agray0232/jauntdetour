@@ -2,6 +2,8 @@ import React, { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import AppShell from "./components/shell/AppShell";
+import AboutPage from "./pages/AboutPage";
+import HomePage from "./pages/HomePage";
 import PlannerPage from "./pages/PlannerPage";
 import RoutePlaceholderPage from "./pages/RoutePlaceholderPage";
 import "./styles/App.css";
@@ -28,20 +30,7 @@ function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
-        <Route
-          index
-          element={
-            <RoutePlaceholderPage
-              actionLabel="Plan your Jaunt"
-              actionTo="/plan"
-              title="Find the stop that makes the drive."
-            >
-              Discover interesting places along a route you already plan to
-              take. The complete Home experience arrives in the next
-              implementation checkpoint.
-            </RoutePlaceholderPage>
-          }
-        />
+        <Route index element={<HomePage />} />
         <Route path="plan" element={<PlannerPage />} />
         <Route
           path="trips"
@@ -65,19 +54,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="about"
-          element={
-            <RoutePlaceholderPage
-              actionLabel="Plan a Jaunt"
-              actionTo="/plan"
-              title="About JauntDetour"
-            >
-              JauntDetour helps you build a road-trip route, discover places
-              near the way you are already going, and keep or export the plan.
-            </RoutePlaceholderPage>
-          }
-        />
+        <Route path="about" element={<AboutPage />} />
         <Route
           path="account"
           element={

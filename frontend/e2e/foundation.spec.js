@@ -8,7 +8,6 @@ test.beforeEach(async ({ page }) => {
       body: JSON.stringify({ error: "Unauthorized" }),
     })
   );
-
 });
 
 test("loads the branded application foundation", async ({ page, request }) => {
@@ -19,14 +18,21 @@ test("loads the branded application foundation", async ({ page, request }) => {
       name: "Find the stop that makes the drive.",
     })
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Plan your Jaunt" })).toHaveAttribute(
-    "href",
-    "/plan"
-  );
+  await expect(
+    page.getByRole("link", { name: "Plan your Jaunt" })
+  ).toHaveAttribute("href", "/plan");
+  await expect(
+    page.getByRole("heading", { name: "The route is only the beginning." })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("img", { name: /JauntDetour planner preview/ })
+  ).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Map" })).toHaveCount(0);
 
-  const bodyFont = await page.locator("body").evaluate((element) =>
-    window.getComputedStyle(element).fontFamily
-  );
+  const bodyFont = await page
+    .locator("body")
+    .evaluate((element) => window.getComputedStyle(element).fontFamily);
   expect(bodyFont).toContain("DM Sans");
 
   const manifestResponse = await request.get("/manifest.json");
@@ -50,10 +56,9 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(
     page.locator('input[placeholder="Destination"]:visible')
   ).toHaveCount(1);
-  await expect(page.getByRole("link", { name: "Plan a Jaunt" })).toHaveAttribute(
-    "aria-current",
-    "page"
-  );
+  await expect(
+    page.getByRole("link", { name: "Plan a Jaunt" })
+  ).toHaveAttribute("aria-current", "page");
 });
 
 test("protects saved Jaunts while preserving anonymous planning", async ({
@@ -64,5 +69,23 @@ test("protects saved Jaunts while preserving anonymous planning", async ({
   await expect(
     page.getByRole("heading", { name: "Sign in to view My Jaunts" })
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Sign in" }).last()).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Sign in" }).last()
+  ).toBeVisible();
+});
+
+test("describes current product capabilities without future claims", async ({
+  page,
+}) => {
+  await page.goto("/about", { waitUntil: "domcontentloaded" });
+
+  await expect(
+    page.getByRole("heading", { name: "Make room for the unexpected." })
+  ).toBeVisible();
+  await expect(
+    page.getByText(/does not provide live navigation/i)
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Plan your Jaunt" })
+  ).toHaveAttribute("href", "/plan");
 });

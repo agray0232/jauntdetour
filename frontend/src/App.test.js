@@ -1,5 +1,11 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
@@ -51,7 +57,7 @@ describe("application routes", () => {
     window.history.replaceState({}, "", "/");
   });
 
-  it("renders the public Home placeholder and planner entry", async () => {
+  it("renders the public Home experience and planner entry", async () => {
     renderApp("/");
 
     expect(
@@ -99,9 +105,8 @@ describe("application routes", () => {
     expect(
       await screen.findByRole("heading", { name: "Account info" })
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Avery Traveler/ })
-    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Account menu" })).toBeVisible();
+    expect(screen.getByText("Avery Traveler")).toBeVisible();
   });
 
   it("preserves sign out through the shared account menu", async () => {
@@ -111,7 +116,7 @@ describe("application routes", () => {
     });
 
     fireEvent.click(
-      await screen.findByRole("button", { name: /Avery Traveler/ })
+      await screen.findByRole("button", { name: "Account menu" })
     );
     fireEvent.click(await screen.findByRole("menuitem", { name: "Sign out" }));
     expect(logout).toHaveBeenCalledTimes(1);
@@ -134,9 +139,15 @@ describe("application routes", () => {
     const { getCurrentUser } = renderApp("/");
 
     await waitFor(() => expect(getCurrentUser).toHaveBeenCalledTimes(1));
-    fireEvent.click(screen.getByRole("link", { name: "About" }));
+    fireEvent.click(
+      within(
+        screen.getByRole("navigation", { name: "Primary navigation" })
+      ).getByRole("link", { name: "About" })
+    );
     expect(
-      await screen.findByRole("heading", { name: "About JauntDetour" })
+      await screen.findByRole("heading", {
+        name: "Make room for the unexpected.",
+      })
     ).toBeInTheDocument();
     expect(getCurrentUser).toHaveBeenCalledTimes(1);
   });
