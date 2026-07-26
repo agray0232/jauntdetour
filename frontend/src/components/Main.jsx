@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Header from "./header/Header";
-import AuthButton from "./header/AuthButton";
 import MyTrips from "./sidebar/MyTrips";
 import FooterMenu from "./footer-menu/FooterMenu";
 import MapContainer from "./MapContainer";
@@ -13,11 +12,6 @@ class Main extends React.Component {
       <div className="app-container">
         <div className="app-toolbar">
           <MyTrips></MyTrips>
-          <AuthButton
-            user={this.props.user}
-            setUser={this.props.setUser}
-            clearUser={this.props.clearUser}
-          ></AuthButton>
         </div>
         <Header
           origin={this.props.origin}

@@ -1,5 +1,9 @@
 import React, { lazy, Suspense } from "react";
-import MainContainer from "./containers/MainContainer";
+import { Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import AppShell from "./components/shell/AppShell";
+import PlannerPage from "./pages/PlannerPage";
+import RoutePlaceholderPage from "./pages/RoutePlaceholderPage";
 import "./styles/App.css";
 import "./styles/TripTimeline.css";
 
@@ -22,9 +26,83 @@ function App() {
   }
 
   return (
-    <div>
-      <MainContainer />
-    </div>
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route
+          index
+          element={
+            <RoutePlaceholderPage
+              actionLabel="Plan your Jaunt"
+              actionTo="/plan"
+              title="Find the stop that makes the drive."
+            >
+              Discover interesting places along a route you already plan to
+              take. The complete Home experience arrives in the next
+              implementation checkpoint.
+            </RoutePlaceholderPage>
+          }
+        />
+        <Route path="plan" element={<PlannerPage />} />
+        <Route
+          path="trips"
+          element={
+            <ProtectedRoute title="My Jaunts">
+              <RoutePlaceholderPage title="My Jaunts">
+                Your routed saved-Jaunt library will replace the existing
+                planner drawer after Build and Discover reach feature parity.
+              </RoutePlaceholderPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="trips/:tripId"
+          element={
+            <ProtectedRoute title="this Jaunt">
+              <RoutePlaceholderPage title="Jaunt detail">
+                Saved route details and Resume Planning will be implemented with
+                the routed My Jaunts experience.
+              </RoutePlaceholderPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="about"
+          element={
+            <RoutePlaceholderPage
+              actionLabel="Plan a Jaunt"
+              actionTo="/plan"
+              title="About JauntDetour"
+            >
+              JauntDetour helps you build a road-trip route, discover places
+              near the way you are already going, and keep or export the plan.
+            </RoutePlaceholderPage>
+          }
+        />
+        <Route
+          path="account"
+          element={
+            <ProtectedRoute title="your account">
+              <RoutePlaceholderPage title="Account info">
+                Account identity and sign-out controls are managed through your
+                Microsoft sign-in.
+              </RoutePlaceholderPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <RoutePlaceholderPage
+              actionLabel="Return home"
+              actionTo="/"
+              title="Page not found"
+            >
+              This destination does not exist or may have moved.
+            </RoutePlaceholderPage>
+          }
+        />
+      </Route>
+    </Routes>
   );
 }
 

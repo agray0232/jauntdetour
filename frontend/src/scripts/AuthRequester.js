@@ -1,6 +1,7 @@
 import axios from "axios";
 import config from "../config/config.js";
 import log from "../utils/logger";
+import { rememberAuthReturnPath } from "../auth/authReturnPath";
 
 /**
  * AuthRequester — talks to the backend auth endpoints.
@@ -18,7 +19,8 @@ export default class AuthRequester {
    * Start sign-in by navigating the browser to the backend login endpoint,
    * which redirects on to Entra.
    */
-  login() {
+  login(returnPath) {
+    rememberAuthReturnPath(returnPath);
     window.location.assign(this.getUrlBase() + "/auth/login");
   }
 

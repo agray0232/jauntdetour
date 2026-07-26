@@ -7,6 +7,8 @@ import { Provider } from "react-redux";
 import { createStore } from "redux";
 import mainReducer from "./reducers/main-reducer";
 import { FluentProvider } from "@fluentui/react-components";
+import { BrowserRouter } from "react-router-dom";
+import { AuthSessionProvider } from "./auth/AuthSessionProvider";
 import { jauntDetourTheme } from "./design-system/jauntDetourTheme";
 
 // Persist the planning state to sessionStorage so an in-progress trip survives
@@ -62,7 +64,13 @@ const root = createRoot(container);
 root.render(
   <Provider store={store}>
     <FluentProvider theme={jauntDetourTheme}>
-      <App />
+      <BrowserRouter
+        future={{ v7_relativeSplatPath: true, v7_startTransition: true }}
+      >
+        <AuthSessionProvider>
+          <App />
+        </AuthSessionProvider>
+      </BrowserRouter>
     </FluentProvider>
   </Provider>
 );
