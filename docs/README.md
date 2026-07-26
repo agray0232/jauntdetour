@@ -1,4 +1,12 @@
-# JauntDetour Documentation
+---
+title: JauntDetour Documentation
+description: Technical, architecture, UX, design-system, authentication, and database documentation for JauntDetour
+author: JauntDetour Development Team
+ms.date: 2026-07-26
+ms.topic: overview
+---
+
+<!-- markdownlint-disable MD013 MD060 -->
 
 Technical documentation for the JauntDetour road trip planning application.
 
@@ -13,8 +21,50 @@ JauntDetour uses the Google Maps APIs to build routes and find detours along the
 | **Database**       | Azure Database for PostgreSQL (Flexible Server) — relational, no PostGIS      |
 | **Authentication** | Microsoft Entra External ID (email/password + social login)                   |
 | **Frontend UI**    | Fluent 2 (`@fluentui/react-components`) for new UI (dialogs, drawers, toasts) |
+| **Frontend UX**    | Incremental map-first redesign with route-based destinations                  |
 
 ---
+
+## Frontend Design and UX
+
+Start with the development handoff, then follow the linked source-of-truth
+artifacts for a specific implementation slice.
+
+1. **[Development Handoff](ux/development-handoff.md)** — operational contract
+    for React and Fluent 2 implementation.
+2. **[Migration Backlog](ux/migration-backlog.md)** — phased strangler backlog
+    from shell and tokens through legacy retirement.
+3. **[Concept Directions](ux/concept-directions.md)** — selected map-first
+    workspace, Home, My Jaunts, Jaunt Detail, and Account structure.
+4. **[Responsive Strategy](ux/responsive-strategy.md)** — layout modes,
+    validated viewport matrix, and production checks.
+5. **[Current-State Audit](ux/current-state-audit.md)** — existing behavior,
+    strengths, and ranked UX/accessibility findings.
+6. **[Planning Journey](ux/planning-journey.md)** — JTBD, journey stages, and
+    evidence-tagged assumptions.
+7. **[Brand and UI Foundations](design-system/foundations.md)** — human-readable
+    color, typography, spacing, map, and component guidance.
+8. **[Fluent 2 Mapping](design-system/fluent-token-mapping.md)** — production
+    theme and component translation.
+9. **[Canonical Tokens](../design-system/tokens/jauntdetour.tokens.json)** —
+    machine-readable visual source of truth.
+10. **[Living Specimen](../design-system/specimen/index.html)** — rendered
+     foundations and component examples.
+11. **[Clickable Prototype](../spikes/ux-redesign-prototype/README.md)** —
+     disposable interaction and composition reference.
+12. **[Brand Assets](../design-system/assets/brand/README.md)** — selected SVG,
+     favicon, Apple, Android, and maskable exports.
+
+## Frontend Architecture Decisions
+
+1. **[ADR 0001](architecture/decisions/0001-evolve-frontend-incrementally.md)** —
+    evolve incrementally rather than rewrite.
+2. **[ADR 0002](architecture/decisions/0002-routing-and-map-first-shell.md)** —
+    route-based shell and map-first planner.
+3. **[ADR 0003](architecture/decisions/0003-fluent-design-system-and-responsive-tree.md)** —
+    Fluent 2, JauntDetour tokens, and one responsive component tree.
+4. **[ADR 0004](architecture/decisions/0004-state-typescript-and-build-tooling.md)** —
+    incremental state modernization with TypeScript and Vite deferred.
 
 ## 📁 database/
 
@@ -55,7 +105,7 @@ Managed identity for end users.
 
 ## Data Model
 
-```
+```text
 ┌──────────────┐
 │    Users     │
 │ - user_id    │──┐
@@ -97,9 +147,13 @@ Managed identity for end users.
 | authentication/security.md             | ✅     | Jun 2, 2026  |
 | authentication/session-management.md   | ✅     | Jun 2, 2026  |
 | authentication/compliance.md           | ✅     | Jun 2, 2026  |
+| ux/development-handoff.md               | Candidate | Jul 26, 2026 |
+| ux/migration-backlog.md                 | Candidate | Jul 26, 2026 |
+| design-system/foundations.md            | Candidate | Jul 26, 2026 |
+| design-system/fluent-token-mapping.md   | Candidate | Jul 26, 2026 |
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** June 2, 2026
+**Document Version:** 3.0
+**Last Updated:** July 26, 2026
 **Maintained by:** JauntDetour Development Team

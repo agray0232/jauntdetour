@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      name="description"
+      content="Disposable clickable prototype for the JauntDetour UX redesign spike"
+    >
+    <title>JauntDetour UX Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    >
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin
+    >
+    <link rel="stylesheet" href="styles.css?v=13">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="JauntDetour home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="brand-route-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle class="brand-route-endpoint" cx="6" cy="19" r="3"></circle>
+            <path class="brand-route-path" d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"></path>
+            <circle class="brand-route-discovery" cx="3.25" cy="8.5" r="3.4"></circle>
+            <circle class="brand-route-endpoint" cx="18" cy="5" r="3"></circle>
+          </svg>
+        </span>
+        <span>JauntDetour</span>
+        <span class="prototype-badge">Prototype</span>
+      </a>
+
+      <button
+        class="icon-button menu-toggle"
+        id="menu-toggle"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+      >
+        <i data-lucide="menu"></i>
+      </button>
+
+      <nav class="primary-nav" id="primary-nav" aria-label="Primary navigation">
+        <a href="#plan" data-nav="plan">Plan a Jaunt</a>
+        <a href="#trips" data-nav="trips">My Jaunts</a>
+        <a href="#about" data-nav="about">About</a>
+      </nav>
+
+      <div class="account-control">
+        <button
+          class="account-button"
+          id="account-button"
+          type="button"
+          aria-label="Sign in"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          <i data-lucide="circle-user-round"></i>
+          <span id="account-label">Sign in</span>
+          <i class="account-chevron" data-lucide="chevron-down"></i>
+        </button>
+        <div class="account-menu" id="account-menu" role="menu" aria-labelledby="account-button" hidden>
+          <div class="account-menu-summary" role="none">
+            <span class="profile-avatar" aria-hidden="true">A</span>
+            <span><strong>Alex Morgan</strong><small>alex@example.com</small></span>
+          </div>
+          <a href="#account" role="menuitem"><i data-lucide="user-round"></i><span>View Profile</span></a>
+          <a href="#trips" role="menuitem"><i data-lucide="luggage"></i><span>My Jaunts</span></a>
+          <div class="account-menu-separator" role="separator"></div>
+          <button id="menu-sign-out" type="button" role="menuitem"><i data-lucide="log-out"></i><span>Sign out</span></button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+      <section class="view home-view" data-view="home" aria-labelledby="home-title">
+        <div class="home-hero">
+          <div class="hero-scrim" aria-hidden="true"></div>
+          <div class="hero-content">
+            <p class="eyebrow">The interesting way there</p>
+            <h1 id="home-title">Find the stop that makes the drive.</h1>
+            <p class="hero-copy">
+              Turn a route you already plan to take into a jaunt worth remembering.
+              Explore coffee, landmarks, food, and unexpected places along the way.
+            </p>
+            <a class="button button-primary button-large" href="#plan">
+              Plan your jaunt
+              <i data-lucide="arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="product-composition" role="img" aria-label="Preview of the JauntDetour planner">
+            <div class="product-window product-window-main">
+              <div class="window-bar" aria-hidden="true">
+                <span></span><span></span><span></span>
+                <small>jauntdetour.com/plan</small>
+              </div>
+              <div class="preview-app">
+                <div class="preview-panel">
+                  <strong>Carolinas weekend</strong>
+                  <small>Atlanta to Charlotte</small>
+                  <div class="preview-tabs"><b>Build</b><span>Discover</span></div>
+                  <div class="preview-stop"><span>A</span> Atlanta, GA</div>
+                  <div class="preview-stop selected"><span>1</span> Paris Mountain</div>
+                  <div class="preview-stop"><span>B</span> Charlotte, NC</div>
+                </div>
+                <div class="preview-map" aria-hidden="true">
+                  <span class="preview-route"></span>
+                  <b class="preview-pin pin-a">A</b>
+                  <b class="preview-pin pin-1">1</b>
+                  <b class="preview-pin pin-b">B</b>
+                </div>
+              </div>
+            </div>
+            <div class="product-window result-float">
+              <span class="result-number">1</span>
+              <span><strong>Paris Mountain</strong><small>Hike · 4.7 stars</small></span>
+              <i data-lucide="plus"></i>
+            </div>
+            <div class="route-stat-float">
+              <small>Route with detour</small>
+              <strong>258 mi · 4 hr 05 min</strong>
+            </div>
+          </div>
+        </div>
+
+        <section class="value-section" aria-labelledby="value-title">
+          <div class="section-heading">
+            <p class="eyebrow">A better way to plan the drive</p>
+            <h2 id="value-title">The route is only the beginning.</h2>
+          </div>
+          <div class="value-grid">
+            <article>
+              <span class="step-number">01</span>
+              <i data-lucide="map-pinned"></i>
+              <h3>Set the route</h3>
+              <p>Start with the drive you already know you need to make.</p>
+            </article>
+            <article>
+              <span class="step-number">02</span>
+              <i data-lucide="telescope"></i>
+              <h3>Explore the way</h3>
+              <p>Search around any point and see discoveries in route context.</p>
+            </article>
+            <article>
+              <span class="step-number">03</span>
+              <i data-lucide="luggage"></i>
+              <h3>Keep the plan</h3>
+              <p>Save your itinerary or open the finished route in Google Maps.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="walkthrough-section" aria-labelledby="walkthrough-title">
+          <div class="walkthrough-copy">
+            <p class="eyebrow">Built for the planning moment</p>
+            <h2 id="walkthrough-title">Stay oriented while the jaunt takes shape.</h2>
+            <p>
+              The map remains the anchor. A focused toolkit gives you the controls
+              to build, explore, compare, and keep your jaunt.
+            </p>
+            <a class="text-link" href="#plan">Open the planner <i data-lucide="arrow-up-right"></i></a>
+          </div>
+          <div class="walkthrough-visual" aria-hidden="true">
+            <div class="walkthrough-map"></div>
+            <div class="walkthrough-panel">
+              <span>Discover</span>
+              <strong>14 places near the midpoint</strong>
+              <small>Hikes within 20 km</small>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view planner-view" data-view="plan" aria-label="Jaunt planner" hidden>
+        <aside class="planner-panel" aria-label="Jaunt building tools">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow" id="trip-kicker">New jaunt</p>
+              <h1 id="trip-title">Build your jaunt</h1>
+            </div>
+            <span class="status-chip" id="save-status">Not saved</span>
+          </div>
+
+          <div class="planner-tabs" role="tablist" aria-label="Planning tools">
+            <button class="planner-tab active" id="build-tab" type="button" role="tab" aria-selected="true" aria-controls="build-panel">
+              <i data-lucide="list-tree"></i> Build
+            </button>
+            <button class="planner-tab" id="discover-tab" type="button" role="tab" aria-selected="false" aria-controls="discover-panel" disabled>
+              <i data-lucide="sparkles"></i> Discover
+            </button>
+          </div>
+
+          <div class="panel-scroll">
+            <section id="build-panel" role="tabpanel" aria-labelledby="build-tab">
+              <form id="route-form" class="route-form">
+                <fieldset>
+                  <legend>Where are you headed?</legend>
+                  <label for="origin">Start</label>
+                  <div class="input-with-icon">
+                    <i data-lucide="circle-dot"></i>
+                    <input id="origin" name="origin" type="text" autocomplete="off" placeholder="Enter a starting point">
+                  </div>
+                  <label for="destination">Destination</label>
+                  <div class="input-with-icon">
+                    <i data-lucide="map-pin"></i>
+                    <input id="destination" name="destination" type="text" autocomplete="off" placeholder="Where are you going?">
+                  </div>
+                </fieldset>
+                <div class="form-actions">
+                  <button class="text-button" id="example-route" type="button">Use Atlanta to Charlotte</button>
+                  <button class="button button-primary" type="submit">Create route <i data-lucide="arrow-right"></i></button>
+                </div>
+                <p class="form-note"><i data-lucide="info"></i> Plan before signing in. Sign in only when you save.</p>
+              </form>
+
+              <div id="route-summary" class="route-summary" hidden>
+                <div class="route-meta">
+                  <div><small>Distance</small><strong id="distance-value">245 mi</strong></div>
+                  <div><small>Drive time</small><strong id="time-value">3 hr 47 min</strong></div>
+                  <button class="icon-button" id="edit-route" type="button" aria-label="Edit route"><i data-lucide="pencil"></i></button>
+                </div>
+
+                <div class="section-row">
+                  <h2>Itinerary</h2>
+                  <button class="text-button" id="find-detour" type="button">Find a detour</button>
+                </div>
+                <ol class="itinerary" id="itinerary-list"></ol>
+
+                <button class="button button-secondary full-width" id="find-another" type="button">
+                  <i data-lucide="search"></i> Find a detour
+                </button>
+
+                <div class="save-section">
+                  <label for="trip-name">Jaunt name</label>
+                  <input id="trip-name" type="text" placeholder="e.g. Carolinas weekend">
+                  <div class="save-actions">
+                    <button class="button button-primary" id="save-trip" type="button"><i data-lucide="bookmark"></i> Save jaunt</button>
+                    <button class="button button-secondary" id="export-trip" type="button" aria-label="Open jaunt in Google Maps"><i data-lucide="external-link"></i> Google Maps</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="discover-panel" role="tabpanel" aria-labelledby="discover-tab" hidden>
+              <div class="discover-heading">
+                <div>
+                  <p class="eyebrow">Along this route</p>
+                  <h2>Find a worthwhile stop</h2>
+                </div>
+                <button class="icon-button mobile-map-button" id="show-map" type="button" aria-label="Show map"><i data-lucide="map"></i></button>
+              </div>
+
+              <fieldset class="category-fieldset">
+                <legend>What sounds good?</legend>
+                <div class="category-grid" id="category-grid">
+                  <button class="category-button active" type="button" data-category="Hike"><i data-lucide="trees"></i> Hike</button>
+                  <button class="category-button" type="button" data-category="Coffee"><i data-lucide="coffee"></i> Coffee</button>
+                  <button class="category-button" type="button" data-category="Landmark"><i data-lucide="landmark"></i> Landmark</button>
+                  <button class="category-button" type="button" data-category="Food"><i data-lucide="utensils"></i> Food</button>
+                </div>
+              </fieldset>
+
+              <div class="range-control">
+                <div><label for="route-position">Where along the route?</label><output id="route-position-output" for="route-position">Halfway · 50%</output></div>
+                <input id="route-position" type="range" min="10" max="90" value="50">
+                <div class="range-ends"><span>Start</span><span>Destination</span></div>
+              </div>
+
+              <div class="range-control">
+                <div><label for="search-radius">Search radius</label><output id="search-radius-output" for="search-radius">20 km</output></div>
+                <input id="search-radius" type="range" min="5" max="50" step="5" value="20">
+              </div>
+
+              <button class="button button-primary full-width" id="search-area" type="button"><i data-lucide="search"></i> Search this area</button>
+
+              <div class="search-state" id="search-state">
+                <i data-lucide="mouse-pointer-click"></i>
+                <p>Set what you want and where to look, then search this part of the route.</p>
+              </div>
+
+              <div class="results-section" id="results-section" hidden>
+                <div class="section-row">
+                  <h3 id="results-count">3 places</h3>
+                  <button class="text-button" id="clear-results" type="button">Clear</button>
+                </div>
+                <div class="result-list" id="result-list"></div>
+              </div>
+            </section>
+          </div>
+        </aside>
+
+        <div class="map-workspace" id="map-workspace">
+          <section id="planner-map" aria-label="Map showing the current jaunt route"></section>
+          <div class="map-legend" role="group" aria-label="Map legend">
+            <span><b class="legend-pin route-pin"></b> Route</span>
+            <span><b class="legend-pin result-pin"></b> Result</span>
+            <span><b class="legend-pin stop-pin"></b> Added stop</span>
+          </div>
+          <button class="button button-secondary close-mobile-map" id="close-mobile-map" type="button"><i data-lucide="panel-bottom"></i> Show jaunt tools</button>
+        </div>
+      </section>
+
+      <section class="view library-view content-view" data-view="trips" aria-labelledby="trips-title" hidden>
+        <div class="content-heading">
+          <div>
+            <p class="eyebrow">Your saved routes</p>
+            <h1 id="trips-title">My Jaunts</h1>
+            <p>Pick up where you left off or create another version.</p>
+          </div>
+          <a class="button button-primary" href="#plan"><i data-lucide="plus"></i> Plan a jaunt</a>
+        </div>
+        <div class="trip-list" id="trip-list">
+          <article class="trip-card" data-trip-card="carolinas">
+            <div class="trip-route-art" aria-hidden="true"><span></span><b>A</b><b>1</b><b>B</b></div>
+            <div class="trip-card-body">
+              <div class="trip-card-heading"><div><small>Updated today</small><h2>Carolinas weekend</h2></div><span class="status-chip saved">Saved</span></div>
+              <p>Atlanta, GA <i data-lucide="arrow-right"></i> Charlotte, NC</p>
+              <div class="trip-stats"><span>258 mi</span><span>4 hr 05 min</span><span>1 detour</span></div>
+              <div class="trip-actions">
+                <a class="button button-primary" href="#trip-detail">Open jaunt</a>
+                <button class="button button-secondary duplicate-trip" type="button"><i data-lucide="copy"></i> Duplicate</button>
+                <button class="icon-button delete-trip" type="button" aria-label="Delete Carolinas weekend"><i data-lucide="trash-2"></i></button>
+              </div>
+            </div>
+          </article>
+          <article class="trip-card" data-trip-card="mountain">
+            <div class="trip-route-art alternate" aria-hidden="true"><span></span><b>A</b><b>1</b><b>B</b></div>
+            <div class="trip-card-body">
+              <div class="trip-card-heading"><div><small>Updated June 12</small><h2>Mountain coffee run</h2></div></div>
+              <p>Asheville, NC <i data-lucide="arrow-right"></i> Knoxville, TN</p>
+              <div class="trip-stats"><span>132 mi</span><span>2 hr 54 min</span><span>2 detours</span></div>
+              <div class="trip-actions">
+                <button class="button button-primary load-mountain" type="button">Open jaunt</button>
+                <button class="button button-secondary duplicate-trip" type="button"><i data-lucide="copy"></i> Duplicate</button>
+                <button class="icon-button delete-trip" type="button" aria-label="Delete Mountain coffee run"><i data-lucide="trash-2"></i></button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view detail-view content-view" data-view="trip-detail" aria-labelledby="detail-title" hidden>
+        <a class="back-link" href="#trips"><i data-lucide="arrow-left"></i> My Jaunts</a>
+        <div class="detail-heading">
+          <div><p class="eyebrow">Saved jaunt · Updated today</p><h1 id="detail-title">Carolinas weekend</h1></div>
+          <div class="detail-actions">
+            <button class="button button-secondary" id="detail-duplicate" type="button"><i data-lucide="copy"></i> Duplicate</button>
+            <button class="button button-primary" id="resume-trip" type="button"><i data-lucide="pencil"></i> Resume planning</button>
+          </div>
+        </div>
+        <div class="detail-layout">
+          <div class="detail-itinerary">
+            <div class="route-meta detail-stats">
+              <div><small>Distance</small><strong>258 mi</strong></div>
+              <div><small>Drive time</small><strong>4 hr 05 min</strong></div>
+              <div><small>Detours</small><strong>1</strong></div>
+            </div>
+            <ol class="itinerary static-itinerary">
+              <li><span class="itinerary-marker endpoint">A</span><div><strong>Atlanta, GA</strong><small>Starting point</small></div></li>
+              <li><span class="itinerary-marker detour">1</span><div><strong>Paris Mountain State Park</strong><small>Hike · 4.7 stars · +18 min</small></div></li>
+              <li><span class="itinerary-marker endpoint">B</span><div><strong>Charlotte, NC</strong><small>Destination</small></div></li>
+            </ol>
+            <button class="button button-secondary full-width" id="detail-export" type="button"><i data-lucide="external-link"></i> Open in Google Maps</button>
+          </div>
+          <div class="detail-map" role="img" aria-label="Saved route preview">
+            <span class="detail-route-line"></span><b class="detail-pin a">A</b><b class="detail-pin one">1</b><b class="detail-pin b">B</b>
+          </div>
+        </div>
+      </section>
+
+      <section class="view about-view content-view" data-view="about" aria-labelledby="about-title" hidden>
+        <div class="about-layout">
+          <div>
+            <p class="eyebrow">About JauntDetour</p>
+            <h1 id="about-title">Make room for the unexpected.</h1>
+          </div>
+          <div class="about-copy">
+            <p class="lead">JauntDetour helps turn the drive between two places into part of the experience.</p>
+            <p>Start with a route, explore places along the way, shape the itinerary, and take the finished plan with you in Google Maps.</p>
+            <p>This clickable prototype explores a future interface. It uses mock data and does not save or share real jaunts.</p>
+            <a class="button button-primary" href="#plan">Plan your jaunt <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="view account-view content-view" data-view="account" aria-labelledby="account-title" hidden>
+        <div class="content-heading account-heading">
+          <div>
+            <p class="eyebrow">Account Info</p>
+            <h1 id="account-title">Your profile</h1>
+            <p>Review the identity connected to JauntDetour and open your saved jaunts.</p>
+          </div>
+        </div>
+        <div class="account-layout">
+          <aside class="profile-summary" aria-label="Signed-in profile summary">
+            <span class="profile-avatar profile-avatar-large" aria-hidden="true">A</span>
+            <h2>Alex Morgan</h2>
+            <p>alex@example.com</p>
+            <span class="status-chip saved">Signed in</span>
+          </aside>
+          <div class="account-details">
+            <section aria-labelledby="identity-heading">
+              <div class="account-section-heading">
+                <div><p class="eyebrow">Identity</p><h2 id="identity-heading">Profile details</h2></div>
+                <span class="account-note">Managed by your sign-in provider</span>
+              </div>
+              <dl class="profile-fields">
+                <div><dt>Display name</dt><dd>Alex Morgan</dd></div>
+                <div><dt>Email</dt><dd>alex@example.com</dd></div>
+                <div><dt>Sign-in provider</dt><dd>Microsoft Entra External ID</dd></div>
+              </dl>
+            </section>
+            <section class="account-actions-section" aria-labelledby="account-actions-heading">
+              <div class="account-section-heading"><div><p class="eyebrow">JauntDetour</p><h2 id="account-actions-heading">Account actions</h2></div></div>
+              <div class="account-action-list">
+                <a href="#trips"><span class="account-action-icon"><i data-lucide="luggage"></i></span><span><strong>My Jaunts</strong><small>View, resume, duplicate, or delete saved jaunts</small></span><i data-lucide="arrow-right"></i></a>
+                <button id="profile-sign-out" type="button"><span class="account-action-icon"><i data-lucide="log-out"></i></span><span><strong>Sign out</strong><small>End this JauntDetour session</small></span><i data-lucide="arrow-right"></i></button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="site-footer">
+      <a class="brand footer-brand" href="#home"><span class="brand-mark"><svg class="brand-route-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="brand-route-endpoint" cx="6" cy="19" r="3"></circle><path class="brand-route-path" d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"></path><circle class="brand-route-discovery" cx="3.25" cy="8.5" r="3.4"></circle><circle class="brand-route-endpoint" cx="18" cy="5" r="3"></circle></svg></span><span>JauntDetour</span></a>
+      <p>Find the interesting way there.</p>
+      <nav aria-label="Footer navigation"><a href="#plan">Plan</a><a href="#trips">My Jaunts</a><a href="#about">About</a></nav>
+    </footer>
+
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+    <dialog id="account-dialog" class="prototype-dialog">
+      <form method="dialog">
+        <button class="icon-button dialog-close" type="submit" value="cancel" aria-label="Close"><i data-lucide="x"></i></button>
+        <div class="dialog-icon"><i data-lucide="user-round-check"></i></div>
+        <h2 id="account-dialog-title">Sign in to JauntDetour</h2>
+        <p id="account-dialog-copy">This prototype uses a demo account. No credentials or personal data are required.</p>
+        <div class="dialog-actions">
+          <button class="button button-secondary" type="submit" value="cancel">Not now</button>
+          <button class="button button-primary" id="demo-sign-in" type="submit" value="cancel">Continue as demo user</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="delete-dialog" class="prototype-dialog">
+      <form method="dialog">
+        <button class="icon-button dialog-close" type="submit" value="cancel" aria-label="Close"><i data-lucide="x"></i></button>
+        <div class="dialog-icon danger"><i data-lucide="trash-2"></i></div>
+        <h2>Delete this jaunt?</h2>
+        <p>This removes it from the mock jaunt library. Reload the prototype to restore it.</p>
+        <div class="dialog-actions">
+          <button class="button button-secondary" type="submit" value="cancel">Cancel</button>
+          <button class="button button-danger" id="confirm-delete" type="submit" value="cancel">Delete jaunt</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin
+    ></script>
+    <script src="app.js?v=8"></script>
+  </body>
+</html>
