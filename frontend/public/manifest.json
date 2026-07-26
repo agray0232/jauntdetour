@@ -1,6 +1,6 @@
 {
-  "short_name": "Jauntdetour",
-  "name": "Jauntdetour",
+  "short_name": "JauntDetour",
+  "name": "JauntDetour Road Trip Planner",
   "icons": [
     {
       "src": "favicon.ico",
@@ -13,13 +13,26 @@
       "sizes": "16x16"
     },
     {
-      "src": "favicon-32x32.png",
+      "src": "android-chrome-192x192.png",
       "type": "image/png",
-      "sizes": "32x32"
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "maskable-icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#12664f",
+  "background_color": "#f7f9f8"
 }

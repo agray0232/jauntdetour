@@ -6,7 +6,8 @@ import * as serviceWorker from "./serviceWorker";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import mainReducer from "./reducers/main-reducer";
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import { FluentProvider } from "@fluentui/react-components";
+import { jauntDetourTheme } from "./design-system/jauntDetourTheme";
 
 // Persist the planning state to sessionStorage so an in-progress trip survives
 // full-page navigations — most importantly the sign-in redirect (backend →
@@ -60,7 +61,7 @@ const root = createRoot(container);
 
 root.render(
   <Provider store={store}>
-    <FluentProvider theme={webLightTheme}>
+    <FluentProvider theme={jauntDetourTheme}>
       <App />
     </FluentProvider>
   </Provider>
