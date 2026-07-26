@@ -21,31 +21,31 @@ the adventurous, curated, and premium JauntDetour identity.
 
 ## Decision
 
-* Use Fluent 2 for accessible controls, dialogs, menus, tabs, fields, sliders,
+- Use Fluent 2 for accessible controls, dialogs, menus, tabs, fields, sliders,
   toasts, badges, and tooltips.
-* Use the canonical JauntDetour token JSON as the visual source of truth.
-* Use pine as the Fluent interaction brand and heritage orange as the route and
+- Use the canonical JauntDetour token JSON as the visual source of truth.
+- Use pine as the Fluent interaction brand and heritage orange as the route and
   discovery signal.
-* Use custom domain compositions for the map, result identity, itinerary, route
+- Use custom domain compositions for the map, result identity, itinerary, route
   summary, and editorial Home layout.
-* Render one component tree across viewports. CSS changes layout; JavaScript
+- Render one component tree across viewports. CSS changes layout; JavaScript
   manages behavior and state.
-* Do not copy static prototype CSS into production.
+- Do not copy static prototype CSS into production.
 
 ## Consequences
 
 Positive consequences:
 
-* Controls inherit tested Fluent behavior.
-* Brand values stay centralized and reviewable.
-* Desktop and mobile behavior cannot silently fork by component duplication.
-* Domain patterns remain visually distinctive.
+- Controls inherit tested Fluent behavior.
+- Brand values stay centralized and reviewable.
+- Desktop and mobile behavior cannot silently fork by component duplication.
+- Domain patterns remain visually distinctive.
 
 Costs and risks:
 
-* A reviewed Fluent pine brand ramp must be generated.
-* Custom map and itinerary patterns require focused accessibility work.
-* Legacy and tokenized styles coexist during migration.
+- A reviewed Fluent pine brand ramp must be generated.
+- Custom map and itinerary patterns require focused accessibility work.
+- Legacy and tokenized styles coexist during migration.
 
 ## Alternatives Considered
 

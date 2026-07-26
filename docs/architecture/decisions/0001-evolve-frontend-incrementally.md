@@ -24,28 +24,28 @@ feature-parity and regression burden.
 
 Use a strangler migration around the running frontend.
 
-* Establish the application shell, routing, theme, and assets first.
-* Keep the current planner operational at `/plan`.
-* Migrate Build, Discover, My Jaunts, Jaunt Detail, and Account in vertical
+- Establish the application shell, routing, theme, and assets first.
+- Keep the current planner operational at `/plan`.
+- Migrate Build, Discover, My Jaunts, Jaunt Detail, and Account in vertical
   slices.
-* Remove legacy components and dependencies only after no active route uses
+- Remove legacy components and dependencies only after no active route uses
   them.
-* Preserve backend, auth, database, and API contracts during the redesign.
+- Preserve backend, auth, database, and API contracts during the redesign.
 
 ## Consequences
 
 Positive consequences:
 
-* The application remains usable after every phase.
-* Existing tests and behavior provide migration safety.
-* Visual progress reaches users before full modernization completes.
-* Technical modernization can follow real ownership boundaries.
+- The application remains usable after every phase.
+- Existing tests and behavior provide migration safety.
+- Visual progress reaches users before full modernization completes.
+- Technical modernization can follow real ownership boundaries.
 
 Costs and risks:
 
-* Legacy and new patterns coexist temporarily.
-* Transitional adapters may be required.
-* Teams must actively remove superseded paths to avoid permanent duplication.
+- Legacy and new patterns coexist temporarily.
+- Transitional adapters may be required.
+- Teams must actively remove superseded paths to avoid permanent duplication.
 
 ## Alternatives Considered
 

@@ -14,9 +14,9 @@ the upper-left route bend.
 
 ## Canonical Sources
 
-* `jauntdetour-mark.svg` is the canonical transparent-background source for web,
+- `jauntdetour-mark.svg` is the canonical transparent-background source for web,
   favicon, and general brand use.
-* `jauntdetour-mark-maskable.svg` provides a full-bleed pine background for PWA
+- `jauntdetour-mark-maskable.svg` provides a full-bleed pine background for PWA
   maskable icons.
 
 Never edit generated PNG or ICO files directly. Update the canonical SVG, review
@@ -24,16 +24,16 @@ it at 16, 32, 180, 192, and 512 pixels, then regenerate all derivatives.
 
 ## Generated Assets
 
-| Asset | Size | Intended production use |
-| --- | --- | --- |
-| `favicon-16x16.png` | 16 × 16 | Browser favicon fallback |
-| `favicon-32x32.png` | 32 × 32 | Browser favicon fallback |
-| `favicon.ico` | 16, 32, and 48 | Primary legacy/browser favicon |
-| `apple-touch-icon.png` | 180 × 180 | Apple home-screen icon |
-| `android-chrome-192x192.png` | 192 × 192 | Web app manifest icon |
-| `android-chrome-512x512.png` | 512 × 512 | Web app manifest icon |
-| `maskable-icon-512x512.png` | 512 × 512 | Web app manifest maskable icon |
-| `jauntdetour-mark-512.png` | 512 × 512 | General raster export |
+| Asset                        | Size           | Intended production use        |
+| ---------------------------- | -------------- | ------------------------------ |
+| `favicon-16x16.png`          | 16 × 16        | Browser favicon fallback       |
+| `favicon-32x32.png`          | 32 × 32        | Browser favicon fallback       |
+| `favicon.ico`                | 16, 32, and 48 | Primary legacy/browser favicon |
+| `apple-touch-icon.png`       | 180 × 180      | Apple home-screen icon         |
+| `android-chrome-192x192.png` | 192 × 192      | Web app manifest icon          |
+| `android-chrome-512x512.png` | 512 × 512      | Web app manifest icon          |
+| `maskable-icon-512x512.png`  | 512 × 512      | Web app manifest maskable icon |
+| `jauntdetour-mark-512.png`   | 512 × 512      | General raster export          |
 
 ## Production Adoption
 

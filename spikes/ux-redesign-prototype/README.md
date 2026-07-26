@@ -49,27 +49,27 @@ tiles, and the home-page photograph loaded by the prototype.
 
 ## Implemented Prototype States
 
-* Branded Home, About, Account Info, and persistent navigation
-* Empty, route-ready, Discover, results, selected-result, and added-detour states
-* Mock route creation, search, add, remove, save, and export feedback
-* Demo sign-in with automatic save resumption
-* Signed-in account menu with Profile, My Jaunts, and Sign Out
-* My Jaunts list, duplicate feedback, delete confirmation, and Jaunt Detail
-* Resume Planning with visible loaded and saved context
-* Responsive desktop and narrow-screen planner using one component tree
-* Loading, status, toast, and dialog treatments representative of production
+- Branded Home, About, Account Info, and persistent navigation
+- Empty, route-ready, Discover, results, selected-result, and added-detour states
+- Mock route creation, search, add, remove, save, and export feedback
+- Demo sign-in with automatic save resumption
+- Signed-in account menu with Profile, My Jaunts, and Sign Out
+- My Jaunts list, duplicate feedback, delete confirmation, and Jaunt Detail
+- Resume Planning with visible loaded and saved context
+- Responsive desktop and narrow-screen planner using one component tree
+- Loading, status, toast, and dialog treatments representative of production
   requirements
 
 ## Deliberate Limitations
 
-* The route geometry and place results are mock data
-* Category changes do not produce different place names
-* The second saved trip is illustrative rather than fully wired
-* Export displays feedback instead of opening Google Maps
-* State resets when the browser reloads
-* The accepted visual choices are tokenized, but the prototype remains
+- The route geometry and place results are mock data
+- Category changes do not produce different place names
+- The second saved trip is illustrative rather than fully wired
+- Export displays feedback instead of opening Google Maps
+- State resets when the browser reloads
+- The accepted visual choices are tokenized, but the prototype remains
   non-production reference code
-* Accessibility semantics are representative but have not received a formal
+- Accessibility semantics are representative but have not received a formal
   audit with assistive technology
 
 ## Source of Truth

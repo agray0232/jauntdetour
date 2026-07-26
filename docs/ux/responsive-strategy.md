@@ -40,21 +40,21 @@ navigation remains out of scope.
 Above the compact breakpoint, the planner uses a fixed tool panel beside a map
 that fills the remaining width.
 
-* Map remains the persistent spatial anchor
-* Tool panel owns Build and Discover task views
-* Panel content scrolls independently inside the fixed viewport
-* Map never becomes the page's vertical scroll owner
-* Small-laptop refinements reduce the panel from 410 to 380 pixels
+- Map remains the persistent spatial anchor
+- Tool panel owns Build and Discover task views
+- Panel content scrolls independently inside the fixed viewport
+- Map never becomes the page's vertical scroll owner
+- Small-laptop refinements reduce the panel from 410 to 380 pixels
 
 ### Compact Workspace
 
 At 780 CSS pixels and below, the planner becomes a map-and-tool stack.
 
-* Map receives approximately 39% of available planner height
-* Tool surface receives approximately 61% and owns its internal scroll
-* Show Map expands the map to a focused full-screen layer
-* The same Build and Discover components remain mounted once
-* Header navigation and account menu collapse without removing accessible names
+- Map receives approximately 39% of available planner height
+- Tool surface receives approximately 61% and owns its internal scroll
+- Show Map expands the map to a focused full-screen layer
+- The same Build and Discover components remain mounted once
+- Header navigation and account menu collapse without removing accessible names
 
 At high text zoom, the compact composition is also the expected fallback even
 on physically large screens because the effective CSS viewport becomes narrow.
@@ -65,17 +65,17 @@ The browser prototype was checked on 2026-07-26 with Home, Plan, My Trips, Trip
 Detail, About, and Account routes. Route-ready Discover was also checked with
 the Atlanta-to-Charlotte mock scenario.
 
-| Viewport | Representative context | Planner composition | Result |
-| --- | --- | --- | --- |
-| 1440 × 900 | Desktop | 410-pixel panel and 1030-pixel map | No horizontal overflow or header collision |
-| 1024 × 768 | Small laptop | 380-pixel panel and 644-pixel map | No horizontal overflow or workspace escape |
-| 768 × 1024 | Tablet portrait | 375-pixel-high map and 587-pixel-high tools | No horizontal overflow; compact composition active |
-| 430 × 932 | Large phone portrait | 39/61 map and tools | No horizontal overflow or header collision |
-| 390 × 844 | Common phone portrait | 305-pixel-high map and 477-pixel-high tools | No horizontal overflow; account menu fits |
-| 360 × 800 | Small phone portrait | 39/61 map and tools | No horizontal overflow or header collision |
-| 320 × 568 | Minimum supported width | 197-pixel-high map and 309-pixel-high tools | No horizontal overflow after stacking Account fields |
-| 844 × 390 | Large phone landscape | Side-by-side compact-height workspace | No horizontal overflow |
-| 667 × 375 | Small phone landscape | Map-and-tool compact workspace | No horizontal overflow |
+| Viewport   | Representative context  | Planner composition                         | Result                                               |
+| ---------- | ----------------------- | ------------------------------------------- | ---------------------------------------------------- |
+| 1440 × 900 | Desktop                 | 410-pixel panel and 1030-pixel map          | No horizontal overflow or header collision           |
+| 1024 × 768 | Small laptop            | 380-pixel panel and 644-pixel map           | No horizontal overflow or workspace escape           |
+| 768 × 1024 | Tablet portrait         | 375-pixel-high map and 587-pixel-high tools | No horizontal overflow; compact composition active   |
+| 430 × 932  | Large phone portrait    | 39/61 map and tools                         | No horizontal overflow or header collision           |
+| 390 × 844  | Common phone portrait   | 305-pixel-high map and 477-pixel-high tools | No horizontal overflow; account menu fits            |
+| 360 × 800  | Small phone portrait    | 39/61 map and tools                         | No horizontal overflow or header collision           |
+| 320 × 568  | Minimum supported width | 197-pixel-high map and 309-pixel-high tools | No horizontal overflow after stacking Account fields |
+| 844 × 390  | Large phone landscape   | Side-by-side compact-height workspace       | No horizontal overflow                               |
+| 667 × 375  | Small phone landscape   | Map-and-tool compact workspace              | No horizontal overflow                               |
 
 The two discovery sliders expose 32-pixel interaction boxes at every tested
 width. Buttons and icon controls use 40- to 50-pixel targets in the prototype.
@@ -168,13 +168,13 @@ For every migrated screen or task state:
 
 The current validation does not replace:
 
-* Real iOS Safari and Android Chrome testing
-* Device safe-area and browser-toolbar testing
-* Virtual-keyboard testing
-* Screen-reader testing with VoiceOver, TalkBack, NVDA, or JAWS
-* Formal 200% zoom and text-spacing conformance checks
-* Low-bandwidth and lower-powered-device performance profiling
-* Usability testing with travelers
+- Real iOS Safari and Android Chrome testing
+- Device safe-area and browser-toolbar testing
+- Virtual-keyboard testing
+- Screen-reader testing with VoiceOver, TalkBack, NVDA, or JAWS
+- Formal 200% zoom and text-spacing conformance checks
+- Low-bandwidth and lower-powered-device performance profiling
+- Usability testing with travelers
 
 These checks should be scheduled as the corresponding production slices become
 real, rather than treated as a single final accessibility pass.

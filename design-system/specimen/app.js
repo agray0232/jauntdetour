@@ -33,9 +33,16 @@ function applyTokens(tokens) {
     if (value !== undefined) root.style.setProperty(property, value);
   });
 
-  root.style.setProperty("--shadow-low", shadowToCss(getToken(tokens, "shadow.low")));
-  root.style.setProperty("--shadow-medium", shadowToCss(getToken(tokens, "shadow.medium")));
-  document.getElementById("token-version").textContent = `${tokens.meta.status} · ${tokens.meta.version}`;
+  root.style.setProperty(
+    "--shadow-low",
+    shadowToCss(getToken(tokens, "shadow.low"))
+  );
+  root.style.setProperty(
+    "--shadow-medium",
+    shadowToCss(getToken(tokens, "shadow.medium"))
+  );
+  document.getElementById("token-version").textContent =
+    `${tokens.meta.status} · ${tokens.meta.version}`;
 }
 
 function shadowToCss(shadow) {
@@ -94,7 +101,9 @@ function renderColors(tokens) {
 
     group.tokens.forEach(([label, path]) => {
       const value = getToken(tokens, path);
-      const description = path.split(".").reduce((item, key) => item?.[key], tokens)?.$description || "";
+      const description =
+        path.split(".").reduce((item, key) => item?.[key], tokens)
+          ?.$description || "";
       const swatch = document.createElement("article");
       swatch.className = "swatch";
       swatch.innerHTML = `
@@ -121,7 +130,9 @@ function renderSpacing(tokens) {
 function initializeInteractions() {
   document.querySelectorAll(".category-button").forEach((button) => {
     button.addEventListener("click", () => {
-      document.querySelectorAll(".category-button").forEach((item) => item.classList.remove("selected"));
+      document
+        .querySelectorAll(".category-button")
+        .forEach((item) => item.classList.remove("selected"));
       button.classList.add("selected");
     });
   });
@@ -158,14 +169,20 @@ function initializeSectionNavigation() {
       if (active) {
         activeLink = link;
         link.setAttribute("aria-current", "location");
-      }
-      else link.removeAttribute("aria-current");
+      } else link.removeAttribute("aria-current");
     });
 
     if (activeLink && window.matchMedia("(max-width: 920px)").matches) {
-      const centeredPosition = activeLink.offsetLeft - (navigation.clientWidth - activeLink.offsetWidth) / 2;
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      navigation.scrollTo({ left: centeredPosition, behavior: reducedMotion ? "auto" : "smooth" });
+      const centeredPosition =
+        activeLink.offsetLeft -
+        (navigation.clientWidth - activeLink.offsetWidth) / 2;
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      navigation.scrollTo({
+        left: centeredPosition,
+        behavior: reducedMotion ? "auto" : "smooth",
+      });
     }
   };
 
@@ -180,7 +197,9 @@ function initializeSectionNavigation() {
       }
     });
 
-    const atPageEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    const atPageEnd =
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight - 4;
     if (atPageEnd) activeSection = sections.at(-1);
     if (activeSection) setActiveSection(activeSection.id);
     frameRequested = false;
@@ -206,14 +225,16 @@ function initializeSectionNavigation() {
 async function initialize() {
   try {
     const response = await fetch("../tokens/jauntdetour.tokens.json?v=0.2.1");
-    if (!response.ok) throw new Error(`Token request failed: ${response.status}`);
+    if (!response.ok)
+      throw new Error(`Token request failed: ${response.status}`);
     const tokens = await response.json();
     applyTokens(tokens);
     renderColors(tokens);
     renderSpacing(tokens);
   } catch (error) {
     document.getElementById("token-version").textContent = "Tokens unavailable";
-    document.getElementById("color-groups").innerHTML = `<p class="load-error">${error.message}. Serve the repository over HTTP instead of opening this file directly.</p>`;
+    document.getElementById("color-groups").innerHTML =
+      `<p class="load-error">${error.message}. Serve the repository over HTTP instead of opening this file directly.</p>`;
   }
 
   initializeInteractions();

@@ -23,12 +23,12 @@ preview would weaken the product's distinguishing task.
 
 Adopt React Router and a persistent application shell with these destinations:
 
-* `/` for Home
-* `/plan` for the map-first Build and Discover workspace
-* `/trips` for My Jaunts
-* `/trips/:tripId` for Jaunt Detail
-* `/about` for About
-* `/account` for Account Info
+- `/` for Home
+- `/plan` for the map-first Build and Discover workspace
+- `/trips` for My Jaunts
+- `/trips/:tripId` for Jaunt Detail
+- `/about` for About
+- `/account` for Account Info
 
 The map remains the spatial anchor in `/plan`. Build and Discover are task views
 inside the same planner state. My Jaunts is a route, not a planner tab or drawer.
@@ -37,16 +37,16 @@ inside the same planner state. My Jaunts is a route, not a planner tab or drawer
 
 Positive consequences:
 
-* Public, planning, saved, and account concerns have stable URLs.
-* The map remains available during spatial decisions.
-* Saved Jaunts can be previewed without replacing in-progress work.
-* The shell can grow toward broader road-trip planning.
+- Public, planning, saved, and account concerns have stable URLs.
+- The map remains available during spatial decisions.
+- Saved Jaunts can be previewed without replacing in-progress work.
+- The shell can grow toward broader road-trip planning.
 
 Costs and risks:
 
-* Auth redirects must preserve requested destinations.
-* Browser history and direct-link behavior require explicit testing.
-* Existing overlay behavior needs temporary routing adapters.
+- Auth redirects must preserve requested destinations.
+- Browser history and direct-link behavior require explicit testing.
+- Existing overlay behavior needs temporary routing adapters.
 
 ## Alternatives Considered
 

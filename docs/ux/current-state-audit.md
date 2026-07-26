@@ -29,9 +29,9 @@ so they do not block the initial migration.
 
 ### Evidence Labels
 
-* **Repository:** Confirmed in the current source or tests
-* **Rendered:** Confirmed by exercising the local application
-* **Heuristic:** Expert assessment based on established interaction and
+- **Repository:** Confirmed in the current source or tests
+- **Rendered:** Confirmed by exercising the local application
+- **Heuristic:** Expert assessment based on established interaction and
   accessibility principles; requires validation when users become available
 
 ## Scope and Method
@@ -39,14 +39,14 @@ so they do not block the initial migration.
 The audit covered the anonymous planning flow and the source-backed signed-in
 trip-management flow.
 
-* Inspected the component tree, Redux state transitions, requesters, tests, and
+- Inspected the component tree, Redux state transitions, requesters, tests, and
   responsive styles
-* Exercised an Atlanta-to-Charlotte route at 1440 by 900 CSS pixels
-* Opened detour search and reviewed returned hiking results
-* Inspected the empty mobile shell at 390 by 844 CSS pixels
-* Reviewed keyboard and screen-reader semantics through the rendered
+- Exercised an Atlanta-to-Charlotte route at 1440 by 900 CSS pixels
+- Opened detour search and reviewed returned hiking results
+- Inspected the empty mobile shell at 390 by 844 CSS pixels
+- Reviewed keyboard and screen-reader semantics through the rendered
   accessibility tree and source
-* Compared current behavior with the planning journey in
+- Compared current behavior with the planning journey in
   [planning-journey.md](planning-journey.md)
 
 Authenticated save and My Trips operations were not executed because doing so
@@ -85,41 +85,41 @@ flowchart LR
 The redesign must preserve the following current capabilities unless a later
 architecture decision explicitly sequences them into a migration phase.
 
-| Area | Current capability | Anonymous | Signed in | Evidence |
-| --- | --- | --- | --- | --- |
-| Route | Enter textual origin and destination | Yes | Yes | Repository; Rendered |
-| Route | Clear the current planning state | Yes | Yes | Repository; Rendered |
-| Route | Display route polyline, distance, and duration | Yes | Yes | Repository; Rendered |
-| Discovery | Select one of eight place categories | Yes | Yes | Repository; Rendered |
-| Discovery | Select a relative point along the route | Yes | Yes | Repository; Rendered |
-| Discovery | Select a search radius | Yes | Yes | Repository; Rendered |
-| Discovery | Display the search point and radius on the map | Yes | Yes | Repository; Rendered |
-| Results | List place name and Google rating | Yes | Yes | Repository; Rendered |
-| Results | Highlight a result marker from its list item | Pointer only | Pointer only | Repository; Rendered |
-| Itinerary | Add a result and recalculate the route | Yes | Yes | Repository |
-| Itinerary | Display origin, detours, and destination as a timeline | Yes | Yes | Repository; Rendered |
-| Itinerary | Show added time after a detour is added | Yes | Yes | Repository |
-| Itinerary | Reorder or remove detours and recalculate | Yes | Yes | Repository |
-| Continuity | Preserve in-progress planning state through session storage | Yes | Yes | Repository |
-| Save | Name a trip | Yes | Yes | Repository; Rendered |
-| Save | Prompt for sign-in while preserving save intent | Prompt only | Yes | Repository |
-| Save | Create a trip or update the currently loaded trip | No | Yes | Repository |
-| Library | List and paginate saved trips | No | Yes | Repository |
-| Library | Load a saved trip into the planner | No | Yes | Repository |
-| Library | Duplicate or delete a saved trip | No | Yes | Repository |
-| Export | Open the current route in Google Maps | Yes | Yes | Repository; Rendered |
-| Account | Sign in and sign out through Entra | Entry only | Yes | Repository; Rendered |
+| Area       | Current capability                                          | Anonymous    | Signed in    | Evidence             |
+| ---------- | ----------------------------------------------------------- | ------------ | ------------ | -------------------- |
+| Route      | Enter textual origin and destination                        | Yes          | Yes          | Repository; Rendered |
+| Route      | Clear the current planning state                            | Yes          | Yes          | Repository; Rendered |
+| Route      | Display route polyline, distance, and duration              | Yes          | Yes          | Repository; Rendered |
+| Discovery  | Select one of eight place categories                        | Yes          | Yes          | Repository; Rendered |
+| Discovery  | Select a relative point along the route                     | Yes          | Yes          | Repository; Rendered |
+| Discovery  | Select a search radius                                      | Yes          | Yes          | Repository; Rendered |
+| Discovery  | Display the search point and radius on the map              | Yes          | Yes          | Repository; Rendered |
+| Results    | List place name and Google rating                           | Yes          | Yes          | Repository; Rendered |
+| Results    | Highlight a result marker from its list item                | Pointer only | Pointer only | Repository; Rendered |
+| Itinerary  | Add a result and recalculate the route                      | Yes          | Yes          | Repository           |
+| Itinerary  | Display origin, detours, and destination as a timeline      | Yes          | Yes          | Repository; Rendered |
+| Itinerary  | Show added time after a detour is added                     | Yes          | Yes          | Repository           |
+| Itinerary  | Reorder or remove detours and recalculate                   | Yes          | Yes          | Repository           |
+| Continuity | Preserve in-progress planning state through session storage | Yes          | Yes          | Repository           |
+| Save       | Name a trip                                                 | Yes          | Yes          | Repository; Rendered |
+| Save       | Prompt for sign-in while preserving save intent             | Prompt only  | Yes          | Repository           |
+| Save       | Create a trip or update the currently loaded trip           | No           | Yes          | Repository           |
+| Library    | List and paginate saved trips                               | No           | Yes          | Repository           |
+| Library    | Load a saved trip into the planner                          | No           | Yes          | Repository           |
+| Library    | Duplicate or delete a saved trip                            | No           | Yes          | Repository           |
+| Export     | Open the current route in Google Maps                       | Yes          | Yes          | Repository; Rendered |
+| Account    | Sign in and sign out through Entra                          | Entry only   | Yes          | Repository; Rendered |
 
 ### Current Responsive Model
 
 The interface does not adapt one component tree. It renders separate planning
 surfaces and uses CSS to expose the appropriate one.
 
-| Viewport | Route entry | Planning content | Map treatment |
-| --- | --- | --- | --- |
-| Desktop, above 1024 pixels | Fixed left sidebar | Sidebar below route entry | Remaining viewport to the right |
+| Viewport                   | Route entry                                       | Planning content                                       | Map treatment                              |
+| -------------------------- | ------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------ |
+| Desktop, above 1024 pixels | Fixed left sidebar                                | Sidebar below route entry                              | Remaining viewport to the right            |
 | Tablet, 768 to 1024 pixels | No explicit layout rule for the header or sidebar | Neither desktop nor mobile layout is reliably selected | Full viewport with fixed controls possible |
-| Mobile, below 768 pixels | Fixed top header | Collapsible fixed footer menu | Viewport between header and footer |
+| Mobile, below 768 pixels   | Fixed top header                                  | Collapsible fixed footer menu                          | Viewport between header and footer         |
 
 The breakpoint gap is confirmed in
 [App.css](../../frontend/src/styles/App.css): the desktop shell begins at 1025
@@ -129,20 +129,20 @@ pixels while the mobile shell ends at 767 pixels. **[Repository]**
 
 The redesign should retain these strengths.
 
-* The map remains visible while the user builds a trip, preserving geographic
+- The map remains visible while the user builds a trip, preserving geographic
   context **[Rendered; Heuristic]**
-* Route entry follows a familiar origin-and-destination model **[Rendered;
+- Route entry follows a familiar origin-and-destination model **[Rendered;
   Heuristic]**
-* The itinerary presents origin, stops, and destination in travel order
+- The itinerary presents origin, stops, and destination in travel order
   **[Rendered; Heuristic]**
-* Users can plan anonymously and encounter authentication only when saving
+- Users can plan anonymously and encounter authentication only when saving
   **[Repository; Heuristic]**
-* Save intent survives the full-page authentication redirect **[Repository]**
-* Export hands navigation to Google Maps instead of recreating turn-by-turn
+- Save intent survives the full-page authentication redirect **[Repository]**
+- Export hands navigation to Google Maps instead of recreating turn-by-turn
   guidance **[Repository; Heuristic]**
-* My Trips includes loading, empty, error, pagination, duplicate, and confirmed
+- My Trips includes loading, empty, error, pagination, duplicate, and confirmed
   delete states **[Repository]**
-* Fluent dialogs, drawers, toasts, and inputs establish an accessible component
+- Fluent dialogs, drawers, toasts, and inputs establish an accessible component
   foundation for newer features **[Repository; Heuristic]**
 
 ## Findings
@@ -338,36 +338,36 @@ saved data and a Resume Planning action; sharing remains a future extension.
 The first concept should satisfy every P0 item. P1 items may be sequenced during
 migration, but the north-star design must show where they belong.
 
-| Priority | Requirement | Acceptance signal |
-| --- | --- | --- |
-| P0 | One responsive planner component tree | Route, discovery, itinerary, save, and export use shared components across viewports |
-| P0 | Preserve the anonymous planning path | A signed-out user can build, modify, and export a route before authentication |
-| P0 | Preserve all current discovery controls | Category, relative route location, and radius remain available with visible values and units |
-| P0 | Preserve itinerary editing | Added stops can be viewed, reordered, and removed with route recalculation feedback |
-| P0 | Preserve save and authentication continuity | Save prompts for sign-in when needed and resumes after redirect without losing work |
-| P0 | Preserve My Trips operations | List, paginate, load, duplicate, and confirmed delete remain represented |
-| P0 | Preserve Google Maps export | The completed itinerary can open in Google Maps |
-| P0 | Define complete async states | Route, search, recalculate, save, load, duplicate, and delete have pending, success, empty, and error treatment where applicable |
-| P0 | Meet WCAG 2.2 AA interaction fundamentals | Persistent labels, keyboard access, visible focus, announced changes, 200% zoom support, and non-map alternatives are specified |
-| P1 | Clarify planner state | The shell identifies new, unsaved, saving, saved, and loaded-trip states |
-| P1 | Connect results and map accessibly | Selecting a result synchronizes list and map without requiring hover or direct map manipulation |
-| P1 | Establish stable destinations | Plan, My Trips, trip detail, and Account have defined navigation and URL behavior |
-| P1 | Establish JauntDetour identity | Brand name, theme tokens, and product purpose are visible without displacing the planning workspace |
-| P1 | Reduce result overload | Results have a legible hierarchy, selection state, and progressive detail using currently available fields |
+| Priority | Requirement                                 | Acceptance signal                                                                                                                |
+| -------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| P0       | One responsive planner component tree       | Route, discovery, itinerary, save, and export use shared components across viewports                                             |
+| P0       | Preserve the anonymous planning path        | A signed-out user can build, modify, and export a route before authentication                                                    |
+| P0       | Preserve all current discovery controls     | Category, relative route location, and radius remain available with visible values and units                                     |
+| P0       | Preserve itinerary editing                  | Added stops can be viewed, reordered, and removed with route recalculation feedback                                              |
+| P0       | Preserve save and authentication continuity | Save prompts for sign-in when needed and resumes after redirect without losing work                                              |
+| P0       | Preserve My Trips operations                | List, paginate, load, duplicate, and confirmed delete remain represented                                                         |
+| P0       | Preserve Google Maps export                 | The completed itinerary can open in Google Maps                                                                                  |
+| P0       | Define complete async states                | Route, search, recalculate, save, load, duplicate, and delete have pending, success, empty, and error treatment where applicable |
+| P0       | Meet WCAG 2.2 AA interaction fundamentals   | Persistent labels, keyboard access, visible focus, announced changes, 200% zoom support, and non-map alternatives are specified  |
+| P1       | Clarify planner state                       | The shell identifies new, unsaved, saving, saved, and loaded-trip states                                                         |
+| P1       | Connect results and map accessibly          | Selecting a result synchronizes list and map without requiring hover or direct map manipulation                                  |
+| P1       | Establish stable destinations               | Plan, My Trips, trip detail, and Account have defined navigation and URL behavior                                                |
+| P1       | Establish JauntDetour identity              | Brand name, theme tokens, and product purpose are visible without displacing the planning workspace                              |
+| P1       | Reduce result overload                      | Results have a legible hierarchy, selection state, and progressive detail using currently available fields                       |
 
 ## Future-Compatible, Not Blocking
 
 These capabilities may influence component boundaries and navigation, but
 feature-parity concepts must not depend on them.
 
-| Future capability | Design accommodation now | Do not assume now |
-| --- | --- | --- |
-| Full multi-day road-trip planning | Allow itinerary and trip detail to grow beyond a single route segment | Dates, lodging, budgets, day grouping, or reservation data |
-| Added-time search budget | Reserve space for a human-readable detour constraint | Precomputed time impact for every result |
-| Halfway, meal-time, or contextual discovery | Keep discovery criteria extensible | New ranking or recommendation APIs |
-| Rich curation | Support richer result-card content regions | Editorial copy, imagery, tags, or proprietary scores |
-| Collaboration | Keep trip ownership actions extensible | Sharing, co-editing, comments, or voting |
-| On-road use | Avoid desktop-only data structures and pointer interactions | Turn-by-turn navigation or driver interaction |
+| Future capability                           | Design accommodation now                                              | Do not assume now                                          |
+| ------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Full multi-day road-trip planning           | Allow itinerary and trip detail to grow beyond a single route segment | Dates, lodging, budgets, day grouping, or reservation data |
+| Added-time search budget                    | Reserve space for a human-readable detour constraint                  | Precomputed time impact for every result                   |
+| Halfway, meal-time, or contextual discovery | Keep discovery criteria extensible                                    | New ranking or recommendation APIs                         |
+| Rich curation                               | Support richer result-card content regions                            | Editorial copy, imagery, tags, or proprietary scores       |
+| Collaboration                               | Keep trip ownership actions extensible                                | Sharing, co-editing, comments, or voting                   |
+| On-road use                                 | Avoid desktop-only data structures and pointer interactions           | Turn-by-turn navigation or driver interaction              |
 
 ## Recommended Concept Criteria
 
@@ -386,26 +386,26 @@ workspace using the same current-feature scenario.
 
 Evaluate each concept against these questions:
 
-* Can a first-time visitor understand JauntDetour's purpose before entering a
+- Can a first-time visitor understand JauntDetour's purpose before entering a
   route?
-* Does the map support the decision without becoming the only way to complete
+- Does the map support the decision without becoming the only way to complete
   it?
-* Is the current task, trip state, and primary action apparent at each step?
-* Can current features fit without a long undifferentiated control stack?
-* Can the structure expand toward full road-trip planning without exposing
+- Is the current task, trip state, and primary action apparent at each step?
+- Can current features fit without a long undifferentiated control stack?
+- Can the structure expand toward full road-trip planning without exposing
   unbuilt features?
-* Does the concept remain coherent with keyboard use, 200% zoom, and a narrow
+- Does the concept remain coherent with keyboard use, 200% zoom, and a narrow
   viewport?
 
 ## Audit Limitations
 
-* No finding has been validated with prospective users
-* No authenticated screen was exercised with persisted personal data
-* No formal automated accessibility scanner or assistive-technology session was
+- No finding has been validated with prospective users
+- No authenticated screen was exercised with persisted personal data
+- No formal automated accessibility scanner or assistive-technology session was
   run
-* No browser or device matrix was tested
-* Visual contrast ratios were not measured in this pass
-* Competitive products were not audited in this pass
+- No browser or device matrix was tested
+- Visual contrast ratios were not measured in this pass
+- Competitive products were not audited in this pass
 
 These limitations do not block low-fidelity concept work. They should remain
 visible when the team evaluates confidence in the final north-star direction.

@@ -54,10 +54,10 @@ The candidate visual system is documented in
 
 Use Concept A to organize the planning workspace:
 
-* Keep the map as the persistent spatial anchor
-* Place trip-building tools in a stable panel beside or over the map
-* Use explicit Build and Discover task views to avoid a long control stack
-* Present the same task states as focused sheets or pages on narrow screens
+- Keep the map as the persistent spatial anchor
+- Place trip-building tools in a stable panel beside or over the map
+- Use explicit Build and Discover task views to avoid a long control stack
+- Present the same task states as focused sheets or pages on narrow screens
 
 Concept B was not selected because it reduces the map to supporting context for
 a task that depends on route position and place location. Both concepts remain
@@ -92,14 +92,14 @@ flowchart TD
 
 ### Route Model
 
-| Route | Purpose | Availability |
-| --- | --- | --- |
-| `/` | Branded product introduction with a Plan Your Trip entry point | Public |
-| `/plan` | Dedicated new or in-progress planning workspace | Public |
-| `/trips` | Saved trip library | Authentication required |
-| `/trips/:tripId` | Saved trip detail and Resume Planning entry | Authentication required |
-| `/about` | Product purpose, approach, and support information | Public |
-| `/account` | Account identity and sign-out controls | Authentication required |
+| Route            | Purpose                                                        | Availability            |
+| ---------------- | -------------------------------------------------------------- | ----------------------- |
+| `/`              | Branded product introduction with a Plan Your Trip entry point | Public                  |
+| `/plan`          | Dedicated new or in-progress planning workspace                | Public                  |
+| `/trips`         | Saved trip library                                             | Authentication required |
+| `/trips/:tripId` | Saved trip detail and Resume Planning entry                    | Authentication required |
+| `/about`         | Product purpose, approach, and support information             | Public                  |
+| `/account`       | Account identity and sign-out controls                         | Authentication required |
 
 Authentication should preserve the requested destination. A signed-out user who
 opens My Trips or Account is returned there after sign-in. A signed-out user can
@@ -110,12 +110,12 @@ still create, modify, and export an unsaved plan.
 Use plain language for primary navigation. Branded language can add personality
 inside the experience without making first-time navigation harder.
 
-| Proposed label | Rationale |
-| --- | --- |
-| Plan a Jaunt | Selected branded action for starting a route plan |
-| My Jaunts | Selected branded destination for saved plans |
-| About | Gives the product story a stable home without crowding the planner |
-| Account menu | Holds profile identity and sign out without consuming a full navigation item |
+| Proposed label | Rationale                                                                    |
+| -------------- | ---------------------------------------------------------------------------- |
+| Plan a Jaunt   | Selected branded action for starting a route plan                            |
+| My Jaunts      | Selected branded destination for saved plans                                 |
+| About          | Gives the product story a stable home without crowding the planner           |
+| Account menu   | Holds profile identity and sign out without consuming a full navigation item |
 
 Do not expose Detours as a top-level destination yet. Current detours only exist
 inside a trip-planning context. A future independent discovery surface could use
@@ -138,13 +138,13 @@ action or destination.
 
 Header behavior:
 
-* Keep the JauntDetour wordmark and primary navigation persistent
-* Mark the active destination with more than color alone
-* Make Plan a Trip the strongest navigation action without styling every item
+- Keep the JauntDetour wordmark and primary navigation persistent
+- Mark the active destination with more than color alone
+- Make Plan a Trip the strongest navigation action without styling every item
   as a button
-* Place sign-in or the account menu at the end of the reading order
-* Use a skip link and semantic `header`, `nav`, and `main` landmarks
-* Keep the header compact in the planner so the map workspace remains useful
+- Place sign-in or the account menu at the end of the reading order
+- Use a skip link and semantic `header`, `nav`, and `main` landmarks
+- Keep the header compact in the planner so the map workspace remains useful
 
 ### Narrow-Screen Header
 
@@ -251,20 +251,20 @@ first viewport, with a hint of the next section below it.
 
 Include in the initial direction:
 
-* Product identity and one clear value proposition
-* A single Plan Your Trip action that opens the dedicated planner
-* A concise three-part explanation grounded in current features
-* Real product screenshots or a short silent demonstration showing route,
+- Product identity and one clear value proposition
+- A single Plan Your Trip action that opens the dedicated planner
+- A concise three-part explanation grounded in current features
+- Real product screenshots or a short silent demonstration showing route,
   discovery, and itinerary states
-* About, privacy, terms, and support destinations as they become available
+- About, privacy, terms, and support destinations as they become available
 
 Do not include without evidence:
 
-* Review counts, trip counts, press logos, or popularity claims
-* Subscription trials or mobile app download prompts
-* Collaboration, personalized recommendations, or live navigation claims
-* A long content funnel that delays access to the planner
-* Origin, destination, map, or itinerary controls on the home route
+- Review counts, trip counts, press logos, or popularity claims
+- Subscription trials or mobile app download prompts
+- Collaboration, personalized recommendations, or live navigation claims
+- A long content funnel that delays access to the planner
+- Origin, destination, map, or itinerary controls on the home route
 
 ## Concept A: Map-First Workspace
 
@@ -276,9 +276,9 @@ while correcting its long control stack and missing shell.
 
 The panel uses internal task views rather than appending every control:
 
-* Build contains route entry, summary, itinerary, save, and export
-* Discover contains current category, route-position, radius, and results
-* The map reflects selection and itinerary state in both views
+- Build contains route entry, summary, itinerary, save, and export
+- Discover contains current category, route-position, radius, and results
+- The map reflects selection and itinerary state in both views
 
 My Trips remains a global destination rather than a panel tab. This avoids
 mixing the trip library with controls for the active plan.
@@ -439,18 +439,18 @@ depend on manipulating the map.
 
 Strengths:
 
-* Keeps route geography continuously visible on desktop
-* Fits current feature behavior and supports incremental migration
-* Separates Build and Discover without creating a long stack
-* Makes result-to-marker synchronization prominent
-* Feels like a focused planning tool rather than a sequence of forms
+- Keeps route geography continuously visible on desktop
+- Fits current feature behavior and supports incremental migration
+- Separates Build and Discover without creating a long stack
+- Makes result-to-marker synchronization prominent
+- Feels like a focused planning tool rather than a sequence of forms
 
 Risks:
 
-* First-time users may still need stronger progress cues inside the panel
-* A fixed-width panel can become dense as full trip-planning features grow
-* Mobile sheets require careful focus, scroll, and map-state management
-* Build and Discover labels must clearly communicate that they are task views,
+- First-time users may still need stronger progress cues inside the panel
+- A fixed-width panel can become dense as full trip-planning features grow
+- Mobile sheets require careful focus, scroll, and map-state management
+- Build and Discover labels must clearly communicate that they are task views,
   not separate saved states
 
 ## Concept B: Guided Planning Workspace
@@ -595,21 +595,21 @@ widths without removing spatial context.
 
 Strengths:
 
-* Makes progress and the current task explicit for a first-time planner
-* Gives each task enough space and translates cleanly to narrow screens
-* Creates natural extension points for dates, daily stages, lodging, and other
+- Makes progress and the current task explicit for a first-time planner
+- Gives each task enough space and translates cleanly to narrow screens
+- Creates natural extension points for dates, daily stages, lodging, and other
   future full-trip planning capabilities
-* Reduces competition between discovery, itinerary, save, and export actions
-* Handles accessibility and high text zoom without relying on an overlay panel
+- Reduces competition between discovery, itinerary, save, and export actions
+- Handles accessibility and high text zoom without relying on an overlay panel
 
 Risks:
 
-* Reduces the map's prominence during a spatial discovery task
-* Introduces more navigation actions for a short route with one detour
-* Can feel like a rigid wizard if completed stages or backtracking are poorly
+- Reduces the map's prominence during a spatial discovery task
+- Introduces more navigation actions for a short route with one detour
+- Can feel like a rigid wizard if completed stages or backtracking are poorly
   handled
-* Requires a larger structural migration from the current shell
-* May hide cross-stage effects, such as how discovery changes the itinerary,
+- Requires a larger structural migration from the current shell
+- May hide cross-stage effects, such as how discovery changes the itinerary,
   unless summary information remains persistent
 
 ## Shared My Trips Direction
@@ -642,13 +642,13 @@ the feature-parity concept.
 
 ### Empty and Error States
 
-| State | Primary message | Action |
-| --- | --- | --- |
-| Empty | No saved trips yet | Plan a Trip |
-| Loading | Loading your trips | None; preserve page structure |
-| Error | Trips could not be loaded | Retry |
-| Delete confirmation | Delete this trip permanently? | Cancel or Delete |
-| Duplicate pending | Creating a copy | Disable the affected row action |
+| State               | Primary message               | Action                          |
+| ------------------- | ----------------------------- | ------------------------------- |
+| Empty               | No saved trips yet            | Plan a Trip                     |
+| Loading             | Loading your trips            | None; preserve page structure   |
+| Error               | Trips could not be loaded     | Retry                           |
+| Delete confirmation | Delete this trip permanently? | Cancel or Delete                |
+| Duplicate pending   | Creating a copy               | Disable the affected row action |
 
 ## Shared Trip Detail Direction
 
@@ -682,9 +682,9 @@ sharing capability exists.
 When signed out, the account control opens the sign-in flow. When signed in, it
 opens a compact account menu with:
 
-* View Profile
-* My Trips
-* Sign Out
+- View Profile
+- My Trips
+- Sign Out
 
 The menu includes the user's display name and email for identity confirmation.
 It supports pointer, touch, keyboard arrow navigation, Home, End, and Escape.
@@ -700,18 +700,18 @@ The accepted responsive behavior and viewport matrix are recorded in the
 
 ## Feature-Parity Scenario Coverage
 
-| Scenario step | Concept A | Concept B |
-| --- | --- | --- |
-| Enter Atlanta and Charlotte | Build view beside map | Route stage with map preview |
-| Confirm distance, duration, and route | Persistent Build summary and map | Route completion summary and persistent stage header |
-| Search for hikes around 50 percent within 20 kilometers | Discover view and map circle | Discover stage and map preview |
-| Select a result and identify its marker | Synchronized row and marker in one workspace | Synchronized row and marker across split stage |
-| Add the result | Recalculate in place and return to Build | Recalculate and advance or link to Itinerary |
-| Remove or reorder the stop | Build itinerary tools | Itinerary stage tools |
-| Name and save while signed out | Build save action opens sign-in dialog | Finish stage opens sign-in dialog |
-| Load from My Trips | Trip Detail then Resume Planning into Build | Trip Detail then Resume Planning into Itinerary or Route summary |
-| Duplicate or delete a saved trip | My Trips or Trip Detail More menu | Same shared destinations |
-| Export to Google Maps | Build action | Finish action and Trip Detail action |
+| Scenario step                                           | Concept A                                    | Concept B                                                        |
+| ------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------- |
+| Enter Atlanta and Charlotte                             | Build view beside map                        | Route stage with map preview                                     |
+| Confirm distance, duration, and route                   | Persistent Build summary and map             | Route completion summary and persistent stage header             |
+| Search for hikes around 50 percent within 20 kilometers | Discover view and map circle                 | Discover stage and map preview                                   |
+| Select a result and identify its marker                 | Synchronized row and marker in one workspace | Synchronized row and marker across split stage                   |
+| Add the result                                          | Recalculate in place and return to Build     | Recalculate and advance or link to Itinerary                     |
+| Remove or reorder the stop                              | Build itinerary tools                        | Itinerary stage tools                                            |
+| Name and save while signed out                          | Build save action opens sign-in dialog       | Finish stage opens sign-in dialog                                |
+| Load from My Trips                                      | Trip Detail then Resume Planning into Build  | Trip Detail then Resume Planning into Itinerary or Route summary |
+| Duplicate or delete a saved trip                        | My Trips or Trip Detail More menu            | Same shared destinations                                         |
+| Export to Google Maps                                   | Build action                                 | Finish action and Trip Detail action                             |
 
 Neither concept depends on an unimplemented feature.
 
@@ -720,23 +720,23 @@ Neither concept depends on an unimplemented feature.
 Scores range from 1 (weak) to 5 (strong). They express expert judgment against
 the current constraints, not user-validation results.
 
-| Criterion | Concept A: Map-first | Concept B: Guided | Rationale |
-| --- | --- | --- | --- |
-| First-use clarity | 4 | 5 | Guided stages state the sequence more explicitly |
-| Spatial discovery | 5 | 3 | Map-first keeps result, marker, route, and radius visible together |
-| Current feature fit | 5 | 4 | Existing behavior maps directly into Build and Discover views |
-| Avoids long control stacks | 4 | 5 | Both improve the stack; guided stages isolate tasks more completely |
-| Narrow-screen coherence | 4 | 5 | Guided pages translate more directly than map sheets |
-| Keyboard and zoom resilience | 4 | 5 | Normal document flow is simpler than maintaining an overlay workspace |
-| Incremental migration | 5 | 3 | Map-first can replace the current sidebar in smaller phases |
-| Full trip-planning growth | 3 | 5 | Guided stages have more room for dates, days, stays, and complex itineraries |
-| Premium product character | 4 | 4 | Either can feel intentional once the shell and visual system are coherent |
-| Feature completion speed | 5 | 3 | Map-first introduces less route and state orchestration initially |
+| Criterion                    | Concept A: Map-first | Concept B: Guided | Rationale                                                                    |
+| ---------------------------- | -------------------- | ----------------- | ---------------------------------------------------------------------------- |
+| First-use clarity            | 4                    | 5                 | Guided stages state the sequence more explicitly                             |
+| Spatial discovery            | 5                    | 3                 | Map-first keeps result, marker, route, and radius visible together           |
+| Current feature fit          | 5                    | 4                 | Existing behavior maps directly into Build and Discover views                |
+| Avoids long control stacks   | 4                    | 5                 | Both improve the stack; guided stages isolate tasks more completely          |
+| Narrow-screen coherence      | 4                    | 5                 | Guided pages translate more directly than map sheets                         |
+| Keyboard and zoom resilience | 4                    | 5                 | Normal document flow is simpler than maintaining an overlay workspace        |
+| Incremental migration        | 5                    | 3                 | Map-first can replace the current sidebar in smaller phases                  |
+| Full trip-planning growth    | 3                    | 5                 | Guided stages have more room for dates, days, stays, and complex itineraries |
+| Premium product character    | 4                    | 4                 | Either can feel intentional once the shell and visual system are coherent    |
+| Feature completion speed     | 5                    | 3                 | Map-first introduces less route and state orchestration initially            |
 
 Unweighted total:
 
-* Concept A: 43 of 50
-* Concept B: 42 of 50
+- Concept A: 43 of 50
+- Concept B: 42 of 50
 
 The near tie is meaningful. Concept A better serves today's spatial detour task
 and migration constraint. Concept B better supports narrow screens and the
@@ -749,13 +749,13 @@ behavior borrowed from Concept B for narrow screens and complex panel states.
 
 The recommended north star is:
 
-* A shared branded shell and product-led home route
-* A map-first `/plan` workspace on desktop
-* One planning panel with explicit Build and Discover task views
-* A focused, guided presentation of those same task views on narrow screens
-* Stable `/trips` and `/trips/:tripId` destinations outside the planner
-* Visible new, unsaved, saving, saved, and loaded-trip context
-* Current controls and current data first, with extension points for richer
+- A shared branded shell and product-led home route
+- A map-first `/plan` workspace on desktop
+- One planning panel with explicit Build and Discover task views
+- A focused, guided presentation of those same task views on narrow screens
+- Stable `/trips` and `/trips/:tripId` destinations outside the planner
+- Visible new, unsaved, saving, saved, and loaded-trip context
+- Current controls and current data first, with extension points for richer
   discovery and full trip planning
 
 This is not a third implementation. It is one responsive component and state
@@ -774,11 +774,11 @@ trip-management complexity that would justify a full staged planner.
 Reconsider a predominantly guided workspace when the product adds two or more
 of these capabilities:
 
-* Multi-day or multi-leg itinerary structure
-* Dates, lodging, or reservation details
-* More than one discovery pass with different constraints per route segment
-* Collaborative decisions or approvals
-* Budgeting or schedule optimization
+- Multi-day or multi-leg itinerary structure
+- Dates, lodging, or reservation details
+- More than one discovery pass with different constraints per route segment
+- Collaborative decisions or approvals
+- Budgeting or schedule optimization
 
 ## Next Design Decisions
 
@@ -794,14 +794,14 @@ With the structural direction selected, proceed in this order:
 
 ## Review Questions
 
-* Should the hero show one composed planner screenshot or a short silent
+- Should the hero show one composed planner screenshot or a short silent
   demonstration assembled from current product states?
-* Are Plan a Trip, My Trips, and About the right initial visible destinations?
-* Should Build and Discover be named differently while remaining plain-language
+- Are Plan a Trip, My Trips, and About the right initial visible destinations?
+- Should Build and Discover be named differently while remaining plain-language
   task views?
-* Does Trip Detail add enough value before richer trip metadata exists, or
+- Does Trip Detail add enough value before richer trip metadata exists, or
   should My Trips initially open directly into the planner?
-* Is map visibility important enough on narrow screens to justify a persistent
+- Is map visibility important enough on narrow screens to justify a persistent
   partial map, or is an explicit Show Map action preferable?
-* Does the provisional hybrid preserve the product's detour-discovery focus
+- Does the provisional hybrid preserve the product's detour-discovery focus
   while leaving credible room for full road-trip planning?

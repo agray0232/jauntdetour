@@ -352,7 +352,10 @@ svg {
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 140ms ease;
 }
 
 .button:hover {
@@ -613,16 +616,42 @@ h2 {
   overflow: hidden;
   background-color: #dce9df;
   background-image:
-    linear-gradient(28deg, transparent 48%, rgba(255, 255, 255, 0.8) 49%, rgba(255, 255, 255, 0.8) 51%, transparent 52%),
-    linear-gradient(112deg, transparent 45%, rgba(180, 202, 188, 0.8) 46%, rgba(180, 202, 188, 0.8) 48%, transparent 49%),
-    repeating-linear-gradient(0deg, transparent 0, transparent 42px, rgba(83, 129, 103, 0.1) 43px, rgba(83, 129, 103, 0.1) 44px);
+    linear-gradient(
+      28deg,
+      transparent 48%,
+      rgba(255, 255, 255, 0.8) 49%,
+      rgba(255, 255, 255, 0.8) 51%,
+      transparent 52%
+    ),
+    linear-gradient(
+      112deg,
+      transparent 45%,
+      rgba(180, 202, 188, 0.8) 46%,
+      rgba(180, 202, 188, 0.8) 48%,
+      transparent 49%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 42px,
+      rgba(83, 129, 103, 0.1) 43px,
+      rgba(83, 129, 103, 0.1) 44px
+    );
 }
 
 .preview-map::before {
   position: absolute;
   inset: 0;
   background: rgba(185, 223, 229, 0.33);
-  clip-path: polygon(0 68%, 28% 58%, 44% 76%, 75% 66%, 100% 83%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 68%,
+    28% 58%,
+    44% 76%,
+    75% 66%,
+    100% 83%,
+    100% 100%,
+    0 100%
+  );
   content: "";
 }
 
@@ -659,9 +688,19 @@ h2 {
   transform: rotate(45deg);
 }
 
-.preview-pin.pin-a { top: 5%; left: 29%; }
-.preview-pin.pin-1 { top: 45%; left: 51%; background: var(--coral-dark); }
-.preview-pin.pin-b { right: 25%; bottom: 7%; }
+.preview-pin.pin-a {
+  top: 5%;
+  left: 29%;
+}
+.preview-pin.pin-1 {
+  top: 45%;
+  left: 51%;
+  background: var(--coral-dark);
+}
+.preview-pin.pin-b {
+  right: 25%;
+  bottom: 7%;
+}
 
 .result-float {
   position: absolute;
@@ -1335,7 +1374,9 @@ input[type="range"] {
 }
 
 .map-number-marker.selected-marker {
-  box-shadow: 0 0 0 5px rgba(184, 74, 24, 0.3), var(--shadow-sm);
+  box-shadow:
+    0 0 0 5px rgba(184, 74, 24, 0.3),
+    var(--shadow-sm);
 }
 
 .map-legend {
@@ -1367,8 +1408,12 @@ input[type="range"] {
   background: var(--ink);
 }
 
-.result-pin { background: var(--sun); }
-.stop-pin { background: var(--coral-dark); }
+.result-pin {
+  background: var(--sun);
+}
+.stop-pin {
+  background: var(--coral-dark);
+}
 
 .content-view {
   min-height: calc(100vh - var(--header-height));
@@ -1436,10 +1481,23 @@ input[type="range"] {
   font-size: 10px;
 }
 
-.trip-route-art > b:nth-of-type(1) { top: 16%; left: 27%; }
-.trip-route-art > b:nth-of-type(2) { top: 48%; left: 50%; background: var(--coral-dark); }
-.trip-route-art > b:nth-of-type(3) { right: 24%; bottom: 13%; }
-.trip-route-art.alternate > span { transform: rotate(-13deg); background: var(--pine); }
+.trip-route-art > b:nth-of-type(1) {
+  top: 16%;
+  left: 27%;
+}
+.trip-route-art > b:nth-of-type(2) {
+  top: 48%;
+  left: 50%;
+  background: var(--coral-dark);
+}
+.trip-route-art > b:nth-of-type(3) {
+  right: 24%;
+  bottom: 13%;
+}
+.trip-route-art.alternate > span {
+  transform: rotate(-13deg);
+  background: var(--pine);
+}
 
 .trip-card-body {
   padding: 25px 28px;
@@ -1539,9 +1597,19 @@ input[type="range"] {
   transform: rotate(-23deg);
 }
 
-.detail-pin.a { top: 8%; left: 25%; }
-.detail-pin.one { top: 47%; left: 48%; background: var(--coral-dark); }
-.detail-pin.b { right: 22%; bottom: 8%; }
+.detail-pin.a {
+  top: 8%;
+  left: 25%;
+}
+.detail-pin.one {
+  top: 47%;
+  left: 48%;
+  background: var(--coral-dark);
+}
+.detail-pin.b {
+  right: 22%;
+  bottom: 8%;
+}
 
 .about-layout {
   display: grid;
@@ -1835,8 +1903,14 @@ input[type="range"] {
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 [hidden] {

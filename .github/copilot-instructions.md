@@ -59,9 +59,9 @@ trips.
 - Use `docs/ux/concept-directions.md` for information architecture and screen
   structure, and `docs/ux/responsive-strategy.md` when changing layout or map
   behavior across viewports.
-- Read `docs/ux/development-handoff.md` and `docs/ux/migration-backlog.md` for
-  redesign implementation, substantial new screens, or migration sequencing;
-  routine component fixes do not require rereading them.
+- Read `docs/ux/development-handoff.md`, `docs/ux/implementation-session-plan.md`,
+  and `docs/ux/migration-backlog.md` for redesign implementation, substantial
+  new screens, or migration sequencing; routine fixes do not require them.
 - Use `design-system/specimen/` and `spikes/ux-redesign-prototype/` as visual and
   interaction references only. Do not copy the throwaway prototype CSS or state
   implementation into production.

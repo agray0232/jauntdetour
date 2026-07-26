@@ -28,13 +28,13 @@ not isolated color or spacing changes in production CSS.
 
 ### Selected Direction
 
-| Decision | Selection | Recorded |
-| --- | --- | --- |
-| Primary interaction hue | Pine-teal (`#12664f`) | 2026-07-26 |
-| Route and discovery accent | Warm heritage orange (`#e36a2e`) with strong companion (`#b84a18`) | 2026-07-26 |
-| Typography | Fraunces for identity and editorial headings; DM Sans for controls, body, and data | 2026-07-26 |
-| Product noun | Jaunt for user-facing saved and in-progress plans | 2026-07-26 |
-| Brand mark | Pine route badge with white endpoints and one heritage-orange discovery on the upper-left bend | 2026-07-26 |
+| Decision                   | Selection                                                                                      | Recorded   |
+| -------------------------- | ---------------------------------------------------------------------------------------------- | ---------- |
+| Primary interaction hue    | Pine-teal (`#12664f`)                                                                          | 2026-07-26 |
+| Route and discovery accent | Warm heritage orange (`#e36a2e`) with strong companion (`#b84a18`)                             | 2026-07-26 |
+| Typography                 | Fraunces for identity and editorial headings; DM Sans for controls, body, and data             | 2026-07-26 |
+| Product noun               | Jaunt for user-facing saved and in-progress plans                                              | 2026-07-26 |
+| Brand mark                 | Pine route badge with white endpoints and one heritage-orange discovery on the upper-left bend | 2026-07-26 |
 
 The living specimen retains rejected alternatives in its Review Lab so future
 changes can be compared against the accepted context rather than reconsidered
@@ -55,18 +55,18 @@ editable source; PNG and ICO files are generated derivatives.
 The Review Lab retains the original twelve pine-teal and heritage-orange
 candidates as exploration history:
 
-* Route J
-* Waypoint J
-* JD Crossroads
-* Scenic Bend
-* Compass Turn
-* Map Fold
-* Detour Loop
-* Spark Route
-* Mile Marker
-* Split Route
-* Open Road
-* Pin & Path
+- Route J
+- Waypoint J
+- JD Crossroads
+- Scenic Bend
+- Compass Turn
+- Map Fold
+- Detour Loop
+- Spark Route
+- Mile Marker
+- Split Route
+- Open Road
+- Pin & Path
 
 Evaluate marks in three contexts: standalone at application-icon size, at a
 20-pixel navigation lockup size, and beside the JauntDetour wordmark. Prefer a
@@ -80,19 +80,19 @@ selection.
 A second exploration round responds to two preferred directions: Map Fold and
 the prototype's S-shaped route. It adds thirteen candidates, M through Y:
 
-* Folded S Route
-* Folded Detour Dot
-* Folded Detour Loop
-* Map Panels Route
-* Map Window Find
-* Map Spark Detour
-* Heritage S Route
-* S Route Find
-* S Route Rejoin
-* S Route Waypoint
-* S Route Spark
-* S in Map Fold
-* Prototype Orange Discovery
+- Folded S Route
+- Folded Detour Dot
+- Folded Detour Loop
+- Map Panels Route
+- Map Window Find
+- Map Spark Detour
+- Heritage S Route
+- S Route Find
+- S Route Rejoin
+- S Route Waypoint
+- S Route Spark
+- S in Map Fold
+- Prototype Orange Discovery
 
 The preferred detour grammar is a pine original route plus one heritage-orange
 deviation or discovery. Use only one of these ideas in a final mark: an off-route
@@ -164,37 +164,37 @@ glass effects, or excessive elevation.
 Color names in discussion may use familiar pigment names, but implementation
 must use semantic token paths.
 
-| Role | Candidate | Primary use | Avoid |
-| --- | --- | --- | --- |
-| Pine | `color.brand.primary.default` | Primary commands, brand mark, trusted interactive emphasis | Large monochrome page backgrounds |
-| Pine dark | `color.brand.primary.hover` | Hover, pressed, and strong brand contrast | Replacing primary ink throughout the page |
-| Heritage orange | `color.brand.accent.default` | Route line, discoveries, and active navigation | Normal-size white text or large filled surfaces |
-| Heritage orange strong | `color.brand.accent.strong` | Accessible accent text, selected state, and numbered added-stop markers | Routine primary actions |
-| Heritage orange on dark | `color.brand.accent.onDark` | Small emphasized text on dark media and ink surfaces | Light surfaces or filled controls |
-| Sun | `color.brand.highlight.default` | Focus outline, available-result markers, temporary highlight | Long-form text backgrounds or success status |
-| Sky | `color.support.sky` | Informational edge, route-summary emphasis | Primary action or decorative page wash |
-| Ink | `color.neutral.foreground.primary` | Primary text, structural dark surfaces, endpoints | Treating it as generic black without semantic intent |
-| Ink soft | `color.neutral.foreground.secondary` | Secondary text and supporting labels | Essential actions or low-contrast text on tinted surfaces |
-| Canvas | `color.neutral.background.canvas` | Controls and primary content surface | Removing surface hierarchy everywhere |
-| Cloud | `color.neutral.background.subtle` | Page background and alternating content band | Nested cards inside cards |
-| Mist | `color.neutral.background.tinted` | Grouped content and route summary | Making every section green-tinted |
+| Role                    | Candidate                            | Primary use                                                             | Avoid                                                     |
+| ----------------------- | ------------------------------------ | ----------------------------------------------------------------------- | --------------------------------------------------------- |
+| Pine                    | `color.brand.primary.default`        | Primary commands, brand mark, trusted interactive emphasis              | Large monochrome page backgrounds                         |
+| Pine dark               | `color.brand.primary.hover`          | Hover, pressed, and strong brand contrast                               | Replacing primary ink throughout the page                 |
+| Heritage orange         | `color.brand.accent.default`         | Route line, discoveries, and active navigation                          | Normal-size white text or large filled surfaces           |
+| Heritage orange strong  | `color.brand.accent.strong`          | Accessible accent text, selected state, and numbered added-stop markers | Routine primary actions                                   |
+| Heritage orange on dark | `color.brand.accent.onDark`          | Small emphasized text on dark media and ink surfaces                    | Light surfaces or filled controls                         |
+| Sun                     | `color.brand.highlight.default`      | Focus outline, available-result markers, temporary highlight            | Long-form text backgrounds or success status              |
+| Sky                     | `color.support.sky`                  | Informational edge, route-summary emphasis                              | Primary action or decorative page wash                    |
+| Ink                     | `color.neutral.foreground.primary`   | Primary text, structural dark surfaces, endpoints                       | Treating it as generic black without semantic intent      |
+| Ink soft                | `color.neutral.foreground.secondary` | Secondary text and supporting labels                                    | Essential actions or low-contrast text on tinted surfaces |
+| Canvas                  | `color.neutral.background.canvas`    | Controls and primary content surface                                    | Removing surface hierarchy everywhere                     |
+| Cloud                   | `color.neutral.background.subtle`    | Page background and alternating content band                            | Nested cards inside cards                                 |
+| Mist                    | `color.neutral.background.tinted`    | Grouped content and route summary                                       | Making every section green-tinted                         |
 
 ### Contrast Rules
 
-| Pairing | Ratio | Approved use |
-| --- | --- | --- |
-| Ink on canvas | 15.28:1 | All text sizes |
-| Ink soft on canvas | 7.61:1 | All text sizes |
-| White on pine | 6.91:1 | All text sizes and controls |
-| White on pine dark | 9.96:1 | All text sizes and controls |
-| White on heritage orange | 3.30:1 | Large text and non-text UI only |
-| White on heritage orange strong | 5.21:1 | All text sizes and controls |
-| Ink on heritage orange | 4.63:1 | Normal text when an accent surface is necessary |
-| Heritage orange on dark on ink | 6.79:1 | Small emphasized text on dark surfaces |
-| Ink on sun | 8.54:1 | Focus and highlighted content |
-| Ink on sky | 10.73:1 | Informational content |
-| Ink on mist | 13.72:1 | Grouped and summary content |
-| Danger on canvas | 6.57:1 | Destructive text and icons |
+| Pairing                         | Ratio   | Approved use                                    |
+| ------------------------------- | ------- | ----------------------------------------------- |
+| Ink on canvas                   | 15.28:1 | All text sizes                                  |
+| Ink soft on canvas              | 7.61:1  | All text sizes                                  |
+| White on pine                   | 6.91:1  | All text sizes and controls                     |
+| White on pine dark              | 9.96:1  | All text sizes and controls                     |
+| White on heritage orange        | 3.30:1  | Large text and non-text UI only                 |
+| White on heritage orange strong | 5.21:1  | All text sizes and controls                     |
+| Ink on heritage orange          | 4.63:1  | Normal text when an accent surface is necessary |
+| Heritage orange on dark on ink  | 6.79:1  | Small emphasized text on dark surfaces          |
+| Ink on sun                      | 8.54:1  | Focus and highlighted content                   |
+| Ink on sky                      | 10.73:1 | Informational content                           |
+| Ink on mist                     | 13.72:1 | Grouped and summary content                     |
+| Danger on canvas                | 6.57:1  | Destructive text and icons                      |
 
 Never use color as the only state distinction. Pair it with marker numbering,
 labels, iconography, border treatment, or status text.
@@ -205,10 +205,10 @@ labels, iconography, border treatment, or status text.
 
 Use `font.family.editorial` (Fraunces with Georgia fallback) for:
 
-* JauntDetour wordmark
-* Home-page statement and major page title
-* High-value section headings
-* Selected editorial moments in empty states
+- JauntDetour wordmark
+- Home-page statement and major page title
+- High-value section headings
+- Selected editorial moments in empty states
 
 Do not use it for form labels, buttons, result details, itinerary metadata,
 navigation, or dense planning information.
@@ -217,23 +217,23 @@ navigation, or dense planning information.
 
 Use `font.family.functional` (DM Sans with Segoe UI fallback) for:
 
-* Navigation and controls
-* Inputs and field labels
-* Body and supporting copy
-* Route metrics and itinerary content
-* Status, caption, and map legend text
+- Navigation and controls
+- Inputs and field labels
+- Body and supporting copy
+- Route metrics and itinerary content
+- Status, caption, and map legend text
 
 Production should verify the font-loading and privacy strategy before adopting
 Google-hosted font files. Self-hosting is a valid implementation choice.
 
 ### Hierarchy Rules
 
-* Use display scale only for true product statements, never in the planning
+- Use display scale only for true product statements, never in the planning
   panel.
-* Use title and title-small roles for pages and task views.
-* Keep control labels and itinerary data in the functional family.
-* Use uppercase captions sparingly, with positive letter spacing.
-* Do not scale font size continuously with viewport width. Use bounded roles and
+- Use title and title-small roles for pages and task views.
+- Keep control labels and itinerary data in the functional family.
+- Use uppercase captions sparingly, with positive letter spacing.
+- Do not scale font size continuously with viewport width. Use bounded roles and
   explicit responsive adjustments.
 
 ## Spacing and Shape
@@ -314,14 +314,14 @@ Status must never be represented by color alone.
 
 ## Map Language
 
-| State | Token | Shape and label |
-| --- | --- | --- |
-| Route | `color.map.route` | Heritage-orange line with sufficient contrast against tiles |
-| Origin and destination | `color.map.endpoint` | Ink circular marker labeled A and B |
-| Available result | `color.map.result` | Sun circular marker with stable result number |
-| Selected result | `color.map.selected` | Heritage-orange-strong numbered marker with outer selection ring |
-| Added stop | `color.map.stop` | Heritage-orange-strong numbered marker matching itinerary order |
-| Search area | `color.map.searchArea` | Pine stroke with translucent fill |
+| State                  | Token                  | Shape and label                                                  |
+| ---------------------- | ---------------------- | ---------------------------------------------------------------- |
+| Route                  | `color.map.route`      | Heritage-orange line with sufficient contrast against tiles      |
+| Origin and destination | `color.map.endpoint`   | Ink circular marker labeled A and B                              |
+| Available result       | `color.map.result`     | Sun circular marker with stable result number                    |
+| Selected result        | `color.map.selected`   | Heritage-orange-strong numbered marker with outer selection ring |
+| Added stop             | `color.map.stop`       | Heritage-orange-strong numbered marker matching itinerary order  |
+| Search area            | `color.map.searchArea` | Pine stroke with translucent fill                                |
 
 The list must provide a complete alternative to direct map interaction. Focus,
 selection, and hover synchronize between list and marker without moving focus
@@ -356,9 +356,9 @@ the JSON token. The fallback exists only to prevent an unreadable loading flash.
 
 ## Open Decisions
 
-* Final font hosting and licensing approach
-* Final Fluent brand ramp derived from pine
-* Whether heritage orange needs additional tonal steps for charts or future states
-* Dark-theme demand and timing; no dark theme is approved yet
-* Final image licensing and production asset strategy
-* Formal accessibility review of all component and map states
+- Final font hosting and licensing approach
+- Final Fluent brand ramp derived from pine
+- Whether heritage orange needs additional tonal steps for charts or future states
+- Dark-theme demand and timing; no dark theme is approved yet
+- Final image licensing and production asset strategy
+- Formal accessibility review of all component and map states

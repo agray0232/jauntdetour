@@ -11,9 +11,27 @@ const routeCoordinates = [
 const detourCoordinates = [34.9394, -82.3998];
 
 const results = [
-  { id: 1, name: "Paris Mountain State Park", category: "Hike", rating: 4.7, coordinates: detourCoordinates },
-  { id: 2, name: "Cedar Falls Park", category: "Hike", rating: 4.7, coordinates: [34.7052, -82.3078] },
-  { id: 3, name: "Fernwood Nature Trail", category: "Hike", rating: 4.6, coordinates: [34.9066, -82.3489] },
+  {
+    id: 1,
+    name: "Paris Mountain State Park",
+    category: "Hike",
+    rating: 4.7,
+    coordinates: detourCoordinates,
+  },
+  {
+    id: 2,
+    name: "Cedar Falls Park",
+    category: "Hike",
+    rating: 4.7,
+    coordinates: [34.7052, -82.3078],
+  },
+  {
+    id: 3,
+    name: "Fernwood Nature Trail",
+    category: "Hike",
+    rating: 4.6,
+    coordinates: [34.9066, -82.3489],
+  },
 ];
 
 const state = {
@@ -51,7 +69,11 @@ function refreshIcons() {
 
 function currentRoute() {
   const hash = window.location.hash.replace("#", "") || "home";
-  return ["home", "plan", "trips", "trip-detail", "about", "account"].includes(hash) ? hash : "home";
+  return ["home", "plan", "trips", "trip-detail", "about", "account"].includes(
+    hash
+  )
+    ? hash
+    : "home";
 }
 
 function showView(route) {
@@ -69,7 +91,9 @@ function showView(route) {
   document.body.classList.toggle("in-planner", route === "plan");
 
   document.querySelectorAll("[data-nav]").forEach((link) => {
-    const active = link.dataset.nav === route || (link.dataset.nav === "trips" && route === "trip-detail");
+    const active =
+      link.dataset.nav === route ||
+      (link.dataset.nav === "trips" && route === "trip-detail");
     link.classList.toggle("active", active);
     if (active) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
@@ -97,7 +121,10 @@ menuToggle.addEventListener("click", () => {
   const open = !primaryNav.classList.contains("open");
   primaryNav.classList.toggle("open", open);
   menuToggle.setAttribute("aria-expanded", String(open));
-  menuToggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+  menuToggle.setAttribute(
+    "aria-label",
+    open ? "Close navigation" : "Open navigation"
+  );
 });
 
 function markerIcon(label, type = "endpoint-marker") {
@@ -149,13 +176,25 @@ function renderMap() {
   }
 
   const plottedRoute = state.detourAdded
-    ? [...routeCoordinates.slice(0, 4), detourCoordinates, ...routeCoordinates.slice(4)]
+    ? [
+        ...routeCoordinates.slice(0, 4),
+        detourCoordinates,
+        ...routeCoordinates.slice(4),
+      ]
     : routeCoordinates;
 
-  routeLayer = L.polyline(plottedRoute, { color: "#e36a2e", weight: 5, opacity: 0.95 }).addTo(map);
+  routeLayer = L.polyline(plottedRoute, {
+    color: "#e36a2e",
+    weight: 5,
+    opacity: 0.95,
+  }).addTo(map);
   endpointMarkers = [
-    L.marker(routeCoordinates[0], { icon: markerIcon("A") }).addTo(map).bindPopup("Atlanta, GA"),
-    L.marker(routeCoordinates.at(-1), { icon: markerIcon("B") }).addTo(map).bindPopup("Charlotte, NC"),
+    L.marker(routeCoordinates[0], { icon: markerIcon("A") })
+      .addTo(map)
+      .bindPopup("Atlanta, GA"),
+    L.marker(routeCoordinates.at(-1), { icon: markerIcon("B") })
+      .addTo(map)
+      .bindPopup("Charlotte, NC"),
   ];
 
   if (state.detourAdded) {
@@ -165,7 +204,8 @@ function renderMap() {
   }
 
   if (state.activeTab === "discover") {
-    const radius = Number(document.getElementById("search-radius").value) * 1000;
+    const radius =
+      Number(document.getElementById("search-radius").value) * 1000;
     searchCircle = L.circle([34.85, -82.4], {
       radius,
       color: "#12664f",
@@ -176,10 +216,17 @@ function renderMap() {
 
     if (state.searched) {
       results.forEach((result) => {
-        const selectedClass = state.selectedResult === result.id ? "result-marker selected-marker" : "result-marker";
-        const marker = L.marker(result.coordinates, { icon: markerIcon(String(result.id), selectedClass) })
+        const selectedClass =
+          state.selectedResult === result.id
+            ? "result-marker selected-marker"
+            : "result-marker";
+        const marker = L.marker(result.coordinates, {
+          icon: markerIcon(String(result.id), selectedClass),
+        })
           .addTo(map)
-          .bindPopup(`<strong>${result.name}</strong><br>${result.rating} stars`);
+          .bindPopup(
+            `<strong>${result.name}</strong><br>${result.rating} stars`
+          );
         if (state.selectedResult === result.id) marker.openPopup();
         resultMarkers.push(marker);
       });
@@ -244,14 +291,23 @@ function setPlannerTab(tab) {
 
 buildTab.addEventListener("click", () => setPlannerTab("build"));
 discoverTab.addEventListener("click", () => setPlannerTab("discover"));
-document.getElementById("find-detour").addEventListener("click", () => setPlannerTab("discover"));
-document.getElementById("find-another").addEventListener("click", () => setPlannerTab("discover"));
+document
+  .getElementById("find-detour")
+  .addEventListener("click", () => setPlannerTab("discover"));
+document
+  .getElementById("find-another")
+  .addEventListener("click", () => setPlannerTab("discover"));
 
 const routePosition = document.getElementById("route-position");
 const routePositionOutput = document.getElementById("route-position-output");
 routePosition.addEventListener("input", () => {
   const value = Number(routePosition.value);
-  const label = value >= 45 && value <= 55 ? "Halfway" : value < 45 ? "Early in the drive" : "Later in the drive";
+  const label =
+    value >= 45 && value <= 55
+      ? "Halfway"
+      : value < 45
+        ? "Early in the drive"
+        : "Later in the drive";
   routePositionOutput.textContent = `${label} · ${value}%`;
 });
 
@@ -266,7 +322,9 @@ document.getElementById("category-grid").addEventListener("click", (event) => {
   const button = event.target.closest("[data-category]");
   if (!button) return;
   state.category = button.dataset.category;
-  document.querySelectorAll("[data-category]").forEach((item) => item.classList.toggle("active", item === button));
+  document
+    .querySelectorAll("[data-category]")
+    .forEach((item) => item.classList.toggle("active", item === button));
 });
 
 const searchState = document.getElementById("search-state");
@@ -280,7 +338,10 @@ document.getElementById("search-area").addEventListener("click", (event) => {
     state.searched = true;
     searchState.hidden = true;
     resultsSection.hidden = false;
-    document.getElementById("results-count").textContent = state.category === "Hike" ? "3 places" : `3 ${state.category.toLowerCase()} ideas`;
+    document.getElementById("results-count").textContent =
+      state.category === "Hike"
+        ? "3 places"
+        : `3 ${state.category.toLowerCase()} ideas`;
     renderResults();
     renderMap();
     button.disabled = false;
@@ -306,7 +367,10 @@ function renderResults() {
     card.className = `result-card${state.selectedResult === result.id ? " selected" : ""}`;
     card.tabIndex = 0;
     card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `Select ${result.name}, ${result.rating} stars`);
+    card.setAttribute(
+      "aria-label",
+      `Select ${result.name}, ${result.rating} stars`
+    );
     card.innerHTML = `
       <span class="result-number">${result.id}</span>
       <span><strong>${result.name}</strong><small>${state.category} · ${result.rating} stars</small></span>
@@ -361,8 +425,14 @@ function renderItinerary() {
     <li><span class="itinerary-marker endpoint">B</span><div><strong>Charlotte, NC</strong><small>Destination</small></div></li>`;
 
   if (state.detourAdded) {
-    document.getElementById("remove-detour").addEventListener("click", removeDetour);
-    document.getElementById("move-detour").addEventListener("click", () => showToast("With one detour, the route order is already set."));
+    document
+      .getElementById("remove-detour")
+      .addEventListener("click", removeDetour);
+    document
+      .getElementById("move-detour")
+      .addEventListener("click", () =>
+        showToast("With one detour, the route order is already set.")
+      );
   }
   refreshIcons();
 }
@@ -409,7 +479,8 @@ accountMenu.addEventListener("keydown", (event) => {
   let nextIndex;
 
   if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % items.length;
-  if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + items.length) % items.length;
+  if (event.key === "ArrowUp")
+    nextIndex = (currentIndex - 1 + items.length) % items.length;
   if (event.key === "Home") nextIndex = 0;
   if (event.key === "End") nextIndex = items.length - 1;
   if (event.key === "Escape") {
@@ -451,14 +522,20 @@ function signOutDemoUser() {
   showToast("Signed out of the demo account.");
 }
 
-document.getElementById("menu-sign-out").addEventListener("click", signOutDemoUser);
-document.getElementById("profile-sign-out").addEventListener("click", signOutDemoUser);
+document
+  .getElementById("menu-sign-out")
+  .addEventListener("click", signOutDemoUser);
+document
+  .getElementById("profile-sign-out")
+  .addEventListener("click", signOutDemoUser);
 
 document.getElementById("save-trip").addEventListener("click", () => {
   if (!state.signedIn) {
     state.pendingSave = true;
-    document.getElementById("account-dialog-title").textContent = "Sign in to save your jaunt";
-    document.getElementById("account-dialog-copy").textContent = "Your in-progress jaunt will stay here after sign-in. This prototype uses a demo account.";
+    document.getElementById("account-dialog-title").textContent =
+      "Sign in to save your jaunt";
+    document.getElementById("account-dialog-copy").textContent =
+      "Your in-progress jaunt will stay here after sign-in. This prototype uses a demo account.";
     accountDialog.showModal();
     return;
   }
@@ -478,8 +555,16 @@ function persistMockTrip() {
   showToast("Jaunt saved to My Jaunts.");
 }
 
-document.getElementById("export-trip").addEventListener("click", () => showToast("Prototype: this would open the jaunt in Google Maps."));
-document.getElementById("detail-export").addEventListener("click", () => showToast("Prototype: this would open the route in Google Maps."));
+document
+  .getElementById("export-trip")
+  .addEventListener("click", () =>
+    showToast("Prototype: this would open the jaunt in Google Maps.")
+  );
+document
+  .getElementById("detail-export")
+  .addEventListener("click", () =>
+    showToast("Prototype: this would open the route in Google Maps.")
+  );
 
 document.getElementById("resume-trip").addEventListener("click", () => {
   loadSavedTrip();
@@ -507,12 +592,22 @@ function loadSavedTrip() {
   setPlannerTab("build");
 }
 
-document.querySelector(".load-mountain").addEventListener("click", () => showToast("This prototype fully wires the Carolinas weekend example."));
+document
+  .querySelector(".load-mountain")
+  .addEventListener("click", () =>
+    showToast("This prototype fully wires the Carolinas weekend example.")
+  );
 
 document.querySelectorAll(".duplicate-trip").forEach((button) => {
-  button.addEventListener("click", () => showToast("Jaunt duplicated as Copy of jaunt."));
+  button.addEventListener("click", () =>
+    showToast("Jaunt duplicated as Copy of jaunt.")
+  );
 });
-document.getElementById("detail-duplicate").addEventListener("click", () => showToast("Jaunt duplicated as Copy of Carolinas weekend."));
+document
+  .getElementById("detail-duplicate")
+  .addEventListener("click", () =>
+    showToast("Jaunt duplicated as Copy of Carolinas weekend.")
+  );
 
 const deleteDialog = document.getElementById("delete-dialog");
 document.querySelectorAll(".delete-trip").forEach((button) => {
