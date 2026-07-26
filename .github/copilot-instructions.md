@@ -1,5 +1,7 @@
 # JauntDetour — Copilot Instructions
 
+<!-- markdownlint-disable MD013 -->
+
 Road-trip planner: React frontend + Node/Express backend + PostgreSQL, using
 Google Maps APIs to build routes and find detours, with user accounts and saved
 trips.
@@ -48,6 +50,27 @@ trips.
   auth state is always re-resolved from `GET /auth/me`.
 - **Frontend requesters** (`frontend/src/scripts/*Requester.js`) wrap axios, build
   URLs from `config.BACKEND_URL`, and pass `withCredentials: true` for authed calls.
+
+## UI/UX Design
+
+- For any frontend UI change, follow `docs/design-system/foundations.md` and
+  `docs/design-system/fluent-token-mapping.md`; consume canonical values from
+  `design-system/tokens/` instead of adding feature-level brand values.
+- Use `docs/ux/concept-directions.md` for information architecture and screen
+  structure, and `docs/ux/responsive-strategy.md` when changing layout or map
+  behavior across viewports.
+- Read `docs/ux/development-handoff.md`, `docs/ux/implementation-session-plan.md`,
+  and `docs/ux/migration-backlog.md` for redesign implementation, substantial
+  new screens, or migration sequencing; routine fixes do not require them.
+- Use `design-system/specimen/` and `spikes/ux-redesign-prototype/` as visual and
+  interaction references only. Do not copy the throwaway prototype CSS or state
+  implementation into production.
+- Use approved brand files from `design-system/assets/brand/`; update the
+  canonical SVG before regenerating raster derivatives.
+- Build controls with Fluent 2 and Fluent icons, then apply JauntDetour tokens
+  and domain compositions. Preserve one responsive component tree.
+- Use "Jaunt" in visible UI copy; preserve trip-based API, database, repository,
+  route, and state contracts internally.
 
 ## Conventions
 

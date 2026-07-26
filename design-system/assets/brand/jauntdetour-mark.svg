@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">JauntDetour mark</title>
+  <desc id="description">Pine circular badge with a white route, white endpoints, and a heritage-orange discovery on the route bend.</desc>
+  <circle cx="256" cy="256" r="256" fill="#12664f"/>
+  <g transform="translate(112 112) scale(12)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="6" cy="19" r="3" stroke="#ffffff" stroke-width="2"/>
+    <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" stroke="#ffffff" stroke-width="2"/>
+    <circle cx="3.25" cy="8.5" r="3.4" fill="#e36a2e"/>
+    <circle cx="18" cy="5" r="3" stroke="#ffffff" stroke-width="2"/>
+  </g>
+</svg>

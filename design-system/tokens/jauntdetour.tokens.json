@@ -1,0 +1,302 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "meta": {
+    "name": "JauntDetour Foundations",
+    "version": "0.2.1-candidate",
+    "status": "Exploratory",
+    "updated": "2026-07-26",
+    "source": "UX redesign prototype and stakeholder review"
+  },
+  "color": {
+    "brand": {
+      "primary": {
+        "default": {
+          "$type": "color",
+          "$value": "#12664f",
+          "$description": "Primary actions, brand mark, and trusted interactive emphasis"
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "#0b4c3a",
+          "$description": "Hover and pressed emphasis for primary actions"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "#dcece6",
+          "$description": "Selected controls and quiet brand-tinted surfaces"
+        }
+      },
+      "accent": {
+        "default": {
+          "$type": "color",
+          "$value": "#e36a2e",
+          "$description": "Heritage orange for routes, discoveries, active navigation, and moments of spontaneity"
+        },
+        "strong": {
+          "$type": "color",
+          "$value": "#b84a18",
+          "$description": "Accessible heritage-orange text and small white-on-accent controls"
+        },
+        "onDark": {
+          "$type": "color",
+          "$value": "#ef985f",
+          "$description": "Mid-tone heritage orange for small emphasized text on dark surfaces"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "#fbe9df",
+          "$description": "Selected discovery and heritage-orange-tinted surfaces"
+        }
+      },
+      "highlight": {
+        "default": {
+          "$type": "color",
+          "$value": "#f2b84b",
+          "$description": "Focus, discovery highlights, and temporary attention"
+        }
+      }
+    },
+    "neutral": {
+      "foreground": {
+        "primary": {
+          "$type": "color",
+          "$value": "#14282f",
+          "$description": "Primary text and structural dark color"
+        },
+        "secondary": {
+          "$type": "color",
+          "$value": "#43575d",
+          "$description": "Secondary text and supporting labels"
+        },
+        "onDark": {
+          "$type": "color",
+          "$value": "#ffffff",
+          "$description": "Text and icons on dark or primary brand backgrounds"
+        }
+      },
+      "background": {
+        "canvas": {
+          "$type": "color",
+          "$value": "#ffffff",
+          "$description": "Primary canvas and control surface"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "#f7f9f8",
+          "$description": "Application and content background"
+        },
+        "tinted": {
+          "$type": "color",
+          "$value": "#eef4f2",
+          "$description": "Quiet grouped content and route-summary surface"
+        }
+      },
+      "stroke": {
+        "default": {
+          "$type": "color",
+          "$value": "#d7e0dd",
+          "$description": "Borders, separators, and inactive strokes"
+        }
+      }
+    },
+    "support": {
+      "sky": {
+        "$type": "color",
+        "$value": "#b9dfe5",
+        "$description": "Informational emphasis and route-summary edge"
+      }
+    },
+    "semantic": {
+      "danger": {
+        "foreground": {
+          "$type": "color",
+          "$value": "#b42318",
+          "$description": "Destructive text and icon color"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "#fee4e2",
+          "$description": "Destructive confirmation background"
+        }
+      },
+      "success": {
+        "foreground": {
+          "$type": "color",
+          "$value": "#0b4c3a",
+          "$description": "Saved and completed status text"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "#dcece6",
+          "$description": "Saved and completed status background"
+        }
+      },
+      "warning": {
+        "foreground": {
+          "$type": "color",
+          "$value": "#76531c",
+          "$description": "Unsaved and caution status text"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "#fff7e7",
+          "$description": "Unsaved and caution status background"
+        }
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "#f2b84b",
+        "$description": "Visible keyboard focus outline"
+      }
+    },
+    "map": {
+      "route": {
+        "$type": "color",
+        "$value": "#e36a2e",
+        "$description": "Active route line"
+      },
+      "endpoint": {
+        "$type": "color",
+        "$value": "#14282f",
+        "$description": "Origin and destination markers"
+      },
+      "result": {
+        "$type": "color",
+        "$value": "#f2b84b",
+        "$description": "Available discovery result markers"
+      },
+      "selected": {
+        "$type": "color",
+        "$value": "#b84a18",
+        "$description": "Selected discovery result marker and outline"
+      },
+      "stop": {
+        "$type": "color",
+        "$value": "#b84a18",
+        "$description": "Added itinerary stop marker with accessible white number contrast"
+      },
+      "searchArea": {
+        "$type": "color",
+        "$value": "#12664f",
+        "$description": "Search radius stroke and translucent fill"
+      }
+    }
+  },
+  "font": {
+    "family": {
+      "editorial": {
+        "$type": "fontFamily",
+        "$value": "Fraunces, Georgia, serif",
+        "$description": "Brand wordmark, page titles, and editorial display headings"
+      },
+      "functional": {
+        "$type": "fontFamily",
+        "$value": "DM Sans, Segoe UI, sans-serif",
+        "$description": "Navigation, controls, labels, body text, and dense planning information"
+      }
+    },
+    "weight": {
+      "regular": { "$type": "fontWeight", "$value": 400 },
+      "medium": { "$type": "fontWeight", "$value": 500 },
+      "semibold": { "$type": "fontWeight", "$value": 600 },
+      "bold": { "$type": "fontWeight", "$value": 700 }
+    },
+    "size": {
+      "caption": { "$type": "dimension", "$value": "0.6875rem" },
+      "bodySmall": { "$type": "dimension", "$value": "0.8125rem" },
+      "body": { "$type": "dimension", "$value": "0.9375rem" },
+      "bodyLarge": { "$type": "dimension", "$value": "1.125rem" },
+      "titleSmall": { "$type": "dimension", "$value": "1.5rem" },
+      "title": { "$type": "dimension", "$value": "2.25rem" },
+      "display": { "$type": "dimension", "$value": "4.5rem" }
+    },
+    "lineHeight": {
+      "tight": { "$type": "number", "$value": 1.05 },
+      "standard": { "$type": "number", "$value": 1.45 },
+      "reading": { "$type": "number", "$value": 1.65 }
+    }
+  },
+  "space": {
+    "0": { "$type": "dimension", "$value": "0" },
+    "1": { "$type": "dimension", "$value": "0.25rem" },
+    "2": { "$type": "dimension", "$value": "0.5rem" },
+    "3": { "$type": "dimension", "$value": "0.75rem" },
+    "4": { "$type": "dimension", "$value": "1rem" },
+    "5": { "$type": "dimension", "$value": "1.5rem" },
+    "6": { "$type": "dimension", "$value": "2rem" },
+    "7": { "$type": "dimension", "$value": "3rem" },
+    "8": { "$type": "dimension", "$value": "4rem" },
+    "9": { "$type": "dimension", "$value": "5.5rem" }
+  },
+  "radius": {
+    "control": {
+      "$type": "dimension",
+      "$value": "0.375rem",
+      "$description": "Buttons, inputs, tabs, and compact controls"
+    },
+    "surface": {
+      "$type": "dimension",
+      "$value": "0.5rem",
+      "$description": "Cards, dialogs, and grouped content"
+    },
+    "round": {
+      "$type": "dimension",
+      "$value": "999px",
+      "$description": "Markers, avatars, and status dots only"
+    }
+  },
+  "shadow": {
+    "low": {
+      "$type": "shadow",
+      "$value": {
+        "color": "#14282f1a",
+        "offsetX": "0",
+        "offsetY": "2px",
+        "blur": "8px",
+        "spread": "0"
+      }
+    },
+    "medium": {
+      "$type": "shadow",
+      "$value": {
+        "color": "#14282f29",
+        "offsetX": "0",
+        "offsetY": "12px",
+        "blur": "32px",
+        "spread": "0"
+      }
+    }
+  },
+  "size": {
+    "control": {
+      "medium": { "$type": "dimension", "$value": "2.625rem" },
+      "large": { "$type": "dimension", "$value": "3.125rem" }
+    },
+    "icon": {
+      "medium": { "$type": "dimension", "$value": "1.25rem" }
+    },
+    "header": { "$type": "dimension", "$value": "4.25rem" },
+    "plannerPanel": { "$type": "dimension", "$value": "25.625rem" }
+  },
+  "motion": {
+    "duration": {
+      "fast": { "$type": "duration", "$value": "140ms" },
+      "standard": { "$type": "duration", "$value": "180ms" }
+    },
+    "easing": {
+      "standard": { "$type": "cubicBezier", "$value": [0.2, 0, 0, 1] }
+    }
+  },
+  "breakpoint": {
+    "compact": {
+      "$type": "dimension",
+      "$value": "48.75rem",
+      "$description": "Planner changes from side-by-side workspace to map-and-sheet composition"
+    },
+    "wide": {
+      "$type": "dimension",
+      "$value": "65.625rem",
+      "$description": "Large desktop refinements"
+    }
+  }
+}
