@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import {
   Button,
   Dialog,
@@ -43,15 +43,18 @@ export default function SaveTrip() {
     detourList,
     tripName,
     currentTrip,
-  } = useSelector((state) => ({
-    user: state.user,
-    origin: state.origin,
-    destination: state.destination,
-    route: state.route,
-    detourList: state.detourList,
-    tripName: state.tripName,
-    currentTrip: state.currentTrip,
-  }));
+  } = useSelector(
+    (state) => ({
+      user: state.user,
+      origin: state.origin,
+      destination: state.destination,
+      route: state.route,
+      detourList: state.detourList,
+      tripName: state.tripName,
+      currentTrip: state.currentTrip,
+    }),
+    shallowEqual
+  );
   const dispatch = useDispatch();
 
   const [nameDialogOpen, setNameDialogOpen] = useState(false);

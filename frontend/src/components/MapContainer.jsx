@@ -58,6 +58,29 @@ function MapBounds({ route }) {
   return null;
 }
 
+function MapResizeObserver() {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || typeof ResizeObserver === "undefined") {
+      return undefined;
+    }
+
+    const mapElement = map.getDiv();
+    const observedElement = mapElement.parentElement || mapElement;
+    const observer = new ResizeObserver(() => {
+      if (window.google?.maps?.event) {
+        window.google.maps.event.trigger(map, "resize");
+      }
+    });
+
+    observer.observe(observedElement);
+    return () => observer.disconnect();
+  }, [map]);
+
+  return null;
+}
+
 // Polyline component
 function RoutePolyline({ route, showRoute }) {
   const map = useMap();
@@ -191,6 +214,8 @@ function MapContainer(props) {
         defaultCenter={{ lat: 33.749, lng: -84.388 }}
         mapId="DEMO_MAP_ID"
       >
+        <MapResizeObserver />
+
         {/* Map bounds adjustment - only fits bounds on new route */}
         <MapBounds route={props.route} />
 

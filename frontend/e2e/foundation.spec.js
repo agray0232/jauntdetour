@@ -59,6 +59,39 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(
     page.getByRole("link", { name: "Plan a Jaunt" })
   ).toHaveAttribute("aria-current", "page");
+  await expect(
+    page.getByRole("complementary", { name: "Jaunt planning tools" })
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("region", { name: "Jaunt route map" })
+  ).toHaveCount(1);
+  await expect(page.getByRole("tab", { name: "Build" })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(page.getByRole("tab", { name: "Discover" })).toBeDisabled();
+
+  const viewport = page.viewportSize();
+  const showMap = page.getByRole("button", { name: "Show map" });
+  if (viewport && viewport.width <= 780 && viewport.height > 500) {
+    await expect(showMap).toBeVisible();
+    await showMap.click();
+    await expect(
+      page.getByRole("button", { name: "Back to tools" })
+    ).toBeVisible();
+    await expect(
+      page.locator('[aria-label="Jaunt planning tools"]')
+    ).toBeHidden();
+    await expect(
+      page.getByRole("region", { name: "Jaunt route map" })
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Back to tools" }).click();
+    await expect(
+      page.getByRole("complementary", { name: "Jaunt planning tools" })
+    ).toBeVisible();
+  } else {
+    await expect(showMap).toBeHidden();
+  }
 });
 
 test("protects saved Jaunts while preserving anonymous planning", async ({

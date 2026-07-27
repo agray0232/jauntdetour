@@ -75,6 +75,7 @@ class TripTimeline extends React.Component {
 
       return (
         <TimelineItem
+          key={`${detour.placeId || detour.id || detour.name}-${index}`}
           title={detour.name}
           mutedText={mutedText}
           addedTimeTxt={addedTimeTxt}
@@ -96,12 +97,14 @@ class TripTimeline extends React.Component {
       <div className="container">
         <ul className="timeline">
           <TimelineItem
+            key="origin"
             title={this.props.origin}
             type="origin"
             badgeClass="timeline-badge origin"
           ></TimelineItem>
           {detourList}
           <TimelineItem
+            key="destination"
             title={this.props.destination}
             type="destination"
             badgeClass="timeline-badge destination"
@@ -114,8 +117,8 @@ class TripTimeline extends React.Component {
 
 TripTimeline.propTypes = {
   detourList: PropTypes.array,
-  origin: PropTypes.object,
-  destination: PropTypes.object,
+  origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  destination: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   removeDetour: PropTypes.func,
   setRoute: PropTypes.func,
   setTripSummary: PropTypes.func,
