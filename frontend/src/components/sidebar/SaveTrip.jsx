@@ -1,40 +1,64 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Dialog,
-  DialogSurface,
-  DialogBody,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogBody,
+  DialogContent,
+  DialogSurface,
+  DialogTitle,
   Field,
   Input,
-  Toaster,
   Toast,
+  Toaster,
   ToastTitle,
-  useToastController,
+  makeStyles,
+  tokens,
   useId,
+  useToastController,
 } from "@fluentui/react-components";
 import TripRequester, { buildTripPayload } from "../../scripts/TripRequester";
 import AuthRequester from "../../scripts/AuthRequester";
+import { exportToGoogleMaps } from "../../utils/googleMapsExport";
+import { createPlannerFingerprint } from "../planner/build-workflow/plannerFingerprint";
+import { jauntSpacing, jauntTypography } from "../../design-system/tokens";
 
-// sessionStorage flag: set when a signed-out user opts to sign in from the save
-// prompt, so the save resumes automatically after the login redirect.
 const RESUME_SAVE_KEY = "jaunt.resumeSaveTrip";
 
-/**
- * SaveTrip — the "Save Trip" control and its dialogs.
- *
- * Reads the current trip straight from Redux. The trip name is edited in the
- * separate TripNameField component (Redux `tripName`); SaveTrip only renders the
- * Save button plus its dialogs. The button always reads "Save Trip"; under the
- * hood it updates the loaded trip in place when one is loaded (`currentTrip`),
- * otherwise creates a new trip. If the loaded trip no longer exists (e.g. deleted
- * elsewhere), the update falls back to creating a new trip. Signed-out users are
- * prompted to sign in.
- */
-export default function SaveTrip() {
+const useStyles = makeStyles({
+  root: {
+    display: "grid",
+    marginTop: jauntSpacing[5],
+    padding: `${jauntSpacing[4]} ${jauntSpacing[4]} ${jauntSpacing[5]}`,
+    rowGap: jauntSpacing[3],
+    borderTop: `1px solid ${tokens.colorNeutralStroke1}`,
+  },
+  embedded: {
+    marginTop: 0,
+    padding: 0,
+    borderTop: 0,
+  },
+  context: {
+    color: tokens.colorNeutralForeground2,
+    fontSize: jauntTypography.size.bodySmall,
+  },
+  actions: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: jauntSpacing[2],
+    "@media (max-width: 20rem)": {
+      gridTemplateColumns: "minmax(0, 1fr)",
+    },
+  },
+});
+
+export default function SaveTrip({
+  embedded = false,
+  onStatusChange = () => {},
+}) {
+  const styles = useStyles();
   const {
     user,
     origin,
@@ -56,13 +80,10 @@ export default function SaveTrip() {
     shallowEqual
   );
   const dispatch = useDispatch();
-
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [signInDialogOpen, setSignInDialogOpen] = useState(false);
-  // Local buffer for the fallback "name required" dialog input.
   const [dialogName, setDialogName] = useState("");
   const [saving, setSaving] = useState(false);
-
   const toasterId = useId("save-trip-toaster");
   const { dispatchToast } = useToastController(toasterId);
   const auth = new AuthRequester();
@@ -83,13 +104,22 @@ export default function SaveTrip() {
     [dispatchToast]
   );
 
-  // Persist the current plan under `name`: update the loaded trip in place, or
-  // create a new one. A 404 on update means the loaded trip is gone (deleted),
-  // so fall back to creating it as a new trip. On success, bump the revision so
-  // an open "My Trips" list refreshes.
+  const buildSavedFingerprint = useCallback(
+    (name) =>
+      createPlannerFingerprint({
+        origin,
+        destination,
+        route,
+        detourList,
+        tripName: name,
+      }),
+    [destination, detourList, origin, route]
+  );
+
   const persist = useCallback(
     (name) => {
       setSaving(true);
+      onStatusChange("saving");
       const payload = buildTripPayload(
         { origin, destination, route, detourList },
         name,
@@ -113,6 +143,7 @@ export default function SaveTrip() {
                 routePolyline: trip.route_polyline,
                 distanceMeters: trip.distance_meters,
                 durationSeconds: trip.duration_seconds,
+                savedFingerprint: buildSavedFingerprint(name),
               },
             },
           });
@@ -124,13 +155,14 @@ export default function SaveTrip() {
             .then((data) => {
               const trip = data.trip || {};
               const updatedRoute = data.route || {};
-              setTripName(trip.tripName || name);
+              const savedName = trip.tripName || name;
+              setTripName(savedName);
               dispatch({
                 type: "SET_CURRENT_TRIP",
                 data: {
                   currentTrip: {
                     tripId: trip.tripId || currentTrip.tripId,
-                    tripName: trip.tripName || name,
+                    tripName: savedName,
                     updatedAt: trip.updatedAt,
                     origin: trip.origin,
                     destination: trip.destination,
@@ -141,16 +173,16 @@ export default function SaveTrip() {
                       null,
                     distanceMeters: trip.distanceMeters,
                     durationSeconds: trip.durationSeconds,
+                    savedFingerprint: buildSavedFingerprint(savedName),
                   },
                 },
               });
             })
-            .catch((err) => {
-              // The loaded trip no longer exists — save it as a new trip.
-              if (err && err.response && err.response.status === 404) {
+            .catch((error) => {
+              if (error?.response?.status === 404) {
                 return create();
               }
-              throw err;
+              throw error;
             })
         : create();
 
@@ -158,10 +190,12 @@ export default function SaveTrip() {
         .then(() => {
           setNameDialogOpen(false);
           dispatch({ type: "BUMP_TRIPS_REVISION" });
-          showToast("Trip saved", "success");
+          onStatusChange("idle");
+          showToast("Jaunt saved", "success");
         })
         .catch(() => {
-          showToast("Could not save trip. Please try again.", "error");
+          onStatusChange("failed");
+          showToast("Could not save Jaunt. Please try again.", "error");
         })
         .finally(() => setSaving(false));
     },
@@ -173,11 +207,12 @@ export default function SaveTrip() {
       currentTrip,
       dispatch,
       setTripName,
+      buildSavedFingerprint,
+      onStatusChange,
       showToast,
     ]
   );
 
-  // Start a save: save directly when a name is present, else prompt for one.
   const requestSave = useCallback(() => {
     const name = (tripName || "").trim();
     if (name) {
@@ -188,9 +223,6 @@ export default function SaveTrip() {
     }
   }, [tripName, persist]);
 
-  // Clicking "Sign in" from the save prompt is an intent to save. We stash a
-  // one-shot flag before the login redirect; once authenticated on return,
-  // resume the save automatically.
   useEffect(() => {
     if (user && sessionStorage.getItem(RESUME_SAVE_KEY)) {
       sessionStorage.removeItem(RESUME_SAVE_KEY);
@@ -207,7 +239,6 @@ export default function SaveTrip() {
   };
 
   const handleSignIn = () => {
-    // Survive the full-page login redirect so we can resume on return.
     sessionStorage.setItem(RESUME_SAVE_KEY, "1");
     auth.login();
   };
@@ -216,31 +247,50 @@ export default function SaveTrip() {
     <>
       <Toaster toasterId={toasterId} />
 
-      <div className="save-trip-section">
-        <Button
-          appearance="primary"
-          className="save-trip-btn"
-          id="save-trip-button"
-          disabled={saving}
-          onClick={handlePrimaryClick}
-        >
-          {saving ? "Saving..." : "Save Trip"}
-        </Button>
-      </div>
+      <section
+        className={`${styles.root} ${embedded ? styles.embedded : ""}`}
+        aria-label="Save Jaunt"
+      >
+        <span className={styles.context}>
+          {currentTrip
+            ? "Changes update the loaded Jaunt."
+            : "Sign in only when you are ready to save."}
+        </span>
+        <div className={styles.actions}>
+          <Button
+            appearance="primary"
+            id="save-trip-button"
+            disabled={saving}
+            onClick={handlePrimaryClick}
+          >
+            {saving
+              ? "Saving Jaunt"
+              : currentTrip
+                ? "Update Jaunt"
+                : "Save Jaunt"}
+          </Button>
+          <Button
+            appearance="secondary"
+            disabled={!origin || !destination}
+            onClick={() => exportToGoogleMaps(origin, destination, detourList)}
+          >
+            Google Maps
+          </Button>
+        </div>
+      </section>
 
-      {/* Fallback: prompt for a name when saving without one. */}
       <Dialog
         open={nameDialogOpen}
         onOpenChange={(event, data) => setNameDialogOpen(data.open)}
       >
         <DialogSurface>
           <DialogBody>
-            <DialogTitle>Save your trip</DialogTitle>
+            <DialogTitle>Save your Jaunt</DialogTitle>
             <DialogContent>
-              <Field label="Trip name" required>
+              <Field label="Jaunt name" required>
                 <Input
                   value={dialogName}
-                  placeholder="e.g. Coastal weekend"
+                  placeholder="e.g. Carolinas weekend"
                   onChange={(event) => setDialogName(event.target.value)}
                 />
               </Field>
@@ -258,23 +308,22 @@ export default function SaveTrip() {
                 disabled={saving || !dialogName.trim()}
                 onClick={() => persist(dialogName.trim())}
               >
-                {saving ? "Saving..." : "Save"}
+                {saving ? "Saving Jaunt" : "Save"}
               </Button>
             </DialogActions>
           </DialogBody>
         </DialogSurface>
       </Dialog>
 
-      {/* Signed-out: prompt to sign in. */}
       <Dialog
         open={signInDialogOpen}
         onOpenChange={(event, data) => setSignInDialogOpen(data.open)}
       >
         <DialogSurface>
           <DialogBody>
-            <DialogTitle>Sign in to save your trip</DialogTitle>
+            <DialogTitle>Sign in to save your Jaunt</DialogTitle>
             <DialogContent>
-              Create an account or sign in to save this trip and access it
+              Create an account or sign in to save this Jaunt and access it
               later.
             </DialogContent>
             <DialogActions>
@@ -294,3 +343,12 @@ export default function SaveTrip() {
     </>
   );
 }
+
+SaveTrip.propTypes = {
+  embedded: PropTypes.bool,
+  onStatusChange: PropTypes.func,
+};
+
+SaveTrip.defaultProps = {
+  onStatusChange: () => {},
+};

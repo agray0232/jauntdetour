@@ -35,6 +35,13 @@ let matchDispatchToProps = (dispatch) => {
           tripSummary: summary,
         },
       }),
+    setTripName: (tripName) =>
+      dispatch({
+        type: "SET_TRIP_NAME",
+        data: {
+          tripName: tripName,
+        },
+      }),
     getDetourForm: () =>
       dispatch({
         type: "GET_DETOUR_FORM",

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
+  Badge,
   Button,
+  Field,
+  Input,
   Tab,
   TabList,
   Text,
@@ -9,13 +12,23 @@ import {
   shorthands,
   tokens,
 } from "@fluentui/react-components";
-import { ArrowLeftRegular, MapRegular } from "@fluentui/react-icons";
-import UserInput from "../sidebar/UserInput";
-import TripSummary from "../sidebar/TripSummary";
+import {
+  ArrowLeftRegular,
+  MapRegular,
+  SparkleRegular,
+  TextBulletListTreeRegular,
+} from "@fluentui/react-icons";
+import RouteForm from "./build-workflow/RouteForm";
+import BuildRouteDetails from "./build-workflow/BuildRouteDetails";
 import MyTrips from "../sidebar/MyTrips";
 import DetourForm from "../detour/DetourForm";
 import DetourOptionsList from "../detour/DetourOptionsList";
 import MapContainer from "../MapContainer";
+import {
+  createPlannerFingerprint,
+  getPlannerSaveState,
+  saveStatus,
+} from "./build-workflow/plannerFingerprint";
 import {
   jauntColors,
   jauntRadius,
@@ -75,10 +88,10 @@ const useStyles = makeStyles({
     },
   },
   panelHeader: {
-    display: "flex",
+    display: "grid",
     minHeight: "4.75rem",
+    gridTemplateColumns: "minmax(0, 1fr) auto",
     alignItems: "center",
-    justifyContent: "space-between",
     padding: `${jauntSpacing[3]} ${jauntSpacing[4]}`,
     columnGap: jauntSpacing[3],
     backgroundColor: jauntColors.neutral.background,
@@ -87,7 +100,17 @@ const useStyles = makeStyles({
   panelIdentity: {
     display: "grid",
     minWidth: 0,
+    flexGrow: 1,
     rowGap: jauntSpacing[1],
+  },
+  panelActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: jauntSpacing[2],
+  },
+  panelActionsReady: {
+    minHeight: "2rem",
+    alignSelf: "end",
   },
   eyebrow: {
     color: jauntColors.brand.accentStrong,
@@ -101,6 +124,26 @@ const useStyles = makeStyles({
     fontFamily: jauntTypography.family.editorial,
     fontSize: jauntTypography.size.titleSmall,
     lineHeight: jauntTypography.lineHeight.tight,
+  },
+  panelNameField: {
+    width: "100%",
+    minWidth: 0,
+    maxWidth: "15rem",
+    "& label": {
+      color: jauntColors.brand.accentStrong,
+      fontSize: jauntTypography.size.caption,
+      fontWeight: jauntTypography.weight.bold,
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+    },
+  },
+  panelNameInput: {
+    width: "100%",
+    minWidth: 0,
+    "& input": {
+      fontFamily: jauntTypography.family.editorial,
+      fontSize: jauntTypography.size.bodyLarge,
+    },
   },
   tabsRow: {
     display: "flex",
@@ -176,6 +219,8 @@ export default function PlannerWorkspace(props) {
   const styles = useStyles();
   const [selectedTask, setSelectedTask] = useState("build");
   const [mapExpanded, setMapExpanded] = useState(false);
+  const [editingRoute, setEditingRoute] = useState(!props.showDetourButton);
+  const [saveOperation, setSaveOperation] = useState("idle");
 
   useEffect(() => {
     if (props.showDetourForm) {
@@ -187,6 +232,7 @@ export default function PlannerWorkspace(props) {
     if (!props.showDetourButton) {
       setSelectedTask("build");
       setMapExpanded(false);
+      setEditingRoute(true);
     }
   }, [props.showDetourButton]);
 
@@ -205,6 +251,26 @@ export default function PlannerWorkspace(props) {
     setSelectedTask("build");
   };
 
+  const fingerprint = createPlannerFingerprint({
+    origin: props.origin,
+    destination: props.destination,
+    route: props.route,
+    detourList: props.detourList,
+    tripName: props.tripName,
+  });
+  const currentSaveState = getPlannerSaveState({
+    currentTrip: props.currentTrip,
+    fingerprint,
+    operation: saveOperation,
+  });
+  const currentStatus = saveStatus[currentSaveState];
+  const routeTitle = [props.origin, props.destination]
+    .map((endpoint) =>
+      typeof endpoint === "string" ? endpoint : endpoint?.address
+    )
+    .filter(Boolean)
+    .join(" to ");
+
   return (
     <div className={`${styles.root} ${mapExpanded ? styles.mapExpanded : ""}`}>
       <aside
@@ -213,10 +279,33 @@ export default function PlannerWorkspace(props) {
       >
         <div className={styles.panelHeader}>
           <div className={styles.panelIdentity}>
-            <Text className={styles.eyebrow}>New Jaunt</Text>
-            <h2 className={styles.panelTitle}>Build your Jaunt</h2>
+            {props.showDetourButton ? (
+              <Field className={styles.panelNameField} label="Jaunt name">
+                <Input
+                  className={styles.panelNameInput}
+                  aria-label="Jaunt name"
+                  value={props.tripName || ""}
+                  placeholder={routeTitle || "Name this Jaunt"}
+                  onChange={(event) => props.setTripName(event.target.value)}
+                />
+              </Field>
+            ) : (
+              <>
+                <Text className={styles.eyebrow}>New Jaunt</Text>
+                <h2 className={styles.panelTitle}>Build your Jaunt</h2>
+              </>
+            )}
           </div>
-          <MyTrips />
+          <div
+            className={`${styles.panelActions} ${
+              props.showDetourButton ? styles.panelActionsReady : ""
+            }`}
+          >
+            <Badge appearance="tint" color={currentStatus.color}>
+              {currentStatus.label}
+            </Badge>
+            <MyTrips />
+          </div>
         </div>
 
         <div className={styles.tabsRow}>
@@ -226,8 +315,17 @@ export default function PlannerWorkspace(props) {
             onTabSelect={handleTabSelect}
             aria-label="Planning tools"
           >
-            <Tab value="build">Build</Tab>
-            <Tab value="discover" disabled={!props.showDetourButton}>
+            <Tab
+              value="build"
+              icon={<TextBulletListTreeRegular data-testid="build-tab-icon" />}
+            >
+              Build
+            </Tab>
+            <Tab
+              value="discover"
+              icon={<SparkleRegular data-testid="discover-tab-icon" />}
+              disabled={!props.showDetourButton}
+            >
               Discover
             </Tab>
           </TabList>
@@ -248,30 +346,32 @@ export default function PlannerWorkspace(props) {
             aria-label="Build"
             hidden={selectedTask !== "build"}
           >
-            <UserInput
-              type="desktop"
-              classes="planner-route-input"
-              origin={props.origin}
-              destination={props.destination}
-              setOrigin={props.setOrigin}
-              setDestination={props.setDestination}
-              setRoute={props.setRoute}
-              setTripSummary={props.setTripSummary}
-              clearAll={props.clearAll}
-            />
-            <TripSummary
-              origin={props.origin}
-              destination={props.destination}
-              tripSummary={props.tripSummary}
-              detourList={props.detourList}
-              removeDetour={props.removeDetour}
-              setRoute={props.setRoute}
-              setTripSummary={props.setTripSummary}
-              setDetourList={props.setDetourList}
-              showDetourButton={props.showDetourButton}
-              getDetourForm={openDiscover}
-              clearAll={props.clearAll}
-            />
+            {editingRoute ? (
+              <RouteForm
+                origin={props.origin}
+                destination={props.destination}
+                setOrigin={props.setOrigin}
+                setDestination={props.setDestination}
+                setRoute={props.setRoute}
+                setTripSummary={props.setTripSummary}
+                clearAll={props.clearAll}
+                onRouteReady={() => setEditingRoute(false)}
+              />
+            ) : (
+              <BuildRouteDetails
+                origin={props.origin}
+                destination={props.destination}
+                tripSummary={props.tripSummary}
+                detourList={props.detourList}
+                removeDetour={props.removeDetour}
+                setRoute={props.setRoute}
+                setTripSummary={props.setTripSummary}
+                setDetourList={props.setDetourList}
+                onDiscover={openDiscover}
+                onEditRoute={() => setEditingRoute(true)}
+                onSaveStateChange={setSaveOperation}
+              />
+            )}
           </section>
 
           <section
@@ -350,7 +450,9 @@ export default function PlannerWorkspace(props) {
 PlannerWorkspace.propTypes = {
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   destination: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  currentTrip: PropTypes.object,
   tripSummary: PropTypes.object,
+  tripName: PropTypes.string,
   route: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   detourList: PropTypes.array,
   detourOptions: PropTypes.array,
@@ -367,6 +469,7 @@ PlannerWorkspace.propTypes = {
   setDestination: PropTypes.func,
   setRoute: PropTypes.func,
   setTripSummary: PropTypes.func,
+  setTripName: PropTypes.func,
   setDetourType: PropTypes.func,
   setDetourSearchLocation: PropTypes.func,
   setDetourSearchRadius: PropTypes.func,

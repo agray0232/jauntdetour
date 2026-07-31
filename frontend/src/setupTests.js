@@ -9,4 +9,14 @@ if (!globalThis.crypto || !globalThis.crypto.getRandomValues) {
   });
 }
 
+if (!globalThis.ResizeObserver) {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+
+    unobserve() {}
+
+    disconnect() {}
+  };
+}
+
 expect.extend(toHaveNoViolations);

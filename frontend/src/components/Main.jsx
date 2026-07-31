@@ -26,6 +26,7 @@ Main.propTypes = {
   setDestination: PropTypes.func,
   setRoute: PropTypes.func,
   setTripSummary: PropTypes.func,
+  setTripName: PropTypes.func,
   setDetourType: PropTypes.func,
   setDetourSearchLocation: PropTypes.func,
   setDetourSearchRadius: PropTypes.func,

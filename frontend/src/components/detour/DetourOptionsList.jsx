@@ -12,6 +12,7 @@ class DetourOptionsList extends React.Component {
 
       return (
         <DetourOption
+          key={option.place_id || option.id || option.name}
           detourOptions={this.props.detourOptions}
           detourList={this.props.detourList}
           detourHighlight={this.props.detourHighlight}

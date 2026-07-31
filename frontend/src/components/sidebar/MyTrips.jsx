@@ -33,6 +33,7 @@ import {
 } from "@fluentui/react-icons";
 import TripRequester from "../../scripts/TripRequester";
 import log from "../../utils/logger";
+import { createPlannerFingerprint } from "../planner/build-workflow/plannerFingerprint";
 
 const PAGE_SIZE = 10;
 
@@ -92,6 +93,13 @@ function applyTripView(dispatch, { trip, route, detours }) {
           null,
         distanceMeters: trip.distanceMeters,
         durationSeconds: trip.durationSeconds,
+        savedFingerprint: createPlannerFingerprint({
+          origin: trip.origin,
+          destination: trip.destination,
+          route,
+          detourList: detours || [],
+          tripName: trip.tripName,
+        }),
       },
     },
   });
