@@ -563,7 +563,7 @@ document
 document
   .getElementById("detail-export")
   .addEventListener("click", () =>
-    showToast("Prototype: this would open the route in Google Maps.")
+    showToast("Prototype: this would open your jaunt in Google Maps.")
   );
 
 document.getElementById("resume-trip").addEventListener("click", () => {

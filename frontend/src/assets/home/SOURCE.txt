@@ -1,0 +1,5 @@
+Asset Filename: open-road.jpg
+Source URL: https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=2000&q=85
+Source: Unsplash
+Selected in: spikes/ux-redesign-prototype/styles.css
+Retrieved: 2026-07-26

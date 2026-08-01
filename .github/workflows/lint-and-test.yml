@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+      - development
   workflow_call:
 
 jobs:
@@ -36,7 +37,7 @@ jobs:
   lint-and-test-frontend:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
     steps:
@@ -69,6 +70,16 @@ jobs:
       - name: Build
         working-directory: ./frontend
         run: npm run build
+        env:
+          CI: true
+
+      - name: Install Playwright browser
+        working-directory: ./frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser tests
+        working-directory: ./frontend
+        run: npm run test:e2e
         env:
           CI: true
 

@@ -166,6 +166,8 @@ describe("TripRepository", () => {
 
       const [sql, params] = pool.query.mock.calls[0];
       expect(sql).toContain("WHERE user_id = $1");
+      expect(sql).toContain("AS detour_count");
+      expect(sql).toContain("dc.trip_id = trips.trip_id");
       expect(sql).toContain("ORDER BY created_at DESC");
       expect(sql).not.toContain("status = $2");
       expect(params).toEqual([USER_ID]);

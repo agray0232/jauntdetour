@@ -81,3 +81,41 @@ describe("AuthRequester.logout", () => {
     }
   });
 });
+
+describe("AuthRequester.login", () => {
+  let originalLocation;
+
+  beforeEach(() => {
+    sessionStorage.clear();
+    originalLocation = window.location;
+    delete window.location;
+    window.location = {
+      assign: jest.fn(),
+      hash: "",
+      origin: "http://localhost",
+      pathname: "/",
+      search: "",
+    };
+  });
+
+  afterEach(() => {
+    window.location = originalLocation;
+  });
+
+  it("stores a safe return path before starting sign in", () => {
+    new AuthRequester().login("/trips?page=2");
+
+    expect(sessionStorage.getItem("jaunt.authReturnPath")).toBe(
+      "/trips?page=2"
+    );
+    expect(window.location.assign).toHaveBeenCalledWith(
+      "http://backend.test/auth/login"
+    );
+  });
+
+  it("does not store an external return URL", () => {
+    new AuthRequester().login("https://example.com/steal-session");
+
+    expect(sessionStorage.getItem("jaunt.authReturnPath")).toBeNull();
+  });
+});

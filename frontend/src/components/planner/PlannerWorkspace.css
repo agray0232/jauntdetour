@@ -1,0 +1,6 @@
+@media (max-width: 48.75rem) and (min-height: 31.251rem) {
+  .jaunt-planner-root.jaunt-planner-root--map-expanded {
+    grid-template-areas: "map";
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
