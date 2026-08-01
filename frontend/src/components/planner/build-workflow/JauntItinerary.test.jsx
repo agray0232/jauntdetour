@@ -9,8 +9,20 @@ import { jauntDetourTheme } from "../../../design-system/jauntDetourTheme";
 jest.mock("../../../scripts/RouteRequester");
 
 const detours = [
-  { name: "Paris Mountain", placeId: "one", rating: 4.7, addedTime: 18 },
-  { name: "Falls Park", placeId: "two", rating: 4.8, addedTime: 12 },
+  {
+    name: "Paris Mountain",
+    placeId: "one",
+    rating: 4.7,
+    type: "Hike",
+    addedTime: 18,
+  },
+  {
+    name: "Falls Park",
+    placeId: "two",
+    rating: 4.8,
+    type: "Landmark",
+    addedTime: 12,
+  },
 ];
 
 function createProps(overrides = {}) {
@@ -44,6 +56,8 @@ describe("JauntItinerary", () => {
     expect(screen.getByText("Paris Mountain")).toBeVisible();
     expect(screen.getByText("Falls Park")).toBeVisible();
     expect(screen.getByText("Charlotte")).toBeVisible();
+    expect(screen.getByRole("img", { name: "Hike stop" })).toBeVisible();
+    expect(screen.getByRole("img", { name: "Landmark stop" })).toBeVisible();
     expect(
       screen.getAllByRole("button", { name: "Find a detour" })
     ).toHaveLength(2);

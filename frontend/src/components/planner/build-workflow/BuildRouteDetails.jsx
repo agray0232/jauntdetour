@@ -39,7 +39,11 @@ export default function BuildRouteDetails(props) {
         setTripSummary={props.setTripSummary}
       />
       <div className={styles.saveSection}>
-        <SaveTrip embedded onStatusChange={props.onSaveStateChange} />
+        <SaveTrip
+          embedded
+          onClear={props.onClear}
+          onStatusChange={props.onSaveStateChange}
+        />
       </div>
     </div>
   );
@@ -48,6 +52,7 @@ export default function BuildRouteDetails(props) {
 BuildRouteDetails.propTypes = {
   destination: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   detourList: PropTypes.array.isRequired,
+  onClear: PropTypes.func.isRequired,
   onDiscover: PropTypes.func.isRequired,
   onEditRoute: PropTypes.func.isRequired,
   onSaveStateChange: PropTypes.func.isRequired,

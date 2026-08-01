@@ -21,6 +21,7 @@ import {
   SearchRegular,
 } from "@fluentui/react-icons";
 import { moveDetour, recalculateItinerary } from "./routeMutations";
+import { getDetourIconComponent } from "../../../utils/detourIcons";
 import {
   jauntColors,
   jauntRadius,
@@ -243,9 +244,10 @@ export default function JauntItinerary({
             >
               <span
                 className={`${styles.marker} ${styles.stopMarker}`}
-                aria-hidden="true"
+                role="img"
+                aria-label={`${detour.type || "Detour"} stop`}
               >
-                {index + 1}
+                {getDetourIconComponent(detour.type)}
               </span>
               <span className={styles.itemCopy}>
                 <Text className={styles.itemTitle}>{detour.name}</Text>

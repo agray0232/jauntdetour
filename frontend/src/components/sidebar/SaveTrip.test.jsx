@@ -39,16 +39,20 @@ function createState(overrides = {}) {
   };
 }
 
-function renderSaveTrip(state, onStatusChange = jest.fn()) {
+function renderSaveTrip(
+  state,
+  onStatusChange = jest.fn(),
+  onClear = jest.fn()
+) {
   const store = createStore(mainReducer, state);
   render(
     <Provider store={store}>
       <FluentProvider theme={jauntDetourTheme}>
-        <SaveTrip onStatusChange={onStatusChange} />
+        <SaveTrip onClear={onClear} onStatusChange={onStatusChange} />
       </FluentProvider>
     </Provider>
   );
-  return { onStatusChange, store };
+  return { onClear, onStatusChange, store };
 }
 
 describe("SaveTrip", () => {
@@ -69,7 +73,7 @@ describe("SaveTrip", () => {
     ).toBeVisible();
   });
 
-  it("offers update and export actions for a loaded Jaunt", () => {
+  it("offers update and clear actions for a loaded Jaunt", () => {
     renderSaveTrip(
       createState({
         currentTrip: {
@@ -87,7 +91,18 @@ describe("SaveTrip", () => {
     );
 
     expect(screen.getByRole("button", { name: "Update Jaunt" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Google Maps" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Clear" })).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Google Maps" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("clears the current Jaunt from the Build actions", () => {
+    const { onClear } = renderSaveTrip(createState());
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+
+    expect(onClear).toHaveBeenCalledTimes(1);
   });
 
   it("rebases persistence and reports save operation state", async () => {

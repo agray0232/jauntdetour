@@ -2,6 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogContent,
+  DialogSurface,
+  DialogTitle,
   Field,
   Input,
   MessageBar,
@@ -30,6 +37,12 @@ const useStyles = makeStyles({
     margin: 0,
     fontFamily: jauntTypography.family.editorial,
     fontSize: jauntTypography.size.bodyLarge,
+  },
+  headingRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: jauntSpacing[3],
   },
   fields: {
     display: "grid",
@@ -64,9 +77,12 @@ function normalizeEndpoint(value) {
 export default function RouteForm({
   clearAll,
   destination,
-  onRouteReady,
+  detourList = [],
+  onCancel = null,
+  onRouteReady = () => {},
   origin,
   setDestination,
+  setDetourList = () => {},
   setOrigin,
   setRoute,
   setTripSummary,
@@ -79,6 +95,8 @@ export default function RouteForm({
   const [submitted, setSubmitted] = useState(false);
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [keepExistingDetours, setKeepExistingDetours] = useState(true);
+  const [incompatibleRoute, setIncompatibleRoute] = useState(null);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -94,6 +112,23 @@ export default function RouteForm({
   const originInvalid = submitted && !trimmedOrigin;
   const destinationInvalid = submitted && !trimmedDestination;
   const loading = status === "loading";
+  const editingExistingJaunt = onCancel != null;
+  const hasExistingDetours = editingExistingJaunt && detourList.length > 0;
+
+  const commitRoute = (nextRoute, { removeDetours = false } = {}) => {
+    setOrigin(trimmedOrigin);
+    setDestination(trimmedDestination);
+    setRoute(nextRoute);
+    setTripSummary(nextRoute.summary);
+    if (removeDetours) {
+      setDetourList([]);
+    } else if (hasExistingDetours) {
+      setDetourList(detourList.map((detour) => ({ ...detour, addedTime: -1 })));
+    }
+    setStatus("ready");
+    setIncompatibleRoute(null);
+    onRouteReady();
+  };
 
   const requestRoute = async () => {
     setSubmitted(true);
@@ -109,18 +144,41 @@ export default function RouteForm({
     setStatus("loading");
 
     try {
-      const data = await new RouteRequester().getRoute(
+      const requester = new RouteRequester();
+      const waypointIds = detourList
+        .map((detour) => detour.placeId)
+        .filter(Boolean);
+      const preserveDetours =
+        hasExistingDetours && keepExistingDetours && waypointIds.length > 0;
+      const data = await requester.getRoute(
         trimmedOrigin,
         trimmedDestination,
         "Address",
-        {}
+        preserveDetours ? { waypoints: waypointIds } : {}
       );
       if (requestId !== requestIdRef.current) {
         return;
       }
 
-      const nextRoute = data.routes && data.routes[0];
+      let nextRoute = data.routes && data.routes[0];
       if (!nextRoute) {
+        if (preserveDetours) {
+          const directData = await requester.getRoute(
+            trimmedOrigin,
+            trimmedDestination,
+            "Address",
+            {}
+          );
+          if (requestId !== requestIdRef.current) {
+            return;
+          }
+          nextRoute = directData.routes && directData.routes[0];
+          if (nextRoute) {
+            setStatus("idle");
+            setIncompatibleRoute(nextRoute);
+            return;
+          }
+        }
         setStatus("error");
         setErrorMessage(
           "We could not find a drive between those places. Check both locations and try again."
@@ -128,12 +186,9 @@ export default function RouteForm({
         return;
       }
 
-      setOrigin(trimmedOrigin);
-      setDestination(trimmedDestination);
-      setRoute(nextRoute);
-      setTripSummary(nextRoute.summary);
-      setStatus("ready");
-      onRouteReady();
+      commitRoute(nextRoute, {
+        removeDetours: hasExistingDetours && !keepExistingDetours,
+      });
     } catch {
       if (requestId !== requestIdRef.current) {
         return;
@@ -157,12 +212,34 @@ export default function RouteForm({
     setSubmitted(false);
     setStatus("idle");
     setErrorMessage("");
+    setIncompatibleRoute(null);
     clearAll();
+  };
+
+  const handleCancel = () => {
+    requestIdRef.current += 1;
+    setIncompatibleRoute(null);
+    onCancel();
   };
 
   return (
     <form className={styles.root} onSubmit={handleSubmit} noValidate>
-      <h3 className={styles.heading}>Where are you headed?</h3>
+      <div className={styles.headingRow}>
+        <h3 className={styles.heading}>
+          {onCancel ? "Edit Jaunt" : "Where are you headed?"}
+        </h3>
+        {onCancel ? (
+          <Button
+            appearance="subtle"
+            icon={<DismissRegular />}
+            type="button"
+            disabled={loading}
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+        ) : null}
+      </div>
       <div className={styles.fields}>
         <Field
           label="Start"
@@ -198,6 +275,14 @@ export default function RouteForm({
         </Field>
       </div>
 
+      {hasExistingDetours ? (
+        <Checkbox
+          checked={keepExistingDetours}
+          label="Keep existing detours"
+          onChange={(event, data) => setKeepExistingDetours(data.checked)}
+        />
+      ) : null}
+
       {errorMessage ? (
         <MessageBar intent="error">
           <MessageBarBody>{errorMessage}</MessageBarBody>
@@ -222,7 +307,13 @@ export default function RouteForm({
           type="submit"
           disabled={loading}
         >
-          {loading ? "Creating route" : "Create route"}
+          {loading
+            ? editingExistingJaunt
+              ? "Updating Jaunt"
+              : "Creating route"
+            : editingExistingJaunt
+              ? "Update Jaunt"
+              : "Create route"}
         </Button>
       </div>
 
@@ -230,6 +321,41 @@ export default function RouteForm({
         <InfoRegular aria-hidden="true" />
         <span>Plan without signing in. Sign in only when you save.</span>
       </div>
+
+      <Dialog
+        open={incompatibleRoute != null}
+        onOpenChange={(event, data) => {
+          if (!data.open) {
+            setIncompatibleRoute(null);
+          }
+        }}
+      >
+        <DialogSurface>
+          <DialogBody>
+            <DialogTitle>Remove incompatible detours?</DialogTitle>
+            <DialogContent>
+              Existing detours incompatible with new Jaunt and will be removed.
+              Proceed?
+            </DialogContent>
+            <DialogActions>
+              <Button
+                appearance="secondary"
+                onClick={() => setIncompatibleRoute(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                appearance="primary"
+                onClick={() =>
+                  commitRoute(incompatibleRoute, { removeDetours: true })
+                }
+              >
+                Proceed
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
     </form>
   );
 }
@@ -237,14 +363,13 @@ export default function RouteForm({
 RouteForm.propTypes = {
   clearAll: PropTypes.func.isRequired,
   destination: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  detourList: PropTypes.array,
+  onCancel: PropTypes.func,
   onRouteReady: PropTypes.func,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   setDestination: PropTypes.func.isRequired,
+  setDetourList: PropTypes.func,
   setOrigin: PropTypes.func.isRequired,
   setRoute: PropTypes.func.isRequired,
   setTripSummary: PropTypes.func.isRequired,
-};
-
-RouteForm.defaultProps = {
-  onRouteReady: () => {},
 };

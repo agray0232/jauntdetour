@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import PlannerWorkspace from "./PlannerWorkspace";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
@@ -26,12 +26,18 @@ jest.mock("./build-workflow/RouteForm", () => {
 jest.mock("./build-workflow/BuildRouteDetails", () => {
   const PropTypes = require("prop-types");
 
-  function MockRouteDetails({ onDiscover, onEditRoute, onSaveStateChange }) {
+  function MockRouteDetails({
+    onClear,
+    onDiscover,
+    onEditRoute,
+    onSaveStateChange,
+  }) {
     return (
       <div>
         Route details instance
         <button onClick={onDiscover}>Open Discover</button>
         <button onClick={onEditRoute}>Edit route</button>
+        <button onClick={onClear}>Clear Jaunt</button>
         <button onClick={() => onSaveStateChange("saving")}>
           Start saving
         </button>
@@ -40,6 +46,7 @@ jest.mock("./build-workflow/BuildRouteDetails", () => {
   }
 
   MockRouteDetails.propTypes = {
+    onClear: PropTypes.func.isRequired,
     onDiscover: PropTypes.func.isRequired,
     onEditRoute: PropTypes.func.isRequired,
     onSaveStateChange: PropTypes.func.isRequired,
@@ -48,27 +55,38 @@ jest.mock("./build-workflow/BuildRouteDetails", () => {
   return MockRouteDetails;
 });
 
-jest.mock(
-  "../sidebar/MyTrips",
-  () =>
-    function MockMyTrips() {
-      return <div>My Jaunts control</div>;
-    }
-);
+jest.mock("./discover-workflow/DiscoverWorkspace", () => {
+  const PropTypes = require("prop-types");
+
+  function MockDiscoverWorkspace({ feedback, onAdded, onDismissFeedback }) {
+    return (
+      <div>
+        Discover workspace instance
+        {feedback ? <span>{feedback}</span> : null}
+        <button onClick={() => onAdded("Paris Mountain", 18)}>
+          Complete add
+        </button>
+        {feedback ? (
+          <button onClick={onDismissFeedback}>Dismiss feedback</button>
+        ) : null}
+      </div>
+    );
+  }
+
+  MockDiscoverWorkspace.propTypes = {
+    feedback: PropTypes.string,
+    onAdded: PropTypes.func.isRequired,
+    onDismissFeedback: PropTypes.func.isRequired,
+  };
+
+  return MockDiscoverWorkspace;
+});
 
 jest.mock(
-  "../detour/DetourForm",
+  "./export-workflow/ExportWorkspace",
   () =>
-    function MockDetourForm() {
-      return <div>Detour form instance</div>;
-    }
-);
-
-jest.mock(
-  "../detour/DetourOptionsList",
-  () =>
-    function MockResults() {
-      return <div>Detour results instance</div>;
+    function MockExportWorkspace() {
+      return <div>Export workspace instance</div>;
     }
 );
 
@@ -136,6 +154,7 @@ describe("PlannerWorkspace", () => {
       screen.queryByText("Route details instance")
     ).not.toBeInTheDocument();
     expect(screen.getByText("Not saved")).toBeVisible();
+    expect(screen.queryByText("My Jaunts control")).not.toBeInTheDocument();
     expect(screen.getAllByText("Map instance")).toHaveLength(1);
   });
 
@@ -162,8 +181,7 @@ describe("PlannerWorkspace", () => {
 
     expect(screen.queryByText("Route form instance")).not.toBeInTheDocument();
     expect(screen.getAllByText("Route details instance")).toHaveLength(1);
-    expect(screen.getAllByText("Detour form instance")).toHaveLength(1);
-    expect(screen.getAllByText("Detour results instance")).toHaveLength(1);
+    expect(screen.getAllByText("Discover workspace instance")).toHaveLength(1);
     expect(screen.getAllByText("Map instance")).toHaveLength(1);
   });
 
@@ -172,11 +190,14 @@ describe("PlannerWorkspace", () => {
 
     const buildTab = screen.getByRole("tab", { name: "Build" });
     const discoverTab = screen.getByRole("tab", { name: "Discover" });
+    const exportTab = screen.getByRole("tab", { name: "Export" });
 
     expect(discoverTab).toBeDisabled();
+    expect(exportTab).toBeDisabled();
     expect(buildTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("build-tab-icon")).toBeInTheDocument();
     expect(screen.getByTestId("discover-tab-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("export-tab-icon")).toBeInTheDocument();
   });
 
   it("shows a resumed saved Jaunt name and status in the panel header", () => {
@@ -207,6 +228,8 @@ describe("PlannerWorkspace", () => {
     const nameField = screen.getByRole("textbox", { name: "Jaunt name" });
     expect(nameField).toHaveAttribute("placeholder", "Atlanta to Charlotte");
     expect(nameField).toHaveValue("");
+    expect(props.setTripName).toHaveBeenCalledWith("Atlanta to Charlotte");
+    props.setTripName.mockClear();
 
     fireEvent.change(nameField, { target: { value: "Carolinas weekend" } });
     expect(props.setTripName).toHaveBeenCalledWith("Carolinas weekend");
@@ -230,6 +253,71 @@ describe("PlannerWorkspace", () => {
     expect(screen.getAllByRole("textbox", { name: "Jaunt name" })).toHaveLength(
       1
     );
+  });
+
+  it("prefills the suggested name for a new Jaunt", () => {
+    const props = createProps({
+      origin: "Atlanta",
+      destination: "Charlotte",
+      showDetourButton: true,
+      tripSummary: { distance: 245 },
+    });
+    renderWorkspace(props);
+
+    expect(props.setTripName).toHaveBeenCalledWith("Atlanta to Charlotte");
+  });
+
+  it("does not replace a custom Jaunt name", () => {
+    const props = createProps({
+      origin: "Atlanta",
+      destination: "Charlotte",
+      showDetourButton: true,
+      tripName: "Carolinas weekend",
+      tripSummary: { distance: 245 },
+    });
+    renderWorkspace(props);
+
+    expect(props.setTripName).not.toHaveBeenCalled();
+  });
+
+  it("allows the user to clear a generated name while editing", () => {
+    const props = createProps({
+      origin: "Atlanta",
+      destination: "Charlotte",
+      showDetourButton: true,
+      tripName: "Atlanta to Charlotte",
+      tripSummary: { distance: 245 },
+    });
+    const { rerender } = renderWorkspace(props);
+    props.setTripName.mockClear();
+
+    rerender(
+      <FluentProvider theme={jauntDetourTheme}>
+        <PlannerWorkspace {...props} tripName="" />
+      </FluentProvider>
+    );
+
+    expect(props.setTripName).not.toHaveBeenCalled();
+  });
+
+  it("updates a generated name when the route changes", () => {
+    const props = createProps({
+      origin: "Atlanta",
+      destination: "Charlotte",
+      showDetourButton: true,
+      tripName: "Atlanta to Charlotte",
+      tripSummary: { distance: 245 },
+    });
+    const { rerender } = renderWorkspace(props);
+    expect(props.setTripName).not.toHaveBeenCalled();
+
+    rerender(
+      <FluentProvider theme={jauntDetourTheme}>
+        <PlannerWorkspace {...props} destination="Greenville" />
+      </FluentProvider>
+    );
+
+    expect(props.setTripName).toHaveBeenCalledWith("Atlanta to Greenville");
   });
 
   it("moves save operation status into the panel header", () => {
@@ -258,6 +346,80 @@ describe("PlannerWorkspace", () => {
       "aria-selected",
       "true"
     );
+  });
+
+  it("opens Export from the route-ready planner", () => {
+    renderWorkspace(
+      createProps({
+        showDetourButton: true,
+        tripSummary: { distance: 245 },
+      })
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Export" }));
+
+    expect(screen.getByRole("tab", { name: "Export" })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+    expect(screen.getByText("Export workspace instance")).toBeVisible();
+  });
+
+  it("clears the Jaunt from the route-ready Build actions", () => {
+    const props = createProps({
+      showDetourButton: true,
+      tripSummary: { distance: 245 },
+    });
+    renderWorkspace(props);
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear Jaunt" }));
+
+    expect(props.clearAll).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps Discover active and dismisses add feedback manually", () => {
+    renderWorkspace(
+      createProps({
+        showDetourButton: true,
+        showDetourForm: true,
+        tripSummary: { distance: 245 },
+      })
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Complete add" }));
+
+    expect(screen.getByRole("tab", { name: "Discover" })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+    expect(
+      screen.getByText("Paris Mountain added. The route is 18 minutes longer.")
+    ).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss feedback" }));
+    expect(screen.queryByText(/Paris Mountain added/)).not.toBeInTheDocument();
+  });
+
+  it("clears add feedback automatically after ten seconds", () => {
+    jest.useFakeTimers();
+    try {
+      renderWorkspace(
+        createProps({
+          showDetourButton: true,
+          showDetourForm: true,
+          tripSummary: { distance: 245 },
+        })
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Complete add" }));
+
+      act(() => jest.advanceTimersByTime(10000));
+
+      expect(
+        screen.queryByText(/Paris Mountain added/)
+      ).not.toBeInTheDocument();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("keeps the map mounted while compact tools are hidden", () => {

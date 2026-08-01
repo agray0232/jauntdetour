@@ -48,8 +48,9 @@ test("loads the branded application foundation", async ({ page, request }) => {
 });
 
 test("mounts the current planner at its stable route", async ({ page }) => {
-  await page.route("**/route**", (route) =>
-    route.fulfill({
+  await page.route("**/route**", (route) => {
+    const hasDetour = route.request().url().includes("waypoints");
+    return route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
@@ -78,7 +79,33 @@ test("mounts the current planner at its stable route", async ({ page }) => {
                 [35.2271, -80.8431],
               ],
             },
-            summary: { distance: 245, time: { hours: 3, min: 47 } },
+            summary: hasDetour
+              ? { distance: 258, time: { hours: 4, min: 5 } }
+              : { distance: 245, time: { hours: 3, min: 47 } },
+          },
+        ],
+      }),
+    });
+  });
+  await page.route("**/places**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        results: [
+          {
+            id: "one",
+            place_id: "place-1",
+            name: "Paris Mountain",
+            rating: 4.7,
+            geometry: { location: { lat: 34.9, lng: -82.4 } },
+          },
+          {
+            id: "two",
+            place_id: "place-2",
+            name: "Falls Park",
+            rating: 4.8,
+            geometry: { location: { lat: 34.85, lng: -82.4 } },
           },
         ],
       }),
@@ -127,6 +154,33 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(jauntName).toHaveValue("Carolinas weekend");
   await expect(page.getByRole("button", { name: "Save Jaunt" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Discover" })).toBeEnabled();
+
+  await page.getByRole("tab", { name: "Discover" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Find a worthwhile stop" })
+  ).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Hike" })).toBeChecked();
+  await expect(page.getByRole("slider")).toHaveCount(2);
+  await page.getByRole("button", { name: "Search this area" }).click();
+  await expect(page.getByRole("heading", { name: "2 places" })).toBeVisible();
+  await expect(page.getByRole("listitem")).toHaveCount(2);
+  await page.getByRole("button", { name: "Select Paris Mountain" }).click();
+  await page.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(page.getByRole("tab", { name: "Discover" })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(page.getByText(/Paris Mountain added/)).toBeVisible();
+  await expect(page.getByText(/set what you want/i)).toBeVisible();
+  await expect(page.getByRole("heading", { name: /places?$/ })).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Dismiss added stop message" })
+    .click();
+  await expect(page.getByText(/Paris Mountain added/)).toHaveCount(0);
+  await page.getByRole("tab", { name: "Build" }).click();
+  await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
+    "Adds 18 min"
+  );
 
   const viewport = page.viewportSize();
   const showMap = page.getByRole("button", { name: "Show map" });

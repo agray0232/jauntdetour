@@ -9,8 +9,13 @@ import {
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
-import { getDetourIconElement } from "../utils/detourIcons.js";
 import config from "../config/config.js";
+import { jauntColors } from "../design-system/tokens";
+import { getDetourIconComponent } from "../utils/detourIcons.js";
+import {
+  getRoutePoint,
+  getVisibleDetourOptions,
+} from "./planner/discover-workflow/discoverRoute";
 
 // Custom hook for map bounds adjustment - only on route change
 function useMapBounds(map, route) {
@@ -111,7 +116,7 @@ function RoutePolyline({ route, showRoute }) {
     polylineRef.current = new window.google.maps.Polyline({
       path: routeCoordinates,
       geodesic: true,
-      strokeColor: "#007bff",
+      strokeColor: jauntColors.map.route,
       strokeOpacity: 1.0,
       strokeWeight: 5,
     });
@@ -152,7 +157,7 @@ function DetourCircle({
       strokeColor: "transparent",
       strokeOpacity: 0,
       strokeWeight: 5,
-      fillColor: "#FF0000",
+      fillColor: jauntColors.map.searchArea,
       fillOpacity: 0.2,
     });
 
@@ -178,29 +183,19 @@ function DetourCircle({
 function MapContainer(props) {
   const mapRef = useRef(null);
 
-  // Calculate route coordinates
-  const routeCoordinates =
-    props.showRoute && props.route?.overview_polyline?.complete_overview
-      ? props.route.overview_polyline.complete_overview.map((point) => ({
-          lat: point[0],
-          lng: point[1],
-        }))
-      : [];
+  const detourPoint =
+    props.showDetourSearchPoint && props.showRoute
+      ? getRoutePoint(props.route, props.detourSearchLocation)
+      : null;
 
-  // Calculate detour point
-  const detourPoint = (() => {
-    if (
-      props.showDetourSearchPoint &&
-      props.showRoute &&
-      routeCoordinates.length > 0
-    ) {
-      const routeLength = routeCoordinates.length;
-      const routeIndex =
-        Math.floor((props.detourSearchLocation / 100) * routeLength) - 1;
-      return routeCoordinates[routeIndex];
-    }
-    return null;
-  })();
+  const selectDetourOption = (placeId) => {
+    props.setDetourHighlight?.(
+      props.detourOptions.map((option) => ({
+        id: option.place_id,
+        highlight: option.place_id === placeId,
+      }))
+    );
+  };
 
   return (
     <APIProvider apiKey={config.GOOGLE_API_KEY}>
@@ -225,7 +220,12 @@ function MapContainer(props) {
         {/* Detour search point marker */}
         {props.showDetourSearchPoint && detourPoint && (
           <AdvancedMarker position={detourPoint}>
-            <Pin scale={0.75} />
+            <Pin
+              scale={0.75}
+              background={jauntColors.map.searchArea}
+              borderColor={jauntColors.map.endpoint}
+              glyphColor={jauntColors.neutral.foregroundOnDark}
+            />
           </AdvancedMarker>
         )}
 
@@ -238,47 +238,71 @@ function MapContainer(props) {
 
         {/* Detour options markers */}
         {props.detourOptions?.length > 0 &&
-          props.detourOptions.map((detour, index) => {
-            // Check if this detour should be highlighted
-            const highlight = props.detourHighlight?.some(
-              (detourHighlight) =>
-                detourHighlight.id === detour.place_id &&
-                detourHighlight.highlight
-            );
+          getVisibleDetourOptions(props.detourOptions, props.detourList).map(
+            ({ option: detour, index }) => {
+              // Check if this detour should be highlighted
+              const highlight = props.detourHighlight?.some(
+                (detourHighlight) =>
+                  detourHighlight.id === detour.place_id &&
+                  detourHighlight.highlight
+              );
 
-            return (
-              <AdvancedMarker
-                key={`detour-option-${index}`}
-                position={{
-                  lat: detour.geometry.location.lat,
-                  lng: detour.geometry.location.lng,
-                }}
-              >
-                <Pin
-                  scale={0.75}
-                  background={highlight ? "#EA4335" : "#2a91e0ff"}
-                  glyphColor={highlight ? "#B31412" : "#0964a9ff"}
-                  borderColor={highlight ? "#B31412" : "#0964a9ff"}
-                  glyph={getDetourIconElement(detour.type)}
-                />
-              </AdvancedMarker>
-            );
-          })}
+              return (
+                <AdvancedMarker
+                  key={`detour-option-${detour.place_id || index}`}
+                  title={`${index + 1}. ${detour.name}`}
+                  onClick={() => selectDetourOption(detour.place_id)}
+                  position={{
+                    lat: detour.geometry.location.lat,
+                    lng: detour.geometry.location.lng,
+                  }}
+                  zIndex={highlight ? 2 : 1}
+                >
+                  <Pin
+                    scale={highlight ? 1 : 0.85}
+                    background={
+                      highlight
+                        ? jauntColors.map.selected
+                        : jauntColors.map.result
+                    }
+                    glyphColor={
+                      highlight
+                        ? jauntColors.neutral.foregroundOnDark
+                        : jauntColors.map.endpoint
+                    }
+                    borderColor={jauntColors.map.endpoint}
+                    glyphText={`${index + 1}`}
+                  />
+                </AdvancedMarker>
+              );
+            }
+          )}
 
         {/* Detour list markers */}
         {props.detourList?.length > 0 &&
           props.detourList.map((detour, index) => (
             <AdvancedMarker
-              key={`detour-${index}`}
+              key={`detour-${detour.placeId || detour.id || index}`}
+              title={`${detour.name}, added stop`}
               position={{ lat: detour.lat, lng: detour.lng }}
             >
-              <Pin
-                scale={0.75}
-                background="#0091ff"
-                glyphColor="#ffffff"
-                borderColor="#ffffff"
-                glyph={getDetourIconElement(detour.type)}
-              />
+              <span
+                style={{
+                  display: "grid",
+                  width: "2.25rem",
+                  height: "2.25rem",
+                  placeItems: "center",
+                  border: `2px solid ${jauntColors.map.endpoint}`,
+                  borderRadius: "999px",
+                  color: jauntColors.neutral.foregroundOnDark,
+                  backgroundColor: jauntColors.map.stop,
+                  boxShadow: "0 2px 8px #14282f33",
+                  fontSize: "1rem",
+                }}
+                aria-hidden="true"
+              >
+                {getDetourIconComponent(detour.type)}
+              </span>
             </AdvancedMarker>
           ))}
       </Map>
@@ -295,6 +319,7 @@ MapContainer.propTypes = {
   detourOptions: PropTypes.array,
   detourHighlight: PropTypes.array,
   detourList: PropTypes.array,
+  setDetourHighlight: PropTypes.func,
 };
 
 MapBounds.propTypes = {

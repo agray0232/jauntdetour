@@ -21,7 +21,6 @@ import {
 } from "@fluentui/react-components";
 import TripRequester, { buildTripPayload } from "../../scripts/TripRequester";
 import AuthRequester from "../../scripts/AuthRequester";
-import { exportToGoogleMaps } from "../../utils/googleMapsExport";
 import { createPlannerFingerprint } from "../planner/build-workflow/plannerFingerprint";
 import { jauntSpacing, jauntTypography } from "../../design-system/tokens";
 
@@ -56,6 +55,7 @@ const useStyles = makeStyles({
 
 export default function SaveTrip({
   embedded = false,
+  onClear = () => {},
   onStatusChange = () => {},
 }) {
   const styles = useStyles();
@@ -269,12 +269,8 @@ export default function SaveTrip({
                 ? "Update Jaunt"
                 : "Save Jaunt"}
           </Button>
-          <Button
-            appearance="secondary"
-            disabled={!origin || !destination}
-            onClick={() => exportToGoogleMaps(origin, destination, detourList)}
-          >
-            Google Maps
+          <Button appearance="secondary" disabled={saving} onClick={onClear}>
+            Clear
           </Button>
         </div>
       </section>
@@ -346,9 +342,11 @@ export default function SaveTrip({
 
 SaveTrip.propTypes = {
   embedded: PropTypes.bool,
+  onClear: PropTypes.func,
   onStatusChange: PropTypes.func,
 };
 
 SaveTrip.defaultProps = {
+  onClear: () => {},
   onStatusChange: () => {},
 };

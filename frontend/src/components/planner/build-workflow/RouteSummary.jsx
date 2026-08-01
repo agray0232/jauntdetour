@@ -16,7 +16,7 @@ import {
 const useStyles = makeStyles({
   root: {
     display: "grid",
-    margin: `0 ${jauntSpacing[4]}`,
+    margin: `${jauntSpacing[4]} ${jauntSpacing[4]} 0`,
     padding: jauntSpacing[4],
     rowGap: jauntSpacing[4],
     backgroundColor: jauntColors.neutral.backgroundTinted,

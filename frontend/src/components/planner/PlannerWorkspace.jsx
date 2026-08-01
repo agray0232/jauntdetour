@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Badge,
@@ -15,14 +15,14 @@ import {
 import {
   ArrowLeftRegular,
   MapRegular,
+  OpenRegular,
   SparkleRegular,
   TextBulletListTreeRegular,
 } from "@fluentui/react-icons";
 import RouteForm from "./build-workflow/RouteForm";
 import BuildRouteDetails from "./build-workflow/BuildRouteDetails";
-import MyTrips from "../sidebar/MyTrips";
-import DetourForm from "../detour/DetourForm";
-import DetourOptionsList from "../detour/DetourOptionsList";
+import DiscoverWorkspace from "./discover-workflow/DiscoverWorkspace";
+import ExportWorkspace from "./export-workflow/ExportWorkspace";
 import MapContainer from "../MapContainer";
 import {
   createPlannerFingerprint,
@@ -178,6 +178,22 @@ const useStyles = makeStyles({
   tabPanel: {
     minWidth: 0,
     paddingBottom: jauntSpacing[5],
+    "& .fui-MessageBar": {
+      width: "100%",
+      minWidth: 0,
+      maxWidth: "100%",
+      boxSizing: "border-box",
+      overflow: "hidden",
+    },
+    "& .fui-MessageBarBody": {
+      minWidth: 0,
+      overflowWrap: "anywhere",
+      whiteSpace: "normal",
+    },
+    "& .fui-MessageBarActions": {
+      minWidth: 0,
+      flexShrink: 0,
+    },
   },
   discoverEmpty: {
     display: "grid",
@@ -221,6 +237,9 @@ export default function PlannerWorkspace(props) {
   const [mapExpanded, setMapExpanded] = useState(false);
   const [editingRoute, setEditingRoute] = useState(!props.showDetourButton);
   const [saveOperation, setSaveOperation] = useState("idle");
+  const [plannerFeedback, setPlannerFeedback] = useState("");
+  const previousSuggestedNameRef = useRef("");
+  const tripNameRef = useRef(props.tripName);
 
   useEffect(() => {
     if (props.showDetourForm) {
@@ -236,6 +255,14 @@ export default function PlannerWorkspace(props) {
     }
   }, [props.showDetourButton]);
 
+  useEffect(() => {
+    if (!plannerFeedback) {
+      return undefined;
+    }
+    const timeoutId = window.setTimeout(() => setPlannerFeedback(""), 10000);
+    return () => window.clearTimeout(timeoutId);
+  }, [plannerFeedback]);
+
   const openDiscover = () => {
     if (!props.showDetourForm) {
       props.getDetourForm();
@@ -248,7 +275,7 @@ export default function PlannerWorkspace(props) {
       openDiscover();
       return;
     }
-    setSelectedTask("build");
+    setSelectedTask(data.value);
   };
 
   const fingerprint = createPlannerFingerprint({
@@ -270,6 +297,34 @@ export default function PlannerWorkspace(props) {
     )
     .filter(Boolean)
     .join(" to ");
+
+  useEffect(() => {
+    tripNameRef.current = props.tripName;
+  }, [props.tripName]);
+
+  useEffect(() => {
+    const previousSuggestion = previousSuggestedNameRef.current;
+    previousSuggestedNameRef.current = routeTitle;
+
+    if (!props.showDetourButton || !routeTitle || props.currentTrip) {
+      return;
+    }
+
+    const currentName = tripNameRef.current?.trim() || "";
+    const usesGeneratedName =
+      !currentName ||
+      (previousSuggestion && currentName === previousSuggestion);
+
+    if (usesGeneratedName && tripNameRef.current !== routeTitle) {
+      props.setTripName(routeTitle);
+    }
+  }, [
+    props,
+    props.currentTrip,
+    props.showDetourButton,
+    props.setTripName,
+    routeTitle,
+  ]);
 
   return (
     <div className={`${styles.root} ${mapExpanded ? styles.mapExpanded : ""}`}>
@@ -304,7 +359,6 @@ export default function PlannerWorkspace(props) {
             <Badge appearance="tint" color={currentStatus.color}>
               {currentStatus.label}
             </Badge>
-            <MyTrips />
           </div>
         </div>
 
@@ -328,6 +382,13 @@ export default function PlannerWorkspace(props) {
             >
               Discover
             </Tab>
+            <Tab
+              value="export"
+              icon={<OpenRegular data-testid="export-tab-icon" />}
+              disabled={!props.showDetourButton}
+            >
+              Export
+            </Tab>
           </TabList>
           <Button
             className={styles.compactMapAction}
@@ -350,11 +411,16 @@ export default function PlannerWorkspace(props) {
               <RouteForm
                 origin={props.origin}
                 destination={props.destination}
+                detourList={props.detourList}
                 setOrigin={props.setOrigin}
                 setDestination={props.setDestination}
+                setDetourList={props.setDetourList}
                 setRoute={props.setRoute}
                 setTripSummary={props.setTripSummary}
                 clearAll={props.clearAll}
+                onCancel={
+                  props.showDetourButton ? () => setEditingRoute(false) : null
+                }
                 onRouteReady={() => setEditingRoute(false)}
               />
             ) : (
@@ -367,6 +433,7 @@ export default function PlannerWorkspace(props) {
                 setRoute={props.setRoute}
                 setTripSummary={props.setTripSummary}
                 setDetourList={props.setDetourList}
+                onClear={props.clearAll}
                 onDiscover={openDiscover}
                 onEditRoute={() => setEditingRoute(true)}
                 onSaveStateChange={setSaveOperation}
@@ -381,7 +448,16 @@ export default function PlannerWorkspace(props) {
             hidden={selectedTask !== "discover"}
           >
             {props.showDetourForm ? (
-              <DetourForm
+              <DiscoverWorkspace
+                origin={props.origin}
+                destination={props.destination}
+                tripSummary={props.tripSummary}
+                detourOptions={props.detourOptions}
+                detourList={props.detourList}
+                detourHighlight={props.detourHighlight}
+                addDetour={props.addDetour}
+                setRoute={props.setRoute}
+                setTripSummary={props.setTripSummary}
                 setDetourSearchLocation={props.setDetourSearchLocation}
                 setDetourSearchRadius={props.setDetourSearchRadius}
                 setDetourType={props.setDetourType}
@@ -391,6 +467,13 @@ export default function PlannerWorkspace(props) {
                 detourSearchLocation={props.detourSearchLocation}
                 detourSearchRadius={props.detourSearchRadius}
                 route={props.route}
+                feedback={plannerFeedback}
+                onDismissFeedback={() => setPlannerFeedback("")}
+                onAdded={(name, addedTime) => {
+                  setPlannerFeedback(
+                    `${name} added. The route is ${addedTime} minutes longer.`
+                  );
+                }}
               />
             ) : (
               <div className={styles.discoverEmpty}>
@@ -401,20 +484,19 @@ export default function PlannerWorkspace(props) {
                 </Text>
               </div>
             )}
-            {props.showDetourOptions ? (
-              <DetourOptionsList
+          </section>
+
+          <section
+            className={styles.tabPanel}
+            role="tabpanel"
+            aria-label="Export"
+            hidden={selectedTask !== "export"}
+          >
+            {props.showDetourButton ? (
+              <ExportWorkspace
                 origin={props.origin}
                 destination={props.destination}
-                tripSummary={props.tripSummary}
-                detourOptions={props.detourOptions}
                 detourList={props.detourList}
-                detourHighlight={props.detourHighlight}
-                addDetour={props.addDetour}
-                setRoute={props.setRoute}
-                setTripSummary={props.setTripSummary}
-                setDetourOptions={props.setDetourOptions}
-                setDetourHighlight={props.setDetourHighlight}
-                clearDetourOptions={props.clearDetourOptions}
               />
             ) : null}
           </section>
@@ -440,6 +522,7 @@ export default function PlannerWorkspace(props) {
           detourOptions={props.detourOptions}
           detourHighlight={props.detourHighlight}
           detourList={props.detourList}
+          setDetourHighlight={props.setDetourHighlight}
           route={props.route}
         />
       </section>
