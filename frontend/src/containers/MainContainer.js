@@ -1,4 +1,4 @@
-import Main from "../components/Main";
+import PlannerWorkspace from "../components/planner/PlannerWorkspace";
 import { connect } from "react-redux";
 
 let matchStateToProps = (state) => {
@@ -33,6 +33,13 @@ let matchDispatchToProps = (dispatch) => {
         type: "SET_TRIP_SUMMARY",
         data: {
           tripSummary: summary,
+        },
+      }),
+    setTripName: (tripName) =>
+      dispatch({
+        type: "SET_TRIP_NAME",
+        data: {
+          tripName: tripName,
         },
       }),
     getDetourForm: () =>
@@ -117,4 +124,7 @@ let matchDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(matchStateToProps, matchDispatchToProps)(Main);
+export default connect(
+  matchStateToProps,
+  matchDispatchToProps
+)(PlannerWorkspace);

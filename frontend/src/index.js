@@ -2,11 +2,13 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
-import * as serviceWorker from "./serviceWorker";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import mainReducer from "./reducers/main-reducer";
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import { FluentProvider } from "@fluentui/react-components";
+import { BrowserRouter } from "react-router-dom";
+import { AuthSessionProvider } from "./auth/AuthSessionProvider";
+import { jauntDetourTheme } from "./design-system/jauntDetourTheme";
 
 // Persist the planning state to sessionStorage so an in-progress trip survives
 // full-page navigations — most importantly the sign-in redirect (backend →
@@ -60,13 +62,14 @@ const root = createRoot(container);
 
 root.render(
   <Provider store={store}>
-    <FluentProvider theme={webLightTheme}>
-      <App />
+    <FluentProvider theme={jauntDetourTheme}>
+      <BrowserRouter
+        future={{ v7_relativeSplatPath: true, v7_startTransition: true }}
+      >
+        <AuthSessionProvider>
+          <App />
+        </AuthSessionProvider>
+      </BrowserRouter>
     </FluentProvider>
   </Provider>
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();

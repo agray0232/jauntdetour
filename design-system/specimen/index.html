@@ -1,0 +1,1876 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Living specimen for JauntDetour brand and UI foundations"
+    />
+    <title>JauntDetour Design-System Specimen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Sora:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=10" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to foundations</a>
+    <header class="specimen-header">
+      <a
+        class="brand"
+        href="#overview"
+        aria-label="JauntDetour foundations home"
+      >
+        <span class="brand-mark" aria-hidden="true"
+          ><svg
+            class="brand-route-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle class="brand-route-endpoint" cx="6" cy="19" r="3"></circle>
+            <path
+              class="brand-route-path"
+              d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"
+            ></path>
+            <circle
+              class="brand-route-discovery"
+              cx="3.25"
+              cy="8.5"
+              r="3.4"
+            ></circle>
+            <circle
+              class="brand-route-endpoint"
+              cx="18"
+              cy="5"
+              r="3"
+            ></circle></svg
+        ></span>
+        <span>JauntDetour</span>
+      </a>
+      <div class="document-title">
+        <span>Brand &amp; UI foundations</span>
+        <b id="token-version">Loading tokens</b>
+      </div>
+      <a
+        class="header-link"
+        href="../../spikes/ux-redesign-prototype/index.html"
+        >Open prototype <i data-lucide="arrow-up-right"></i
+      ></a>
+    </header>
+
+    <div class="specimen-layout">
+      <nav class="side-nav" aria-label="Specimen sections">
+        <a href="#overview">Overview</a>
+        <a href="#review-lab">Review lab</a>
+        <a href="#brand-marks">Brand marks</a>
+        <a href="#map-path-marks">Map &amp; path round</a>
+        <a href="#color">Color</a>
+        <a href="#type">Typography</a>
+        <a href="#spacing">Spacing &amp; shape</a>
+        <a href="#controls">Controls</a>
+        <a href="#patterns">Travel patterns</a>
+        <a href="#map">Map language</a>
+        <a href="#guidance">Usage guidance</a>
+      </nav>
+
+      <main id="main" class="specimen-main" tabindex="-1">
+        <section id="overview" class="hero-section specimen-section">
+          <div>
+            <p class="eyebrow">Candidate direction · July 2026</p>
+            <h1>Adventurous in spirit.<br />Grounded in use.</h1>
+            <p class="lead">
+              JauntDetour pairs spontaneous discovery with a dependable planning
+              workspace. Heritage orange marks the interesting turn; deep teal
+              carries the product; clear typography keeps the route readable.
+            </p>
+          </div>
+          <ul class="principle-stack">
+            <li>
+              <span>01</span>
+              <div>
+                <strong>Adventurous</strong
+                ><small>Inviting, curious, never chaotic</small>
+              </div>
+            </li>
+            <li>
+              <span>02</span>
+              <div>
+                <strong>Curated</strong
+                ><small>Selective, legible, never overwhelming</small>
+              </div>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <strong>Premium</strong
+                ><small>Confident, crafted, never ornamental</small>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <section id="review-lab" class="specimen-section review-lab-section">
+          <div class="section-heading">
+            <p class="eyebrow">Decision record · Alternatives retained</p>
+            <h2>Compare the character, not just the hex.</h2>
+            <p>
+              The initially selected cards reflect the current canonical
+              direction. Alternatives remain available for comparison; changing
+              a selection on this page does not update the token source.
+            </p>
+          </div>
+
+          <fieldset class="review-fieldset">
+            <legend>Route and discovery orange</legend>
+            <p class="review-prompt">
+              The pine-teal remains fixed. Compare how the accent behaves as a
+              route, selected marker, active rule, and discovery surface.
+            </p>
+            <div class="accent-comparison">
+              <label class="review-option accent-option current-coral">
+                <input type="radio" name="accent-review" value="coral" />
+                <span class="review-option-heading"
+                  ><span
+                    ><b>Option A</b><strong>Current coral-orange</strong></span
+                  ><code>#DF5F46</code></span
+                >
+                <span class="mini-route" aria-hidden="true"
+                  ><i></i><b class="mini-marker start">A</b
+                  ><b class="mini-marker discovery">1</b
+                  ><b class="mini-marker end">B</b></span
+                >
+                <span class="mini-result"
+                  ><span class="mini-number">1</span
+                  ><span
+                    ><strong>Paris Mountain</strong
+                    ><small>Hike · 4.7 stars</small></span
+                  ><span class="mini-action">Add</span></span
+                >
+                <span class="option-note"
+                  >Curated, warm, and slightly editorial. It sits naturally
+                  beside pine without shouting.</span
+                >
+              </label>
+              <label class="review-option accent-option heritage-orange">
+                <input
+                  type="radio"
+                  name="accent-review"
+                  value="heritage"
+                  checked
+                />
+                <span class="review-option-heading"
+                  ><span
+                    ><b>Option B</b><strong>Warm heritage orange</strong></span
+                  ><code>#E36A2E</code></span
+                >
+                <span class="mini-route" aria-hidden="true"
+                  ><i></i><b class="mini-marker start">A</b
+                  ><b class="mini-marker discovery">1</b
+                  ><b class="mini-marker end">B</b></span
+                >
+                <span class="mini-result"
+                  ><span class="mini-number">1</span
+                  ><span
+                    ><strong>Paris Mountain</strong
+                    ><small>Hike · 4.7 stars</small></span
+                  ><span class="mini-action">Add</span></span
+                >
+                <span class="option-note"
+                  >Closer to the existing JauntDetour orange. More energetic and
+                  outdoors-oriented, with less softness.</span
+                >
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="review-fieldset typography-review">
+            <legend>Typography application</legend>
+            <p class="review-prompt">
+              Every option keeps functional route data readable. Compare the
+              voice of the wordmark, product statement, and in-app task heading.
+            </p>
+            <div class="type-comparison-grid">
+              <label class="review-option type-option type-current">
+                <input
+                  type="radio"
+                  name="type-review"
+                  value="current"
+                  checked
+                />
+                <span class="type-option-meta"
+                  ><b>Option A · Current</b
+                  ><small>Fraunces + DM Sans</small></span
+                >
+                <span class="type-wordmark">JauntDetour</span>
+                <span class="type-hero-sample"
+                  >Find the stop that makes the drive.</span
+                >
+                <span class="type-app-sample">Find a worthwhile stop</span>
+                <span class="type-data-sample">258 mi · 4 hr 05 min</span>
+                <span class="option-note"
+                  >Editorial and premium throughout the product hierarchy.</span
+                >
+              </label>
+              <label class="review-option type-option type-restrained">
+                <input type="radio" name="type-review" value="restrained" />
+                <span class="type-option-meta"
+                  ><b>Option B · Restrained serif</b
+                  ><small>Fraunces + DM Sans</small></span
+                >
+                <span class="type-wordmark">JauntDetour</span>
+                <span class="type-hero-sample"
+                  >Find the stop that makes the drive.</span
+                >
+                <span class="type-app-sample">Find a worthwhile stop</span>
+                <span class="type-data-sample">258 mi · 4 hr 05 min</span>
+                <span class="option-note"
+                  >Keeps the brand voice on Home, but makes the planning
+                  workspace quieter.</span
+                >
+              </label>
+              <label class="review-option type-option type-slab">
+                <input type="radio" name="type-review" value="slab" />
+                <span class="type-option-meta"
+                  ><b>Option C · Outdoorsy slab</b
+                  ><small>Bitter + DM Sans</small></span
+                >
+                <span class="type-wordmark">JauntDetour</span>
+                <span class="type-hero-sample"
+                  >Find the stop that makes the drive.</span
+                >
+                <span class="type-app-sample">Find a worthwhile stop</span>
+                <span class="type-data-sample">258 mi · 4 hr 05 min</span>
+                <span class="option-note"
+                  >More rugged and road-trip oriented; less editorial and
+                  refined.</span
+                >
+              </label>
+              <label class="review-option type-option type-sans">
+                <input type="radio" name="type-review" value="sans" />
+                <span class="type-option-meta"
+                  ><b>Option D · Sans-forward</b
+                  ><small>Sora + DM Sans</small></span
+                >
+                <span class="type-wordmark">JauntDetour</span>
+                <span class="type-hero-sample"
+                  >Find the stop that makes the drive.</span
+                >
+                <span class="type-app-sample">Find a worthwhile stop</span>
+                <span class="type-data-sample">258 mi · 4 hr 05 min</span>
+                <span class="option-note"
+                  >Contemporary and product-like; the least editorial and least
+                  nostalgic.</span
+                >
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset id="brand-marks" class="review-fieldset icon-review">
+            <legend>Brand mark exploration</legend>
+            <p class="review-prompt">
+              These original candidates are retained as exploration history. The
+              selected route/discovery badge appears as Option Y in the focused
+              round below.
+            </p>
+            <div class="icon-comparison-grid">
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="route-j" />
+                <span class="icon-option-meta"
+                  ><b>A</b><strong>Route J</strong
+                  ><small>Monogram · direct</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="J shaped route with two waypoints"
+                  >
+                    <path
+                      class="mark-route"
+                      d="M41 10v28c0 10-6 16-16 16-8 0-13-4-15-10"
+                    />
+                    <circle class="mark-pine-fill" cx="41" cy="10" r="5" />
+                    <circle class="mark-orange-fill" cx="10" cy="44" r="5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-route"
+                      d="M41 10v28c0 10-6 16-16 16-8 0-13-4-15-10"
+                    />
+                    <circle class="mark-pine-fill" cx="41" cy="10" r="5" />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="10"
+                      cy="44"
+                      r="5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >The clearest evolution of the existing J. Feels like movement
+                  without becoming a literal road sign.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="waypoint-j" />
+                <span class="icon-option-meta"
+                  ><b>B</b><strong>Waypoint J</strong
+                  ><small>Monogram · compact</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="J monogram built from waypoint pins"
+                  >
+                    <path
+                      class="mark-pine-stroke"
+                      d="M42 12v26c0 11-7 17-18 17-7 0-12-3-15-9"
+                    />
+                    <path
+                      class="mark-orange-fill"
+                      d="M42 4c-7 0-12 5-12 12 0 9 12 20 12 20s12-11 12-20c0-7-5-12-12-12zm0 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"
+                    />
+                    <circle class="mark-orange-fill" cx="10" cy="46" r="4" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke"
+                      d="M42 12v26c0 11-7 17-18 17-7 0-12-3-15-9"
+                    />
+                    <path
+                      class="mark-orange-fill"
+                      d="M42 4c-7 0-12 5-12 12 0 9 12 20 12 20s12-11 12-20c0-7-5-12-12-12zm0 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="10"
+                      cy="46"
+                      r="4"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Keeps the J but makes destination and discovery more
+                  explicit. Slightly busier at favicon size.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="jd-crossroads" />
+                <span class="icon-option-meta"
+                  ><b>C</b><strong>JD Crossroads</strong
+                  ><small>Monogram · architectural</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Interlocking J and D route monogram"
+                  >
+                    <path
+                      class="mark-pine-stroke"
+                      d="M27 10v30c0 9-5 14-14 14"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M27 15h9c12 0 19 7 19 17s-7 17-19 17h-9"
+                    />
+                    <circle class="mark-orange-fill" cx="13" cy="54" r="4" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke"
+                      d="M27 10v30c0 9-5 14-14 14"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M27 15h9c12 0 19 7 19 17s-7 17-19 17h-9"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="13"
+                      cy="54"
+                      r="4"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Ownable initials with a constructed premium feel. Less
+                  immediately about travel.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="scenic-bend" />
+                <span class="icon-option-meta"
+                  ><b>D</b><strong>Scenic Bend</strong
+                  ><small>Landscape · expressive</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Road curving between mountain peaks and sun"
+                  >
+                    <circle class="mark-orange-fill" cx="48" cy="15" r="7" />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M5 40 20 23l10 12 8-9 20 22"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M27 58c-1-10 13-11 12-21-1-6-5-9-9-12"
+                    />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <circle class="mark-orange-fill" cx="48" cy="15" r="7" />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M5 40 20 23l10 12 8-9 20 22"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M27 58c-1-10 13-11 12-21-1-6-5-9-9-12"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Most adventurous and place-oriented. Works well large, but
+                  loses detail when very small.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="compass-turn" />
+                <span class="icon-option-meta"
+                  ><b>E</b><strong>Compass Turn</strong
+                  ><small>Navigation · classic</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Compass with orange detour needle"
+                  >
+                    <circle class="mark-pine-stroke" cx="32" cy="32" r="24" />
+                    <circle class="mark-pine-fill" cx="32" cy="32" r="4" />
+                    <path class="mark-orange-fill" d="m38 26 9-9-4 13-11 2z" />
+                    <path class="mark-pine-fill" d="m26 38-9 9 4-13 11-2z" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <circle class="mark-pine-stroke" cx="32" cy="32" r="24" />
+                    <circle class="mark-pine-fill" cx="32" cy="32" r="4" />
+                    <path class="mark-orange-fill" d="m38 26 9-9-4 13-11 2z" />
+                    <path
+                      class="mark-pine-fill"
+                      d="m26 38-9 9 4-13 11-2z"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Familiar travel symbolism with a premium badge quality. More
+                  generic than the monograms.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="map-fold" />
+                <span class="icon-option-meta"
+                  ><b>F</b><strong>Map Fold</strong
+                  ><small>Planning · geometric</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Folded map with orange route"
+                  >
+                    <path
+                      class="mark-pine-stroke"
+                      d="m7 15 16-7 18 7 16-7v41l-16 7-18-7-16 7zM23 8v41m18-34v41"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M12 39c9-18 18 4 27-11 5-7 9-4 14-11"
+                    />
+                    <circle class="mark-orange-fill" cx="12" cy="39" r="3.5" />
+                    <circle class="mark-orange-fill" cx="53" cy="17" r="3.5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke"
+                      d="m7 15 16-7 18 7 16-7v41l-16 7-18-7-16 7zM23 8v41m18-34v41"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M12 39c9-18 18 4 27-11 5-7 9-4 14-11"
+                    />
+                    <circle class="mark-orange-fill" cx="12" cy="39" r="3.5" />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="53"
+                      cy="17"
+                      r="3.5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Clearly about trip planning and maps. Detailed, familiar, and
+                  less distinctive as a small app mark.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="detour-loop" />
+                <span class="icon-option-meta"
+                  ><b>G</b><strong>Detour Loop</strong
+                  ><small>Route · playful</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Straight route making a playful detour loop"
+                  >
+                    <path class="mark-pine-stroke" d="M8 32h14m20 0h14" />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M22 32c0-14 20-14 20 0s-20 14-20 0z"
+                    />
+                    <circle class="mark-pine-fill" cx="8" cy="32" r="4" />
+                    <circle class="mark-orange-fill" cx="56" cy="32" r="4" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path class="mark-pine-stroke" d="M8 32h14m20 0h14" />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M22 32c0-14 20-14 20 0s-20 14-20 0z"
+                    />
+                    <circle class="mark-pine-fill" cx="8" cy="32" r="4" />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="56"
+                      cy="32"
+                      r="4"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Captures the core product idea with a memorable loop.
+                  Abstract enough to remain clean at small sizes.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="spark-route" />
+                <span class="icon-option-meta"
+                  ><b>H</b><strong>Spark Route</strong
+                  ><small>Discovery · optimistic</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Curved route ending in discovery spark"
+                  >
+                    <path class="mark-pine-stroke" d="M9 52c8-23 25-5 34-25" />
+                    <circle class="mark-pine-fill" cx="9" cy="52" r="4" />
+                    <path
+                      class="mark-orange-fill"
+                      d="m47 5 3 10 10 3-10 3-3 10-3-10-10-3 10-3z"
+                    />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path class="mark-pine-stroke" d="M9 52c8-23 25-5 34-25" />
+                    <circle class="mark-pine-fill" cx="9" cy="52" r="4" />
+                    <path
+                      class="mark-orange-fill"
+                      d="m47 5 3 10 10 3-10 3-3 10-3-10-10-3 10-3z"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Makes discovery the emotional payoff. Friendly and
+                  distinctive, though less explicitly about road travel.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="mile-marker" />
+                <span class="icon-option-meta"
+                  ><b>I</b><strong>Mile Marker</strong
+                  ><small>Roadside · sturdy</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Roadside mile marker containing a J route"
+                  >
+                    <path class="mark-pine-fill" d="M19 6h26l8 9v43H11V15z" />
+                    <path
+                      class="mark-orange-stroke-on-dark"
+                      d="M37 18v19c0 7-4 11-11 11-5 0-8-2-10-6"
+                    />
+                    <circle class="mark-orange-fill" cx="37" cy="18" r="3.5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path class="mark-pine-fill" d="M19 6h26l8 9v43H11V15z" />
+                    <path
+                      class="mark-orange-stroke-on-dark"
+                      d="M37 18v19c0 7-4 11-11 11-5 0-8-2-10-6"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="37"
+                      cy="18"
+                      r="3.5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Strong roadside character and excellent app-tile presence.
+                  Feels more utilitarian than whimsical.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="split-route" />
+                <span class="icon-option-meta"
+                  ><b>J</b><strong>Split Route</strong
+                  ><small>Choice · dynamic</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Main route splitting into an orange discovery path"
+                  >
+                    <path
+                      class="mark-pine-stroke"
+                      d="M12 54c0-18 20-17 20-34V8"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M32 30c8-2 16-7 21-17"
+                    />
+                    <circle class="mark-pine-fill" cx="12" cy="54" r="4" />
+                    <circle class="mark-orange-fill" cx="53" cy="13" r="4" />
+                    <circle class="mark-pine-fill" cx="32" cy="8" r="4" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke"
+                      d="M12 54c0-18 20-17 20-34V8"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M32 30c8-2 16-7 21-17"
+                    />
+                    <circle class="mark-pine-fill" cx="12" cy="54" r="4" />
+                    <circle class="mark-orange-fill" cx="53" cy="13" r="4" />
+                    <circle class="mark-pine-fill" cx="32" cy="8" r="4" /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Expresses a deliberate detour from the expected route.
+                  Simple, directional, and versatile.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="open-road" />
+                <span class="icon-option-meta"
+                  ><b>K</b><strong>Open Road</strong
+                  ><small>Horizon · cinematic</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Road leading toward an orange horizon sun"
+                  >
+                    <circle class="mark-orange-fill" cx="43" cy="16" r="8" />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M6 31h52M18 58l10-27m18 27L36 31"
+                    />
+                    <path class="mark-orange-stroke" d="M32 55V43" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <circle class="mark-orange-fill" cx="43" cy="16" r="8" />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M6 31h52M18 58l10-27m18 27L36 31"
+                    />
+                    <path class="mark-orange-stroke" d="M32 55V43" /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Premium, optimistic, and clearly road-trip oriented. More
+                  like a travel brand than a planning tool.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input type="radio" name="icon-review" value="pin-path" />
+                <span class="icon-option-meta"
+                  ><b>L</b><strong>Pin &amp; Path</strong
+                  ><small>Destination · friendly</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Orange destination pin connected to a winding route"
+                  >
+                    <path class="mark-pine-stroke" d="M8 53c8-19 24 4 31-15" />
+                    <circle class="mark-pine-fill" cx="8" cy="53" r="4" />
+                    <path
+                      class="mark-orange-fill"
+                      d="M45 5c-8 0-14 6-14 14 0 11 14 25 14 25s14-14 14-25c0-8-6-14-14-14zm0 9a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"
+                    />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path class="mark-pine-stroke" d="M8 53c8-19 24 4 31-15" />
+                    <circle class="mark-pine-fill" cx="8" cy="53" r="4" />
+                    <path
+                      class="mark-orange-fill"
+                      d="M45 5c-8 0-14 6-14 14 0 11 14 25 14 25s14-14 14-25c0-8-6-14-14-14zm0 9a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Immediately legible as map-based travel. Friendly and
+                  scalable, but close to familiar mapping brands.</span
+                >
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset
+            id="map-path-marks"
+            class="review-fieldset icon-review focused-icon-review"
+          >
+            <legend>Focused round: map, path, and detour</legend>
+            <p class="review-prompt">
+              This round builds from Map Fold and the prototype's S-shaped
+              route. Pine defines the map or original path; heritage orange
+              identifies the jaunt, detour, or off-route discovery. Each option
+              limits itself to one detour idea.
+            </p>
+            <div class="icon-comparison-grid">
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="folded-s-route"
+                />
+                <span class="icon-option-meta"
+                  ><b>M</b><strong>Folded S Route</strong
+                  ><small>Map fold · closest hybrid</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Folded map with a bold orange S shaped route"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M15 19c20-11 32 0 23 10-8 9-25 5-20 18 4 10 20 4 31-3"
+                    />
+                    <circle class="mark-orange-fill" cx="15" cy="19" r="3.5" />
+                    <circle class="mark-orange-fill" cx="49" cy="44" r="3.5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M15 19c20-11 32 0 23 10-8 9-25 5-20 18 4 10 20 4 31-3"
+                    />
+                    <circle class="mark-orange-fill" cx="15" cy="19" r="3.5" />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="49"
+                      cy="44"
+                      r="3.5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >The most direct combination of F and the current route glyph.
+                  Strong at display size; fold lines compete slightly when
+                  small.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="folded-detour-dot"
+                />
+                <span class="icon-option-meta"
+                  ><b>N</b><strong>Folded Detour Dot</strong
+                  ><small>Map fold · off-route find</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Folded map with main route branching to an off-route orange discovery"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M13 43c11-19 19 5 30-14"
+                    />
+                    <path
+                      class="mark-orange-stroke mark-detour-branch"
+                      d="M35 34c6 0 10 4 15 10"
+                    />
+                    <circle class="mark-orange-fill" cx="51" cy="45" r="5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M13 43c11-19 19 5 30-14"
+                    />
+                    <path
+                      class="mark-orange-stroke mark-detour-branch"
+                      d="M35 34c6 0 10 4 15 10"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="51"
+                      cy="45"
+                      r="5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >The clearest "found something off the path" story. The branch
+                  does not rejoin, so it reads as a destination detour.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="folded-detour-loop"
+                />
+                <span class="icon-option-meta"
+                  ><b>O</b><strong>Folded Detour Loop</strong
+                  ><small>Map fold · leave and rejoin</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Folded map with orange loop leaving and rejoining a main route"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path class="mark-pine-stroke" d="M14 45c9-20 19 3 33-19" />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M27 34c5-12 19-8 17 2-1 7-9 9-14 5"
+                    />
+                    <circle class="mark-orange-fill" cx="43" cy="31" r="3.5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path class="mark-pine-stroke" d="M14 45c9-20 19 3 33-19" />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M27 34c5-12 19-8 17 2-1 7-9 9-14 5"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="43"
+                      cy="31"
+                      r="3.5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Conceptually accurate: the orange path leaves and rejoins. It
+                  approaches the upper limit of detail for a small mark.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="map-panels-route"
+                />
+                <span class="icon-option-meta"
+                  ><b>P</b><strong>Map Panels Route</strong
+                  ><small>Map fold · reduced</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Three map panels crossed by a minimal orange route"
+                  >
+                    <path
+                      class="mark-pine-fill mark-map-panel"
+                      d="M7 13 23 7v43L7 57zm16-6 18 6v44l-18-7zm18 6 16-6v43l-16 7z"
+                    />
+                    <path class="mark-paper-stroke" d="M23 7v43m18-37v44" />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M12 39c10-18 17 6 29-12 5-7 9-4 12-9"
+                    />
+                    <circle class="mark-orange-fill" cx="12" cy="39" r="3.5" />
+                    <circle class="mark-orange-fill" cx="53" cy="18" r="3.5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-fill mark-map-panel"
+                      d="M7 13 23 7v43L7 57zm16-6 18 6v44l-18-7zm18 6 16-6v43l-16 7z"
+                    />
+                    <path class="mark-paper-stroke" d="M23 7v43m18-37v44" />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M12 39c10-18 17 6 29-12 5-7 9-4 12-9"
+                    />
+                    <circle class="mark-orange-fill" cx="12" cy="39" r="3.5" />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="53"
+                      cy="18"
+                      r="3.5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >A bolder, app-icon-ready Map Fold. Orange route stays legible
+                  because the map is treated as one dark silhouette.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="map-window-find"
+                />
+                <span class="icon-option-meta"
+                  ><b>Q</b><strong>Map Window Find</strong
+                  ><small>Map fold · framed discovery</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Rounded map tile with route bending toward an orange discovery point"
+                  >
+                    <rect
+                      class="mark-pine-stroke"
+                      x="7"
+                      y="7"
+                      width="50"
+                      height="50"
+                      rx="9"
+                    />
+                    <path class="mark-pine-stroke" d="M15 46c8-19 19 2 29-14" />
+                    <path class="mark-orange-stroke" d="M38 36c3 0 7 3 10 8" />
+                    <circle class="mark-orange-fill" cx="49" cy="46" r="5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <rect
+                      class="mark-pine-stroke"
+                      x="7"
+                      y="7"
+                      width="50"
+                      height="50"
+                      rx="9"
+                    />
+                    <path class="mark-pine-stroke" d="M15 46c8-19 19 2 29-14" />
+                    <path class="mark-orange-stroke" d="M38 36c3 0 7 3 10 8" />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="49"
+                      cy="46"
+                      r="5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Simplifies the map to a frame and keeps the discovery story.
+                  Clean, but the rounded tile feels more like an app icon than a
+                  logo.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="map-spark-detour"
+                />
+                <span class="icon-option-meta"
+                  ><b>R</b><strong>Map Spark Detour</strong
+                  ><small>Map fold · emotional find</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Folded map route branching toward an orange discovery spark"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M13 43c10-19 20 4 30-13"
+                    />
+                    <path class="mark-orange-stroke" d="M36 34c5 1 8 3 11 7" />
+                    <path
+                      class="mark-orange-fill"
+                      d="m51 38 2 6 6 2-6 2-2 6-2-6-6-2 6-2z"
+                    />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-map-light"
+                      d="m8 14 15-6 18 6 15-6v42l-15 6-18-6-15 6zM23 8v42m18-36v42"
+                    />
+                    <path
+                      class="mark-pine-stroke"
+                      d="M13 43c10-19 20 4 30-13"
+                    />
+                    <path class="mark-orange-stroke" d="M36 34c5 1 8 3 11 7" />
+                    <path
+                      class="mark-orange-fill"
+                      d="m51 38 2 6 6 2-6 2-2 6-2-6-6-2 6-2z"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Shows that the detour produces a discovery, not merely
+                  another endpoint. Whimsical, but the spark risks feeling
+                  decorative.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="s-route-orange"
+                />
+                <span class="icon-option-meta"
+                  ><b>S</b><strong>Heritage S Route</strong
+                  ><small>Prototype path · pure</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Simple orange S shaped route with pine endpoints"
+                  >
+                    <path
+                      class="mark-orange-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <circle class="mark-pine-fill" cx="12" cy="16" r="5" />
+                    <circle class="mark-pine-fill" cx="52" cy="47" r="5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-orange-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <circle class="mark-pine-fill" cx="12" cy="16" r="5" />
+                    <circle class="mark-pine-fill" cx="52" cy="47" r="5" /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >The existing prototype gesture with JauntDetour orange
+                  leading. Extremely scalable and recognizable as movement,
+                  without explicit detour meaning.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="s-route-find"
+                />
+                <span class="icon-option-meta"
+                  ><b>T</b><strong>S Route Find</strong
+                  ><small>Prototype path · one discovery</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Pine S shaped route with orange off-route discovery point"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <path class="mark-orange-stroke" d="M20 35c-6 0-9-3-12-7" />
+                    <circle class="mark-orange-fill" cx="7" cy="26" r="5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <path class="mark-orange-stroke" d="M20 35c-6 0-9-3-12-7" />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="7"
+                      cy="26"
+                      r="5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >A restrained answer to the brief: familiar S path plus one
+                  clearly off-route find. Very legible and easy to
+                  animate.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="s-route-rejoin"
+                />
+                <span class="icon-option-meta"
+                  ><b>U</b><strong>S Route Rejoin</strong
+                  ><small>Prototype path · true detour</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="S shaped route with an orange branch leaving and rejoining"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M25 31c-10-7-19 0-15 8 3 6 10 7 16 3"
+                    />
+                    <circle class="mark-orange-fill" cx="10" cy="35" r="3.5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <path
+                      class="mark-orange-stroke"
+                      d="M25 31c-10-7-19 0-15 8 3 6 10 7 16 3"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="10"
+                      cy="35"
+                      r="3.5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Most accurate detour behavior: leave and rejoin. The tiny
+                  loop is meaningful large and becomes a simple orange bulge
+                  small.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="s-route-waypoint"
+                />
+                <span class="icon-option-meta"
+                  ><b>V</b><strong>S Route Waypoint</strong
+                  ><small>Prototype path · route discovery</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="S shaped pine route with one orange waypoint on the bend"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <circle class="mark-orange-fill" cx="20" cy="36" r="7" />
+                    <circle class="mark-paper-fill" cx="20" cy="36" r="2.5" />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <circle class="mark-orange-fill" cx="20" cy="36" r="7" />
+                    <circle
+                      class="mark-paper-fill"
+                      cx="20"
+                      cy="36"
+                      r="2.5"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >The cleanest two-color route mark. It says "interesting stop"
+                  but not specifically off the original path.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="s-route-spark"
+                />
+                <span class="icon-option-meta"
+                  ><b>W</b><strong>S Route Spark</strong
+                  ><small>Prototype path · discovered detour</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="S shaped route branching toward an orange discovery spark"
+                  >
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <path class="mark-orange-stroke" d="M22 34c-5-2-9-5-12-9" />
+                    <path
+                      class="mark-orange-fill"
+                      d="m8 14 2 6 6 2-6 2-2 6-2-6-6-2 6-2z"
+                    />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-stroke mark-route-heavy"
+                      d="M12 16c11-10 32-7 35 4 3 12-31 9-29 25 2 12 22 9 34 2"
+                    />
+                    <path class="mark-orange-stroke" d="M22 34c-5-2-9-5-12-9" />
+                    <path
+                      class="mark-orange-fill"
+                      d="m8 14 2 6 6 2-6 2-2 6-2-6-6-2 6-2z"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >Combines the prototype's clarity with the emotional payoff of
+                  discovery. More playful than literal.</span
+                >
+              </label>
+
+              <label class="review-option icon-option">
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="s-in-map-fold"
+                />
+                <span class="icon-option-meta"
+                  ><b>X</b><strong>S in Map Fold</strong
+                  ><small>Hybrid · app tile</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Pine folded map silhouette containing orange S route"
+                  >
+                    <path
+                      class="mark-pine-fill"
+                      d="m7 14 16-7 18 7 16-7v43l-16 7-18-7-16 7z"
+                    />
+                    <path class="mark-paper-stroke" d="M23 7v43m18-36v43" />
+                    <path
+                      class="mark-orange-stroke mark-route-heavy"
+                      d="M14 19c12-8 28-4 28 5 0 10-25 8-24 19 1 8 16 7 31 0"
+                    />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path
+                      class="mark-pine-fill"
+                      d="m7 14 16-7 18 7 16-7v43l-16 7-18-7-16 7z"
+                    />
+                    <path class="mark-paper-stroke" d="M23 7v43m18-36v43" />
+                    <path
+                      class="mark-orange-stroke mark-route-heavy"
+                      d="M14 19c12-8 28-4 28 5 0 10-25 8-24 19 1 8 16 7 31 0"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >The boldest fusion of Map Fold and the prototype icon.
+                  Excellent tile silhouette; the route stays prominent at small
+                  size.</span
+                >
+              </label>
+
+              <label
+                id="prototype-orange-endpoints"
+                class="review-option icon-option"
+              >
+                <input
+                  type="radio"
+                  name="focused-icon-review"
+                  value="prototype-orange-endpoints"
+                  checked
+                />
+                <span class="icon-option-meta"
+                  ><b>Y</b><strong>Prototype Orange Discovery</strong
+                  ><small>Existing route · one found place</small></span
+                >
+                <span class="mark-stage">
+                  <svg
+                    class="brand-symbol"
+                    viewBox="0 0 64 64"
+                    role="img"
+                    aria-label="Exact current pine badge and white route path with heritage-orange endpoint circles"
+                  >
+                    <circle class="mark-pine-fill" cx="32" cy="32" r="29" />
+                    <circle
+                      class="mark-paper-stroke mark-endpoint-ring"
+                      cx="20"
+                      cy="46"
+                      r="6"
+                    />
+                    <path
+                      class="mark-paper-stroke mark-lucide-route"
+                      d="M26 46h17a7 7 0 0 0 0-14H21a7 7 0 0 1 0-14h17"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="14.5"
+                      cy="25"
+                      r="6.8"
+                    />
+                    <circle
+                      class="mark-paper-stroke mark-endpoint-ring"
+                      cx="44"
+                      cy="18"
+                      r="6"
+                    />
+                  </svg>
+                </span>
+                <span class="mark-lockup"
+                  ><svg viewBox="0 0 64 64" aria-hidden="true">
+                    <circle class="mark-pine-fill" cx="32" cy="32" r="29" />
+                    <circle
+                      class="mark-paper-stroke mark-endpoint-ring"
+                      cx="20"
+                      cy="46"
+                      r="6"
+                    />
+                    <path
+                      class="mark-paper-stroke mark-lucide-route"
+                      d="M26 46h17a7 7 0 0 0 0-14H21a7 7 0 0 1 0-14h17"
+                    />
+                    <circle
+                      class="mark-orange-fill"
+                      cx="14.5"
+                      cy="25"
+                      r="6.8"
+                    />
+                    <circle
+                      class="mark-paper-stroke mark-endpoint-ring"
+                      cx="44"
+                      cy="18"
+                      r="6"
+                    /></svg
+                  ><strong>JauntDetour</strong></span
+                >
+                <span class="option-note"
+                  >The current header mark with white endpoints restored. A
+                  larger heritage-orange discovery sits directly on the
+                  upper-left curve, making the route visibly bend through the
+                  detour.</span
+                >
+              </label>
+            </div>
+          </fieldset>
+        </section>
+
+        <section id="color" class="specimen-section">
+          <div class="section-heading">
+            <p class="eyebrow">Foundation 01</p>
+            <h2>Color carries meaning.</h2>
+            <p>
+              These swatches render from the canonical token JSON. Names
+              describe function, not pigment.
+            </p>
+          </div>
+          <div class="color-groups" id="color-groups" aria-live="polite"></div>
+
+          <div class="contrast-section">
+            <h3>Approved contrast pairings</h3>
+            <div class="contrast-grid">
+              <article class="contrast-card pair-ink-paper">
+                <span>Primary text</span><strong>15.28:1</strong
+                ><small>Ink on canvas · AA normal</small>
+              </article>
+              <article class="contrast-card pair-paper-pine">
+                <span>Primary action</span><strong>6.91:1</strong
+                ><small>White on pine · AA normal</small>
+              </article>
+              <article class="contrast-card pair-ink-sun">
+                <span>Focus &amp; highlight</span><strong>8.54:1</strong
+                ><small>Ink on sun · AA normal</small>
+              </article>
+              <article class="contrast-card pair-paper-coral">
+                <span>Accent display only</span><strong>3.30:1</strong
+                ><small>White on heritage orange · large text/UI only</small>
+              </article>
+            </div>
+            <aside
+              class="callout warning-callout"
+              aria-label="Heritage orange contrast warning"
+            >
+              <i data-lucide="triangle-alert"></i>
+              <div>
+                <strong
+                  >Heritage orange is a signal, not a text surface.</strong
+                >
+                <p>
+                  Use the default accent for routes, active rules, and large
+                  display moments. Use accent-strong when small white text must
+                  sit on an accent background.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="type" class="specimen-section tinted-section">
+          <div class="section-heading">
+            <p class="eyebrow">Foundation 02</p>
+            <h2>Editorial warmth, functional clarity.</h2>
+          </div>
+          <div class="type-grid">
+            <article class="type-family-card editorial-card">
+              <small>Editorial family · Fraunces</small>
+              <span class="type-alphabet">Aa</span>
+              <h3>The interesting way there.</h3>
+              <p>
+                Use for the wordmark, page titles, and high-value narrative
+                headings. Do not use inside dense planning controls.
+              </p>
+            </article>
+            <article class="type-family-card functional-card">
+              <small>Functional family · DM Sans</small>
+              <span class="type-alphabet">Aa</span>
+              <h3>258 mi · 4 hr 05 min</h3>
+              <p>
+                Use for navigation, controls, labels, body copy, itinerary
+                details, and every data-dense surface.
+              </p>
+            </article>
+          </div>
+          <div class="type-scale">
+            <div>
+              <code>display</code
+              ><span class="sample-display">Find the stop.</span
+              ><small>72px / Fraunces 700</small>
+            </div>
+            <div>
+              <code>title</code
+              ><span class="sample-title">Build your jaunt</span
+              ><small>36px / Fraunces 700</small>
+            </div>
+            <div>
+              <code>title-small</code
+              ><span class="sample-title-small">Find a worthwhile stop</span
+              ><small>24px / Fraunces 700</small>
+            </div>
+            <div>
+              <code>body-large</code
+              ><span class="sample-body-large"
+                >Explore interesting places along the way.</span
+              ><small>18px / DM Sans 400</small>
+            </div>
+            <div>
+              <code>body</code
+              ><span class="sample-body"
+                >Paris Mountain State Park · 4.7 stars</span
+              ><small>15px / DM Sans 400</small>
+            </div>
+            <div>
+              <code>caption</code
+              ><span class="sample-caption">ALONG THIS ROUTE</span
+              ><small>11px / DM Sans 700</small>
+            </div>
+          </div>
+        </section>
+
+        <section id="spacing" class="specimen-section">
+          <div class="section-heading">
+            <p class="eyebrow">Foundation 03</p>
+            <h2>Quiet rhythm and deliberate shape.</h2>
+            <p>
+              Spacing follows a four-pixel base. Corners stay compact; circles
+              are reserved for markers, avatars, and status.
+            </p>
+          </div>
+          <div class="spacing-scale" id="spacing-scale"></div>
+          <div class="shape-grid">
+            <article>
+              <div class="shape control-shape"></div>
+              <strong>Control · 6px</strong><small>Buttons, inputs, tabs</small>
+            </article>
+            <article>
+              <div class="shape surface-shape"></div>
+              <strong>Surface · 8px</strong
+              ><small>Cards, dialogs, groups</small>
+            </article>
+            <article>
+              <div class="shape round-shape"></div>
+              <strong>Round · 999px</strong
+              ><small>Markers and identity only</small>
+            </article>
+            <article>
+              <div class="shadow-sample"></div>
+              <strong>Medium elevation</strong
+              ><small>Overlays and floating context</small>
+            </article>
+          </div>
+        </section>
+
+        <section id="controls" class="specimen-section tinted-section">
+          <div class="section-heading">
+            <p class="eyebrow">Components 01</p>
+            <h2>Commands feel calm and specific.</h2>
+            <p>
+              These are visual contracts for future Fluent 2 compositions, not
+              production components.
+            </p>
+          </div>
+          <div class="component-board">
+            <article class="component-group">
+              <h3>Buttons</h3>
+              <div class="component-row">
+                <button class="button primary-button" type="button">
+                  Plan your jaunt <i data-lucide="arrow-right"></i>
+                </button>
+                <button class="button secondary-button" type="button">
+                  <i data-lucide="bookmark"></i> Save jaunt
+                </button>
+                <button class="text-button" type="button">Edit route</button>
+                <button
+                  class="icon-button"
+                  type="button"
+                  aria-label="More options"
+                >
+                  <i data-lucide="ellipsis"></i>
+                </button>
+              </div>
+            </article>
+
+            <article class="component-group">
+              <h3>Fields and task views</h3>
+              <div class="field-row">
+                <label
+                  >Destination
+                  <span class="input-shell"
+                    ><i data-lucide="map-pin"></i
+                    ><input type="text" value="Charlotte, NC" /></span
+                ></label>
+                <div
+                  class="tab-list"
+                  role="tablist"
+                  aria-label="Sample task views"
+                >
+                  <button
+                    class="tab active"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                  >
+                    <i data-lucide="list-tree"></i> Build
+                  </button>
+                  <button
+                    class="tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                  >
+                    <i data-lucide="sparkles"></i> Discover
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <article class="component-group">
+              <h3>Selection and status</h3>
+              <div class="component-row">
+                <button class="category-button selected" type="button">
+                  <i data-lucide="trees"></i> Hike
+                </button>
+                <button class="category-button" type="button">
+                  <i data-lucide="coffee"></i> Coffee
+                </button>
+                <span class="status saved">Saved</span>
+                <span class="status unsaved">Not saved</span>
+                <span class="status danger">Delete failed</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="patterns" class="specimen-section">
+          <div class="section-heading">
+            <p class="eyebrow">Components 02</p>
+            <h2>Domain patterns make the system JauntDetour.</h2>
+          </div>
+          <div class="pattern-grid">
+            <article class="result-specimen selected-result">
+              <span class="number-badge">1</span>
+              <div>
+                <strong>Paris Mountain State Park</strong
+                ><small>Hike · 4.7 stars</small>
+              </div>
+              <span class="button primary-button compact-button"
+                >Add to jaunt</span
+              >
+            </article>
+            <article class="result-specimen">
+              <span class="number-badge available">2</span>
+              <div>
+                <strong>Cedar Falls Park</strong><small>Hike · 4.7 stars</small>
+              </div>
+              <span class="button secondary-button compact-button">Select</span>
+            </article>
+            <article class="itinerary-specimen">
+              <ol>
+                <li>
+                  <span class="endpoint-badge">A</span>
+                  <div>
+                    <strong>Atlanta, GA</strong><small>Starting point</small>
+                  </div>
+                </li>
+                <li>
+                  <span class="number-badge">1</span>
+                  <div>
+                    <strong>Paris Mountain State Park</strong
+                    ><small>Hike · 4.7 stars · +18 min</small>
+                  </div>
+                  <button
+                    class="icon-button"
+                    type="button"
+                    aria-label="Remove Paris Mountain"
+                  >
+                    <i data-lucide="trash-2"></i>
+                  </button>
+                </li>
+                <li>
+                  <span class="endpoint-badge">B</span>
+                  <div>
+                    <strong>Charlotte, NC</strong><small>Destination</small>
+                  </div>
+                </li>
+              </ol>
+            </article>
+            <article class="route-summary-specimen">
+              <div><small>Distance</small><strong>258 mi</strong></div>
+              <div><small>Drive time</small><strong>4 hr 05 min</strong></div>
+              <div><small>Change</small><strong>+18 min</strong></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="map" class="specimen-section map-section">
+          <div class="section-heading">
+            <p class="eyebrow">Map language</p>
+            <h2>The map and list tell the same story.</h2>
+            <p>
+              Marker numbers persist between the result list and map. Color
+              reinforces state but never carries it alone.
+            </p>
+          </div>
+          <div class="map-specimen">
+            <span class="route-line"></span>
+            <div class="map-marker endpoint-marker marker-a">A</div>
+            <div class="map-marker result-marker marker-2">2</div>
+            <div class="map-marker selected-marker marker-1">1</div>
+            <div class="map-marker stop-marker marker-3">3</div>
+            <div class="map-marker endpoint-marker marker-b">B</div>
+            <div class="map-legend">
+              <span><b class="legend endpoint-legend"></b> Endpoint</span>
+              <span><b class="legend result-legend"></b> Available</span>
+              <span><b class="legend selected-legend"></b> Selected</span>
+              <span><b class="legend stop-legend"></b> Added stop</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="guidance" class="specimen-section">
+          <div class="section-heading">
+            <p class="eyebrow">Usage guidance</p>
+            <h2>Keep the character intentional.</h2>
+          </div>
+          <div class="guidance-grid">
+            <article class="do-card">
+              <i data-lucide="check"></i>
+              <h3>Do</h3>
+              <ul>
+                <li>Let orange identify the route and discovery</li>
+                <li>Use teal for primary commands and trust</li>
+                <li>Reserve Fraunces for editorial hierarchy</li>
+                <li>Keep maps and real product states prominent</li>
+                <li>Use one clear primary action per region</li>
+              </ul>
+            </article>
+            <article class="avoid-card">
+              <i data-lucide="x"></i>
+              <h3>Avoid</h3>
+              <ul>
+                <li>Filling large surfaces with orange</li>
+                <li>Using color as the only state indicator</li>
+                <li>Turning every section into a floating card</li>
+                <li>Using serif type in forms or dense data</li>
+                <li>
+                  Adding decorative travel imagery without product context
+                </li>
+              </ul>
+            </article>
+          </div>
+          <aside
+            class="callout source-callout"
+            aria-label="Canonical token source"
+          >
+            <i data-lucide="file-json"></i>
+            <div>
+              <strong>Canonical source</strong>
+              <p>
+                <code>design-system/tokens/jauntdetour.tokens.json</code> owns
+                foundation values. This specimen renders from that file. Fluent
+                mappings and production components consume the same semantic
+                intent.
+              </p>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="app.js?v=6"></script>
+  </body>
+</html>
