@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import AppShell from "./components/shell/AppShell";
+import AccountPage from "./pages/AccountPage";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
 import JauntDetailPage from "./pages/JauntDetailPage";
@@ -55,10 +56,7 @@ function App() {
           path="account"
           element={
             <ProtectedRoute title="your account">
-              <RoutePlaceholderPage title="Account info">
-                Account identity and sign-out controls are managed through your
-                Microsoft sign-in.
-              </RoutePlaceholderPage>
+              <AccountPage />
             </ProtectedRoute>
           }
         />

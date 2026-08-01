@@ -97,7 +97,7 @@ describe("application routes", () => {
   });
 
   it("renders a protected account destination for a signed-in user", async () => {
-    renderApp("/account", {
+    const { logout } = renderApp("/account", {
       email: "traveler@example.com",
       display_name: "Avery Traveler",
     });
@@ -106,7 +106,25 @@ describe("application routes", () => {
       await screen.findByRole("heading", { name: "Account info" })
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Account menu" })).toBeVisible();
-    expect(screen.getByText("Avery Traveler")).toBeVisible();
+    const identitySummary = screen.getByRole("region", {
+      name: "Account identity summary",
+    });
+    expect(within(identitySummary).getByText("Avery Traveler")).toBeVisible();
+    expect(
+      within(identitySummary).getByText("traveler@example.com")
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        "Your display name and email are managed by your sign-in account."
+      )
+    ).toBeVisible();
+    expect(screen.queryByText(/Microsoft Entra/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /View My Jaunts/ })
+    ).toHaveAttribute("href", "/trips");
+
+    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+    expect(logout).toHaveBeenCalledTimes(1);
   });
 
   it("preserves sign out through the shared account menu", async () => {
@@ -115,11 +133,36 @@ describe("application routes", () => {
       display_name: "Avery Traveler",
     });
 
-    fireEvent.click(
-      await screen.findByRole("button", { name: "Account menu" })
-    );
+    const accountTrigger = await screen.findByRole("button", {
+      name: "Account menu",
+    });
+    fireEvent.click(accountTrigger);
+    expect(screen.getByText("traveler@example.com")).toBeVisible();
+    expect(
+      screen.getByRole("menuitem", { name: "View profile" })
+    ).toBeVisible();
+    expect(screen.getByRole("menuitem", { name: "My Jaunts" })).toBeVisible();
     fireEvent.click(await screen.findByRole("menuitem", { name: "Sign out" }));
     expect(logout).toHaveBeenCalledTimes(1);
+  });
+
+  it("restores focus when the account menu is dismissed with Escape", async () => {
+    renderApp("/", {
+      email: "traveler@example.com",
+      display_name: "Avery Traveler",
+    });
+    const accountTrigger = await screen.findByRole("button", {
+      name: "Account menu",
+    });
+    fireEvent.click(accountTrigger);
+
+    const menu = await screen.findByRole("menu");
+    fireEvent.keyDown(menu, { key: "Escape" });
+
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument()
+    );
+    expect(accountTrigger).toHaveFocus();
   });
 
   it("restores a safe protected destination after authentication", async () => {

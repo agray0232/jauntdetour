@@ -113,6 +113,26 @@ const useStyles = makeStyles({
       display: "none",
     },
   },
+  menuIdentity: {
+    display: "grid",
+    maxWidth: "18rem",
+    padding: `${jauntSpacing[3]} ${jauntSpacing[4]}`,
+    rowGap: jauntSpacing[1],
+    ...shorthands.borderBottom("1px", "solid", tokens.colorNeutralStroke1),
+  },
+  menuName: {
+    overflow: "hidden",
+    fontWeight: jauntTypography.weight.semibold,
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  menuEmail: {
+    overflow: "hidden",
+    color: tokens.colorNeutralForeground2,
+    fontSize: jauntTypography.size.bodySmall,
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
   ultraCompact: {
     "@media (max-width: 20rem)": {
       paddingRight: jauntSpacing[2],
@@ -164,9 +184,13 @@ export default function AppHeader() {
           </Button>
         </MenuTrigger>
         <MenuPopover>
+          <div className={styles.menuIdentity}>
+            <span className={styles.menuName}>{displayName || "Account"}</span>
+            <span className={styles.menuEmail}>{user.email}</span>
+          </div>
           <MenuList>
             <MenuItem onClick={() => navigate("/account")}>
-              Account info
+              View profile
             </MenuItem>
             <MenuItem onClick={() => navigate("/trips")}>My Jaunts</MenuItem>
             <MenuItem icon={<SignOutRegular />} onClick={signOut}>
