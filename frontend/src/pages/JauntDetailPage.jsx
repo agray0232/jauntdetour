@@ -27,7 +27,9 @@ import {
   ArrowLeftRegular,
   CopyRegular,
   DeleteRegular,
+  LocationRegular,
   MoreHorizontalRegular,
+  NavigationRegular,
   OpenRegular,
 } from "@fluentui/react-icons";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -171,6 +173,7 @@ const useStyles = makeStyles({
     borderRadius: "50%",
     fontWeight: jauntTypography.weight.bold,
   },
+  markerIcon: { fontSize: "1.25rem" },
   detourMarker: { backgroundColor: jauntColors.brand.accentStrong },
   stopCopy: { display: "grid", minWidth: 0, rowGap: jauntSpacing[1] },
   stopName: { overflow: "hidden", textOverflow: "ellipsis" },
@@ -442,16 +445,23 @@ export default function JauntDetailPage() {
             <h2 className={styles.sectionTitle}>Itinerary</h2>
             <ol className={styles.itineraryList}>
               <li className={styles.stop}>
-                <span className={styles.marker}>A</span>
+                <span
+                  className={styles.marker}
+                  role="img"
+                  aria-label="Start marker"
+                >
+                  <NavigationRegular className={styles.markerIcon} />
+                </span>
                 <span className={styles.stopName}>{trip.origin?.address}</span>
               </li>
               {detours.map((detour, index) => (
                 <li className={styles.stop} key={detour.placeId || index}>
                   <span
                     className={`${styles.marker} ${styles.detourMarker}`}
-                    aria-hidden="true"
+                    role="img"
+                    aria-label={`${detour.type || "Detour"} stop`}
                   >
-                    {getDetourIconComponent(detour.type)}
+                    {getDetourIconComponent(detour.type, "1.25rem")}
                   </span>
                   <span className={styles.stopCopy}>
                     <span className={styles.stopName}>{detour.name}</span>
@@ -463,7 +473,13 @@ export default function JauntDetailPage() {
                 </li>
               ))}
               <li className={styles.stop}>
-                <span className={styles.marker}>B</span>
+                <span
+                  className={styles.marker}
+                  role="img"
+                  aria-label="Destination marker"
+                >
+                  <LocationRegular className={styles.markerIcon} />
+                </span>
                 <span className={styles.stopName}>
                   {trip.destination?.address}
                 </span>

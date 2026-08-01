@@ -20,9 +20,9 @@ import {
   DrinkCoffeeRegular,
   FoodRegular,
   GasRegular,
+  PersonWalkingRegular,
   PlugConnectedRegular,
   SearchRegular,
-  TreeDeciduousRegular,
 } from "@fluentui/react-icons";
 import DetourRequester from "../../../scripts/DetourRequester";
 import RouteRequester from "../../../scripts/RouteRequester";
@@ -33,9 +33,10 @@ import {
   jauntSpacing,
   jauntTypography,
 } from "../../../design-system/tokens";
+import "./DiscoverWorkspace.css";
 
 const CATEGORIES = [
-  { icon: TreeDeciduousRegular, label: "Hike" },
+  { icon: PersonWalkingRegular, label: "Hike" },
   { icon: DrinkCoffeeRegular, label: "Coffee" },
   { icon: BuildingRegular, label: "Museum" },
   { icon: BuildingBankRegular, label: "Landmark" },
@@ -44,6 +45,13 @@ const CATEGORIES = [
   { icon: GasRegular, label: "Gas Station" },
   { icon: PlugConnectedRegular, label: "Charging Station" },
 ];
+
+const sliderStyle = {
+  "--jaunt-slider-track": jauntColors.support.sky,
+  "--jaunt-slider-thumb": jauntColors.brand.primary,
+  "--jaunt-slider-thumb-border": jauntColors.neutral.background,
+  "--jaunt-slider-shadow": tokens.shadow4,
+};
 
 const useStyles = makeStyles({
   root: {
@@ -122,7 +130,7 @@ const useStyles = makeStyles({
   categoryIcon: {
     flexShrink: 0,
     color: jauntColors.brand.accentStrong,
-    fontSize: jauntTypography.size.bodyLarge,
+    fontSize: jauntTypography.size.titleSmall,
   },
   range: { display: "grid", rowGap: jauntSpacing[2] },
   rangeHeader: {
@@ -149,34 +157,6 @@ const useStyles = makeStyles({
     appearance: "none",
     backgroundColor: "transparent",
     cursor: "pointer",
-    "&::-webkit-slider-runnable-track": {
-      height: "0.375rem",
-      backgroundColor: jauntColors.support.sky,
-      borderRadius: jauntRadius.round,
-    },
-    "&::-webkit-slider-thumb": {
-      width: "1.25rem",
-      height: "1.25rem",
-      marginTop: "-0.4375rem",
-      appearance: "none",
-      backgroundColor: jauntColors.brand.primary,
-      borderRadius: jauntRadius.round,
-      boxShadow: tokens.shadow4,
-      ...shorthands.border("3px", "solid", jauntColors.neutral.background),
-    },
-    "&::-moz-range-track": {
-      height: "0.375rem",
-      backgroundColor: jauntColors.support.sky,
-      borderRadius: jauntRadius.round,
-    },
-    "&::-moz-range-thumb": {
-      width: "0.875rem",
-      height: "0.875rem",
-      backgroundColor: jauntColors.brand.primary,
-      borderRadius: jauntRadius.round,
-      boxShadow: tokens.shadow4,
-      ...shorthands.border("3px", "solid", jauntColors.neutral.background),
-    },
     ":focus-visible": {
       outline: `3px solid ${jauntColors.semantic.focus}`,
       outlineOffset: "2px",
@@ -489,12 +469,13 @@ export default function DiscoverWorkspace(props) {
           </output>
         </div>
         <input
-          className={styles.slider}
+          className={`${styles.slider} jaunt-discover-slider`}
           id="route-position"
           type="range"
           min={0}
           max={100}
           step="any"
+          style={sliderStyle}
           value={props.detourSearchLocation}
           onChange={(event) =>
             changeCriteria(() =>
@@ -516,12 +497,13 @@ export default function DiscoverWorkspace(props) {
           </output>
         </div>
         <input
-          className={styles.slider}
+          className={`${styles.slider} jaunt-discover-slider`}
           id="search-radius"
           type="range"
           min={5}
           max={50}
           step="any"
+          style={sliderStyle}
           value={props.detourSearchRadius / 1000}
           onChange={(event) =>
             changeCriteria(() =>

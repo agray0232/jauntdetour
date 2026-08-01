@@ -36,6 +36,7 @@ import {
   jauntSpacing,
   jauntTypography,
 } from "../../design-system/tokens";
+import "./PlannerWorkspace.css";
 
 const useStyles = makeStyles({
   root: {
@@ -59,12 +60,6 @@ const useStyles = makeStyles({
     "@media (max-height: 31.25rem) and (orientation: landscape)": {
       gridTemplateAreas: '"tools map"',
       gridTemplateColumns: "minmax(19rem, 46%) minmax(0, 54%)",
-      gridTemplateRows: "minmax(0, 1fr)",
-    },
-  },
-  mapExpanded: {
-    "@media (max-width: 48.75rem) and (min-height: 31.251rem)": {
-      gridTemplateAreas: '"map"',
       gridTemplateRows: "minmax(0, 1fr)",
     },
   },
@@ -110,7 +105,8 @@ const useStyles = makeStyles({
   },
   panelActionsReady: {
     minHeight: "2rem",
-    alignSelf: "end",
+    alignSelf: "center",
+    transform: "translateY(0.75rem)",
   },
   eyebrow: {
     color: jauntColors.brand.accentStrong,
@@ -218,7 +214,7 @@ const useStyles = makeStyles({
   mapBack: {
     position: "absolute",
     top: jauntSpacing[3],
-    left: jauntSpacing[3],
+    right: jauntSpacing[3],
     zIndex: 2,
     display: "none",
     color: tokens.colorNeutralForeground1,
@@ -337,7 +333,11 @@ export default function PlannerWorkspace(props) {
   ]);
 
   return (
-    <div className={`${styles.root} ${mapExpanded ? styles.mapExpanded : ""}`}>
+    <div
+      className={`${styles.root} jaunt-planner-root ${
+        mapExpanded ? "jaunt-planner-root--map-expanded" : ""
+      }`}
+    >
       <aside
         className={`${styles.tools} ${mapExpanded ? styles.toolsHidden : ""}`}
         aria-label="Jaunt planning tools"
@@ -361,15 +361,15 @@ export default function PlannerWorkspace(props) {
               </>
             )}
           </div>
-          <div
-            className={`${styles.panelActions} ${
-              props.showDetourButton ? styles.panelActionsReady : ""
-            }`}
-          >
-            <Badge appearance="tint" color={currentStatus.color}>
-              {currentStatus.label}
-            </Badge>
-          </div>
+          {props.showDetourButton ? (
+            <div
+              className={`${styles.panelActions} ${styles.panelActionsReady}`}
+            >
+              <Badge appearance="tint" color={currentStatus.color}>
+                {currentStatus.label}
+              </Badge>
+            </div>
+          ) : null}
         </div>
 
         <div className={styles.tabsRow}>
@@ -389,6 +389,9 @@ export default function PlannerWorkspace(props) {
               value="discover"
               icon={<SparkleRegular data-testid="discover-tab-icon" />}
               disabled={!props.showDetourButton}
+              style={
+                !props.showDetourButton ? { cursor: "default" } : undefined
+              }
             >
               Discover
             </Tab>
@@ -396,6 +399,9 @@ export default function PlannerWorkspace(props) {
               value="export"
               icon={<OpenRegular data-testid="export-tab-icon" />}
               disabled={!props.showDetourButton}
+              style={
+                !props.showDetourButton ? { cursor: "default" } : undefined
+              }
             >
               Export
             </Tab>

@@ -66,6 +66,10 @@ describe("DiscoverWorkspace", () => {
     fireEvent.click(screen.getByRole("radio", { name: "Coffee" }));
     expect(props.setDetourType).toHaveBeenCalledWith("Coffee");
     expect(screen.getAllByTestId(/category-icon-/)).toHaveLength(8);
+    expect(screen.getByTestId("category-icon-hike")).toHaveAttribute(
+      "viewBox",
+      "0 0 20 20"
+    );
 
     const routePosition = screen.getByRole("slider", {
       name: "Where along the route?",

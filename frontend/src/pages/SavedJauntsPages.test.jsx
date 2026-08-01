@@ -215,6 +215,11 @@ describe("JauntDetailPage", () => {
     expect(screen.getByText("258 mi")).toBeVisible();
     expect(screen.getByText("4 hr 5 min")).toBeVisible();
     expect(screen.getByText("Paris Mountain")).toBeVisible();
+    expect(screen.getByRole("img", { name: "Start marker" })).toBeVisible();
+    expect(screen.getByRole("img", { name: "Hike stop" })).toBeVisible();
+    expect(
+      screen.getByRole("img", { name: "Destination marker" })
+    ).toBeVisible();
     expect(screen.getByText("Saved route map")).toBeVisible();
     expect(store.getState().origin).toBe("Current route");
   });

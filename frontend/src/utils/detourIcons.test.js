@@ -1,4 +1,5 @@
 import { getDetourIconComponent, getAvailableDetourTypes } from "./detourIcons";
+import { PersonWalkingRegular } from "@fluentui/react-icons";
 
 describe("detourIcons", () => {
   describe("getAvailableDetourTypes", () => {
@@ -28,7 +29,7 @@ describe("detourIcons", () => {
     it("should return a React component", () => {
       const icon = getDetourIconComponent("hike");
       expect(icon).toBeDefined();
-      expect(icon.type).toBeDefined();
+      expect(icon.type).toBe(PersonWalkingRegular);
     });
 
     it("should return an icon for known types", () => {

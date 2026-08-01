@@ -207,7 +207,9 @@ function MapContainer(props) {
           height: "100%",
         }}
         defaultCenter={{ lat: 33.749, lng: -84.388 }}
+        fullscreenControl={false}
         mapId="DEMO_MAP_ID"
+        streetViewControl={false}
       >
         <MapResizeObserver />
 
@@ -297,11 +299,10 @@ function MapContainer(props) {
                   color: jauntColors.neutral.foregroundOnDark,
                   backgroundColor: jauntColors.map.stop,
                   boxShadow: "0 2px 8px #14282f33",
-                  fontSize: "1rem",
                 }}
                 aria-hidden="true"
               >
-                {getDetourIconComponent(detour.type)}
+                {getDetourIconComponent(detour.type, "1.375rem")}
               </span>
             </AdvancedMarker>
           ))}

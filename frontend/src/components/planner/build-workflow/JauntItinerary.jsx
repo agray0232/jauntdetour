@@ -88,6 +88,9 @@ const useStyles = makeStyles({
   stopMarker: {
     backgroundColor: jauntColors.map.stop,
   },
+  destinationIcon: {
+    fontSize: "1.25rem",
+  },
   itemCopy: {
     display: "grid",
     minWidth: 0,
@@ -247,7 +250,7 @@ export default function JauntItinerary({
                 role="img"
                 aria-label={`${detour.type || "Detour"} stop`}
               >
-                {getDetourIconComponent(detour.type)}
+                {getDetourIconComponent(detour.type, "1.25rem")}
               </span>
               <span className={styles.itemCopy}>
                 <Text className={styles.itemTitle}>{detour.name}</Text>
@@ -304,7 +307,10 @@ export default function JauntItinerary({
 
         <li className={styles.item}>
           <span className={styles.marker} aria-hidden="true">
-            <LocationRegular />
+            <LocationRegular
+              className={styles.destinationIcon}
+              data-testid="destination-marker-icon"
+            />
           </span>
           <span className={styles.itemCopy}>
             <Text className={styles.itemTitle}>{destination}</Text>

@@ -7,12 +7,12 @@ import {
   FoodRegular,
   GasPumpRegular,
   LocationRegular,
-  MountainLocationTopRegular,
+  PersonWalkingRegular,
   PlugConnectedRegular,
 } from "@fluentui/react-icons";
 
 const DETOUR_ICON_MAP = {
-  hike: MountainLocationTopRegular,
+  hike: PersonWalkingRegular,
   coffee: DrinkCoffeeRegular,
   museum: BuildingBankRegular,
   landmark: BuildingGovernmentRegular,

@@ -153,7 +153,7 @@ describe("PlannerWorkspace", () => {
     expect(
       screen.queryByText("Route details instance")
     ).not.toBeInTheDocument();
-    expect(screen.getByText("Not saved")).toBeVisible();
+    expect(screen.queryByText("Not saved")).not.toBeInTheDocument();
     expect(screen.queryByText("My Jaunts control")).not.toBeInTheDocument();
     expect(screen.getAllByText("Map instance")).toHaveLength(1);
   });
@@ -183,6 +183,7 @@ describe("PlannerWorkspace", () => {
     expect(screen.getAllByText("Route details instance")).toHaveLength(1);
     expect(screen.getAllByText("Discover workspace instance")).toHaveLength(1);
     expect(screen.getAllByText("Map instance")).toHaveLength(1);
+    expect(screen.getByText("Not saved")).toBeVisible();
   });
 
   it("keeps Discover unavailable until a route exists", () => {
