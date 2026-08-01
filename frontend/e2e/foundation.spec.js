@@ -117,9 +117,10 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(page.getByRole("textbox", { name: "Destination" })).toHaveCount(
     1
   );
-  await expect(
-    page.getByRole("link", { name: "Plan a Jaunt" })
-  ).toHaveAttribute("aria-current", "page");
+  await expect(page.locator('nav:visible a[href="/plan"]')).toHaveAttribute(
+    "aria-current",
+    "page"
+  );
   await expect(
     page.getByRole("complementary", { name: "Jaunt planning tools" })
   ).toHaveCount(1);
