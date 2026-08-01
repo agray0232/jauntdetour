@@ -30,34 +30,37 @@ export function AuthSessionProvider({ children }) {
   useEffect(() => {
     let active = true;
 
-    requesterRef.current.getCurrentUser().then((currentUser) => {
-      if (!active) {
-        return;
-      }
-
-      if (currentUser) {
-        dispatch({ type: "SET_USER", data: { user: currentUser } });
-        setStatus("signedIn");
-
-        const returnPath = consumeAuthReturnPath();
-        const currentPath = initialPathRef.current;
-        if (returnPath && returnPath !== currentPath) {
-          navigateRef.current(returnPath, { replace: true });
+    requesterRef.current
+      .getCurrentUser()
+      .then((currentUser) => {
+        if (!active) {
+          return;
         }
-      } else {
+
+        if (currentUser) {
+          dispatch({ type: "SET_USER", data: { user: currentUser } });
+          setStatus("signedIn");
+
+          const returnPath = consumeAuthReturnPath();
+          const currentPath = initialPathRef.current;
+          if (returnPath && returnPath !== currentPath) {
+            navigateRef.current(returnPath, { replace: true });
+          }
+        } else {
+          dispatch({ type: "CLEAR_USER" });
+          setStatus("signedOut");
+        }
+      })
+      .catch(() => {
+        // getCurrentUser() resolves to null on error today, but guard against a
+        // rejected promise so status never gets stuck on "checking" (which would
+        // leave protected routes spinning forever).
+        if (!active) {
+          return;
+        }
         dispatch({ type: "CLEAR_USER" });
         setStatus("signedOut");
-      }
-    }).catch(() => {
-      // getCurrentUser() resolves to null on error today, but guard against a
-      // rejected promise so status never gets stuck on "checking" (which would
-      // leave protected routes spinning forever).
-      if (!active) {
-        return;
-      }
-      dispatch({ type: "CLEAR_USER" });
-      setStatus("signedOut");
-    });
+      });
 
     return () => {
       active = false;
