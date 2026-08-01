@@ -150,8 +150,13 @@ class TripRepository {
     let position = 1;
     let text = `
       SELECT ${RETURNING_COLUMNS},
-        (SELECT COUNT(*)::int FROM detours d WHERE d.trip_id = trips.trip_id) AS detour_count
+        COALESCE(dc.detour_count, 0) AS detour_count
       FROM trips
+      LEFT JOIN (
+        SELECT d.trip_id, COUNT(*)::int AS detour_count
+        FROM detours d
+        GROUP BY d.trip_id
+      ) dc ON dc.trip_id = trips.trip_id
       WHERE user_id = $1
     `;
     if (status !== undefined) {

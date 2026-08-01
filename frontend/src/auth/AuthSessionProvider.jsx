@@ -48,6 +48,15 @@ export function AuthSessionProvider({ children }) {
         dispatch({ type: "CLEAR_USER" });
         setStatus("signedOut");
       }
+    }).catch(() => {
+      // getCurrentUser() resolves to null on error today, but guard against a
+      // rejected promise so status never gets stuck on "checking" (which would
+      // leave protected routes spinning forever).
+      if (!active) {
+        return;
+      }
+      dispatch({ type: "CLEAR_USER" });
+      setStatus("signedOut");
     });
 
     return () => {
