@@ -1,8 +1,4 @@
-import {
-  getDetourIconComponent,
-  getDetourIconElement,
-  getAvailableDetourTypes,
-} from "./detourIcons";
+import { getDetourIconComponent, getAvailableDetourTypes } from "./detourIcons";
 
 describe("detourIcons", () => {
   describe("getAvailableDetourTypes", () => {
@@ -59,43 +55,6 @@ describe("detourIcons", () => {
       const undefinedIcon = getDetourIconComponent(undefined);
       expect(nullIcon).toBeDefined();
       expect(undefinedIcon).toBeDefined();
-    });
-  });
-
-  describe("getDetourIconElement", () => {
-    it("should return an HTMLElement", () => {
-      const element = getDetourIconElement("hike");
-      expect(element).toBeInstanceOf(HTMLElement);
-    });
-
-    it("should create element for known types", () => {
-      const element = getDetourIconElement("restaurant");
-      expect(element).toBeDefined();
-      expect(element.tagName).toBe("DIV");
-    });
-
-    it("should apply default styles", () => {
-      const element = getDetourIconElement("coffee");
-      expect(element.style.fontSize).toBe("12px");
-      expect(element.style.display).toBe("flex");
-      expect(element.style.justifyContent).toBe("center");
-      expect(element.style.alignItems).toBe("center");
-    });
-
-    it("should apply custom styles", () => {
-      const customStyles = {
-        color: "red",
-        fontSize: "24px",
-      };
-      const element = getDetourIconElement("hike", customStyles);
-      expect(element.style.color).toBe("red");
-      expect(element.style.fontSize).toBe("24px");
-    });
-
-    it("should handle unknown types with default icon", () => {
-      const element = getDetourIconElement("unknown-type");
-      expect(element).toBeDefined();
-      expect(element.tagName).toBe("DIV");
     });
   });
 });

@@ -9,8 +9,6 @@ import JauntDetailPage from "./pages/JauntDetailPage";
 import MyJauntsPage from "./pages/MyJauntsPage";
 import PlannerPage from "./pages/PlannerPage";
 import RoutePlaceholderPage from "./pages/RoutePlaceholderPage";
-import "./styles/App.css";
-import "./styles/TripTimeline.css";
 
 const DesignSystemCatalog =
   process.env.NODE_ENV !== "production"

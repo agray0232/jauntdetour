@@ -1,33 +1,30 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { icon } from "@fortawesome/fontawesome-svg-core";
 import {
-  faMapMarkerAlt,
-  faHiking,
-  faCoffee,
-  faLandmark,
-  faMonument,
-  faUtensils,
-  faGlassMartiniAlt,
-  faGasPump,
-  faChargingStation,
-} from "@fortawesome/free-solid-svg-icons";
+  BuildingBankRegular,
+  BuildingGovernmentRegular,
+  DrinkCoffeeRegular,
+  DrinkMargaritaRegular,
+  FoodRegular,
+  GasPumpRegular,
+  LocationRegular,
+  MountainLocationTopRegular,
+  PlugConnectedRegular,
+} from "@fluentui/react-icons";
 
-// Central mapping object from detour types to FontAwesome icons
 const DETOUR_ICON_MAP = {
-  hike: faHiking,
-  coffee: faCoffee,
-  museum: faLandmark,
-  landmark: faMonument,
-  restaurant: faUtensils,
-  bar: faGlassMartiniAlt,
-  "gas station": faGasPump,
-  "gas-station": faGasPump,
-  "charging station": faChargingStation,
-  "charging-station": faChargingStation,
-  origin: faMapMarkerAlt,
-  destination: faMapMarkerAlt,
-  default: faMapMarkerAlt,
+  hike: MountainLocationTopRegular,
+  coffee: DrinkCoffeeRegular,
+  museum: BuildingBankRegular,
+  landmark: BuildingGovernmentRegular,
+  restaurant: FoodRegular,
+  bar: DrinkMargaritaRegular,
+  "gas station": GasPumpRegular,
+  "gas-station": GasPumpRegular,
+  "charging station": PlugConnectedRegular,
+  "charging-station": PlugConnectedRegular,
+  origin: LocationRegular,
+  destination: LocationRegular,
+  default: LocationRegular,
 };
 
 /**
@@ -41,53 +38,24 @@ function normalizeDetourType(type) {
 }
 
 /**
- * Get FontAwesome icon definition for a detour type
+ * Get the Fluent icon component for a detour type.
  * @param {string} type - The detour type
- * @returns {Object} - FontAwesome icon definition
+ * @returns {React.ComponentType} Fluent icon component
  */
-function getIconDefinition(type) {
+function getIconComponent(type) {
   const normalizedType = normalizeDetourType(type);
   return DETOUR_ICON_MAP[normalizedType] || DETOUR_ICON_MAP.default;
 }
 
 /**
- * Get FontAwesome icon component for React (used in sidebar)
+ * Get a detour icon for React compositions and map markers.
  * @param {string} type - The detour type
- * @param {string} size - Optional size prop for FontAwesome (xs, sm, lg, etc.)
- * @returns {React.Component} - FontAwesome icon component
+ * @param {string|number} size - Optional icon font size
+ * @returns {React.Component} Fluent icon element
  */
 export function getDetourIconComponent(type, size = undefined) {
-  const iconDefinition = getIconDefinition(type);
-  return <FontAwesomeIcon icon={iconDefinition} size={size} />;
-}
-
-/**
- * Get DOM element with FontAwesome SVG for Google Maps pins
- * @param {string} type - The detour type
- * @param {Object} styles - Optional custom styles for the element
- * @returns {HTMLElement} - DOM element containing FontAwesome SVG
- */
-export function getDetourIconElement(type, styles = {}) {
-  const iconDefinition = getIconDefinition(type);
-
-  // Generate the SVG using FontAwesome's icon function
-  const faIcon = icon(iconDefinition);
-
-  // Create a custom marker element with the FontAwesome SVG
-  const markerElement = document.createElement("div");
-  markerElement.innerHTML = faIcon.html[0];
-
-  // Apply default styles
-  markerElement.style.color = styles.color || "inherit";
-  markerElement.style.fontSize = styles.fontSize || "12px";
-  markerElement.style.display = "flex";
-  markerElement.style.justifyContent = "center";
-  markerElement.style.alignItems = "center";
-
-  // Apply any additional custom styles
-  Object.assign(markerElement.style, styles);
-
-  return markerElement;
+  const IconComponent = getIconComponent(type);
+  return <IconComponent aria-hidden="true" fontSize={size} />;
 }
 
 /**

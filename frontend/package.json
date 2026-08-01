@@ -5,11 +5,8 @@
   "dependencies": {
     "@fluentui/react-components": "^9.74.3",
     "@fluentui/react-icons": "^2.0.331",
-    "@fortawesome/free-solid-svg-icons": "6.7.2",
-    "@fortawesome/react-fontawesome": "0.2.2",
     "@vis.gl/react-google-maps": "1.5.4",
     "axios": "1.12.0",
-    "jquery": "3.7.1",
     "loglevel": "^1.9.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",

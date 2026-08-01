@@ -1,4 +1,4 @@
-import Main from "../components/Main";
+import PlannerWorkspace from "../components/planner/PlannerWorkspace";
 import { connect } from "react-redux";
 
 let matchStateToProps = (state) => {
@@ -124,4 +124,7 @@ let matchDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(matchStateToProps, matchDispatchToProps)(Main);
+export default connect(
+  matchStateToProps,
+  matchDispatchToProps
+)(PlannerWorkspace);
