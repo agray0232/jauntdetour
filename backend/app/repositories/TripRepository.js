@@ -149,7 +149,8 @@ class TripRepository {
     const params = [userId];
     let position = 1;
     let text = `
-      SELECT ${RETURNING_COLUMNS}
+      SELECT ${RETURNING_COLUMNS},
+        (SELECT COUNT(*)::int FROM detours d WHERE d.trip_id = trips.trip_id) AS detour_count
       FROM trips
       WHERE user_id = $1
     `;

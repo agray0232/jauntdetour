@@ -4,6 +4,8 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import AppShell from "./components/shell/AppShell";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
+import JauntDetailPage from "./pages/JauntDetailPage";
+import MyJauntsPage from "./pages/MyJauntsPage";
 import PlannerPage from "./pages/PlannerPage";
 import RoutePlaceholderPage from "./pages/RoutePlaceholderPage";
 import "./styles/App.css";
@@ -36,10 +38,7 @@ function App() {
           path="trips"
           element={
             <ProtectedRoute title="My Jaunts">
-              <RoutePlaceholderPage title="My Jaunts">
-                Your routed saved-Jaunt library will replace the existing
-                planner drawer after Build and Discover reach feature parity.
-              </RoutePlaceholderPage>
+              <MyJauntsPage />
             </ProtectedRoute>
           }
         />
@@ -47,10 +46,7 @@ function App() {
           path="trips/:tripId"
           element={
             <ProtectedRoute title="this Jaunt">
-              <RoutePlaceholderPage title="Jaunt detail">
-                Saved route details and Resume Planning will be implemented with
-                the routed My Jaunts experience.
-              </RoutePlaceholderPage>
+              <JauntDetailPage />
             </ProtectedRoute>
           }
         />

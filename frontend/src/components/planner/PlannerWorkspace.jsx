@@ -239,6 +239,7 @@ export default function PlannerWorkspace(props) {
   const [saveOperation, setSaveOperation] = useState("idle");
   const [plannerFeedback, setPlannerFeedback] = useState("");
   const previousSuggestedNameRef = useRef("");
+  const previousTripNameRef = useRef(props.tripName);
   const tripNameRef = useRef(props.tripName);
 
   useEffect(() => {
@@ -304,13 +305,22 @@ export default function PlannerWorkspace(props) {
 
   useEffect(() => {
     const previousSuggestion = previousSuggestedNameRef.current;
+    const previousTripName = previousTripNameRef.current;
     previousSuggestedNameRef.current = routeTitle;
+    previousTripNameRef.current = props.tripName;
 
     if (!props.showDetourButton || !routeTitle || props.currentTrip) {
       return;
     }
 
     const currentName = tripNameRef.current?.trim() || "";
+    const clearedExistingName =
+      Boolean(previousTripName?.trim()) &&
+      !currentName &&
+      previousSuggestion === routeTitle;
+    if (clearedExistingName) {
+      return;
+    }
     const usesGeneratedName =
       !currentName ||
       (previousSuggestion && currentName === previousSuggestion);
