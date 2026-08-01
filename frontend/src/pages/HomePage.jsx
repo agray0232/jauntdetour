@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRightRegular,
-  CompassNorthwestRegular,
   MapRegular,
   OpenRegular,
   SaveRegular,
@@ -10,6 +9,7 @@ import {
 } from "@fluentui/react-icons";
 import { makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import ProductPreview from "../components/home/ProductPreview";
+import DiscoverPreview from "../components/home/DiscoverPreview";
 import SiteFooter from "../components/home/SiteFooter";
 import heroImage from "../assets/home/open-road.jpg";
 import {
@@ -30,7 +30,7 @@ const useStyles = makeStyles({
     minHeight: "calc(100dvh - 12rem)",
     alignItems: "center",
     overflow: "hidden",
-    padding: `${jauntSpacing[8]} max(${jauntSpacing[5]}, calc((100vw - 80rem) / 2)) ${jauntSpacing[9]}`,
+    padding: `${jauntSpacing[8]} max(${jauntSpacing[5]}, calc((100vw - 108rem) / 2)) ${jauntSpacing[9]}`,
     color: jauntColors.neutral.foregroundOnDark,
     backgroundColor: jauntColors.neutral.foreground,
     backgroundImage: `url(${heroImage})`,
@@ -193,41 +193,6 @@ const useStyles = makeStyles({
       textDecorationLine: "underline",
     },
   },
-  walkthroughVisual: {
-    position: "relative",
-    minHeight: "25rem",
-    overflow: "hidden",
-    backgroundColor: "#dce9df",
-    backgroundImage:
-      "linear-gradient(24deg, transparent 48%, rgba(255,255,255,0.82) 49%, rgba(255,255,255,0.82) 51%, transparent 52%), linear-gradient(108deg, transparent 45%, rgba(180,202,188,0.82) 46%, rgba(180,202,188,0.82) 48%, transparent 49%)",
-    boxShadow: tokens.shadow16,
-    ...shorthands.border("8px", "solid", tokens.colorNeutralBackground1),
-  },
-  walkthroughRoute: {
-    position: "absolute",
-    top: "-8%",
-    left: "48%",
-    width: "0.375rem",
-    height: "116%",
-    backgroundColor: jauntColors.map.route,
-    transform: "rotate(26deg)",
-  },
-  walkthroughPanel: {
-    position: "absolute",
-    right: jauntSpacing[5],
-    bottom: jauntSpacing[5],
-    display: "grid",
-    width: "18rem",
-    padding: jauntSpacing[5],
-    rowGap: jauntSpacing[2],
-    backgroundColor: tokens.colorNeutralBackground1,
-    boxShadow: tokens.shadow16,
-    borderTop: `4px solid ${jauntColors.brand.accent}`,
-  },
-  panelLabel: {
-    color: tokens.colorNeutralForeground2,
-    fontSize: jauntTypography.size.bodySmall,
-  },
   ultraCompactAction: {
     "@media (max-width: 20rem)": {
       width: "100%",
@@ -319,11 +284,6 @@ const useStyles = makeStyles({
       gridTemplateColumns: "1fr",
       padding: `${jauntSpacing[8]} ${jauntSpacing[4]}`,
       gap: jauntSpacing[6],
-    },
-  },
-  smallPreview: {
-    "@media (max-width: 30rem)": {
-      minHeight: "18rem",
     },
   },
 });
@@ -429,19 +389,7 @@ export default function HomePage() {
             Open the planner <OpenRegular aria-hidden="true" />
           </Link>
         </div>
-        <div
-          className={`${styles.walkthroughVisual} ${styles.smallPreview}`}
-          role="img"
-          aria-label="Route discovery preview with fourteen places near the midpoint"
-        >
-          <span className={styles.walkthroughRoute} aria-hidden="true" />
-          <div className={styles.walkthroughPanel}>
-            <CompassNorthwestRegular aria-hidden="true" />
-            <span className={styles.panelLabel}>Discover</span>
-            <strong>14 places near the midpoint</strong>
-            <span className={styles.panelLabel}>Hikes within 20 km</span>
-          </div>
-        </div>
+        <DiscoverPreview />
       </section>
 
       <SiteFooter />
