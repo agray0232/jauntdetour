@@ -202,7 +202,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.package-version.outputs.version }}
 
       - name: Verify production CORS headers
-        run: .github/scripts/verify-production-cors.sh
+        run: bash .github/scripts/verify-production-cors.sh
 
   deploy-frontend:
     needs: build-frontend
