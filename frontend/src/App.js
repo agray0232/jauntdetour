@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import JauntDetailPage from "./pages/JauntDetailPage";
 import MyJauntsPage from "./pages/MyJauntsPage";
 import PlannerPage from "./pages/PlannerPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import RoutePlaceholderPage from "./pages/RoutePlaceholderPage";
 
 const DesignSystemCatalog =
@@ -50,6 +51,7 @@ function App() {
           }
         />
         <Route path="about" element={<AboutPage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
         <Route
           path="account"
           element={

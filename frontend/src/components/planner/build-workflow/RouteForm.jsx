@@ -26,6 +26,7 @@ import {
 } from "@fluentui/react-icons";
 import RouteRequester from "../../../scripts/RouteRequester";
 import { jauntSpacing, jauntTypography } from "../../../design-system/tokens";
+import { trackEvent } from "../../../telemetry/telemetry";
 
 const useStyles = makeStyles({
   root: {
@@ -128,6 +129,7 @@ export default function RouteForm({
     setStatus("ready");
     setIncompatibleRoute(null);
     onRouteReady();
+    trackEvent("route_search_succeeded", { feature: "route" });
   };
 
   const requestRoute = async () => {
@@ -142,6 +144,7 @@ export default function RouteForm({
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
     setStatus("loading");
+    trackEvent("route_search_started", { feature: "route" });
 
     try {
       const requester = new RouteRequester();
@@ -180,6 +183,10 @@ export default function RouteForm({
           }
         }
         setStatus("error");
+        trackEvent("route_search_failed", {
+          failureClass: "no_route",
+          feature: "route",
+        });
         setErrorMessage(
           "We could not find a drive between those places. Check both locations and try again."
         );
@@ -194,6 +201,10 @@ export default function RouteForm({
         return;
       }
       setStatus("error");
+      trackEvent("route_search_failed", {
+        failureClass: "request_failed",
+        feature: "route",
+      });
       setErrorMessage(
         "The route could not be created. Check your connection and try again."
       );

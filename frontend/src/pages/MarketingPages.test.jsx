@@ -5,6 +5,7 @@ import { FluentProvider } from "@fluentui/react-components";
 import { MemoryRouter } from "react-router-dom";
 import AboutPage from "./AboutPage";
 import HomePage from "./HomePage";
+import PrivacyPage from "./PrivacyPage";
 import { jauntDetourTheme } from "../design-system/jauntDetourTheme";
 
 function renderPage(page) {
@@ -85,6 +86,29 @@ describe("AboutPage", () => {
 
   it("has no automated accessibility violations", async () => {
     const { container } = renderPage(<AboutPage />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe("PrivacyPage", () => {
+  it("describes storage-free telemetry and its data boundaries", () => {
+    renderPage(<PrivacyPage />);
+
+    expect(
+      screen.getByRole("heading", { name: "Privacy", level: 1 })
+    ).toBeVisible();
+    expect(
+      screen.getByText(/does not create analytics cookies/i)
+    ).toBeVisible();
+    expect(
+      screen.getByText(/retained in Microsoft Azure for 90 days/i)
+    ).toBeVisible();
+    expect(screen.getByText(/route addresses, coordinates/i)).toBeVisible();
+  });
+
+  it("has no automated accessibility violations", async () => {
+    const { container } = renderPage(<PrivacyPage />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

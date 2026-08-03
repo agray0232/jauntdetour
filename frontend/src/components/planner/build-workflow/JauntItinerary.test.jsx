@@ -5,8 +5,10 @@ import { FluentProvider } from "@fluentui/react-components";
 import JauntItinerary from "./JauntItinerary";
 import RouteRequester from "../../../scripts/RouteRequester";
 import { jauntDetourTheme } from "../../../design-system/jauntDetourTheme";
+import { trackEvent } from "../../../telemetry/telemetry";
 
 jest.mock("../../../scripts/RouteRequester");
+jest.mock("../../../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
 
 const detours = [
   {
@@ -46,7 +48,10 @@ function renderItinerary(props) {
 }
 
 describe("JauntItinerary", () => {
-  beforeEach(() => RouteRequester.mockReset());
+  beforeEach(() => {
+    RouteRequester.mockReset();
+    trackEvent.mockReset();
+  });
 
   it("renders a complete non-map route sequence", () => {
     renderItinerary(createProps());
@@ -81,6 +86,11 @@ describe("JauntItinerary", () => {
     );
     expect(props.setRoute).toHaveBeenCalledWith(route);
     expect(props.setTripSummary).toHaveBeenCalledWith(route.summary);
+    expect(trackEvent).toHaveBeenCalledWith("detour_removed", {
+      category: "Hike",
+      countBucket: "1-5",
+      feature: "detour",
+    });
   });
 
   it("retains the itinerary on failure and retries the same mutation", async () => {
@@ -97,6 +107,10 @@ describe("JauntItinerary", () => {
     );
     expect(await screen.findByText(/itinerary was not changed/i)).toBeVisible();
     expect(props.setDetourList).not.toHaveBeenCalled();
+    expect(trackEvent).not.toHaveBeenCalledWith(
+      "detour_removed",
+      expect.anything()
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(props.setDetourList).toHaveBeenCalledTimes(1));

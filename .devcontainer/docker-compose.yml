@@ -39,6 +39,7 @@ services:
       # 01 creates the schema (tables must exist before 02 grants on them).
       - ../docs/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./init/02-create-app-user.sql:/docker-entrypoint-initdb.d/02-create-app-user.sql:ro
+      - ../docs/database/reporting.sql:/docker-entrypoint-initdb.d/03-reporting.sql:ro
     ports:
       # Exposed to the host so GUI tools (DBeaver/pgAdmin) can connect on localhost:5432.
       - "5432:5432"

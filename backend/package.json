@@ -21,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@azure/monitor-opentelemetry": "^1.18.1",
     "@azure/msal-node": "^5.3.1",
     "axios": "1.10.0",
     "body-parser": "2.2.0",

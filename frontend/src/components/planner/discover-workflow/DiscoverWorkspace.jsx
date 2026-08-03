@@ -26,6 +26,7 @@ import {
 } from "@fluentui/react-icons";
 import DetourRequester from "../../../scripts/DetourRequester";
 import RouteRequester from "../../../scripts/RouteRequester";
+import { trackEvent } from "../../../telemetry/telemetry";
 import { getRoutePoint } from "./discoverRoute";
 import {
   jauntColors,
@@ -45,6 +46,13 @@ const CATEGORIES = [
   { icon: GasRegular, label: "Gas Station" },
   { icon: PlugConnectedRegular, label: "Charging Station" },
 ];
+
+function getCountBucket(count) {
+  if (count === 0) return "0";
+  if (count <= 5) return "1-5";
+  if (count <= 10) return "6-10";
+  return "11+";
+}
 
 const sliderStyle = {
   "--jaunt-slider-track": jauntColors.support.sky,
@@ -296,13 +304,32 @@ export default function DiscoverWorkspace(props) {
     setAddErrorId(null);
   };
 
+  const selectCategory = (category) => {
+    if (category !== props.detourType) {
+      trackEvent("detour_category_selected", {
+        category,
+        feature: "detour",
+      });
+    }
+    changeCriteria(() => props.setDetourType(category));
+  };
+
   const search = async () => {
     const point = getRoutePoint(props.route, props.detourSearchLocation);
     if (!point) {
       setStatus("error");
+      trackEvent("detour_search_failed", {
+        category: props.detourType,
+        failureClass: "invalid_route",
+        feature: "detour",
+      });
       return;
     }
     setStatus("searching");
+    trackEvent("detour_search_started", {
+      category: props.detourType,
+      feature: "detour",
+    });
     props.setDetourOptions([]);
     props.setDetourHighlight([]);
     try {
@@ -324,14 +351,31 @@ export default function DiscoverWorkspace(props) {
       );
       props.setDetourOptions(results);
       setStatus(results.length > 0 ? "success" : "empty");
+      trackEvent(
+        results.length > 0 ? "detour_search_succeeded" : "detour_search_empty",
+        {
+          category: props.detourType,
+          feature: "detour",
+          resultCountBucket: getCountBucket(results.length),
+        }
+      );
     } catch {
       setStatus("error");
+      trackEvent("detour_search_failed", {
+        category: props.detourType,
+        failureClass: "request_failed",
+        feature: "detour",
+      });
     }
   };
 
   const addResult = async (result) => {
     setAddingId(result.place_id);
     setAddErrorId(null);
+    trackEvent("detour_add_started", {
+      category: result.type,
+      feature: "detour",
+    });
     try {
       const waypointIds = [
         ...props.detourList.map((detour) => detour.placeId),
@@ -369,9 +413,19 @@ export default function DiscoverWorkspace(props) {
       setStatus("idle");
       setAddingId(null);
       props.onAdded(result.name, addedTime);
+      trackEvent("detour_added", {
+        category: result.type,
+        countBucket: getCountBucket(props.detourList.length + 1),
+        feature: "detour",
+      });
     } catch {
       setAddingId(null);
       setAddErrorId(result.place_id);
+      trackEvent("detour_add_failed", {
+        category: result.type,
+        failureClass: "route_update_failed",
+        feature: "detour",
+      });
     }
   };
 
@@ -429,11 +483,9 @@ export default function DiscoverWorkspace(props) {
                   return;
                 }
                 event.preventDefault();
-                changeCriteria(() => props.setDetourType(label));
+                selectCategory(label);
               }}
-              onTouchStart={() =>
-                changeCriteria(() => props.setDetourType(label))
-              }
+              onTouchStart={() => selectCategory(label)}
             >
               <input
                 className={styles.categoryInput}
@@ -441,9 +493,7 @@ export default function DiscoverWorkspace(props) {
                 name="detour-category"
                 value={label}
                 checked={props.detourType === label}
-                onChange={() =>
-                  changeCriteria(() => props.setDetourType(label))
-                }
+                onChange={() => selectCategory(label)}
               />
               <span className={styles.categoryLabel}>
                 <CategoryIcon

@@ -23,6 +23,7 @@ import TripRequester, { buildTripPayload } from "../../scripts/TripRequester";
 import AuthRequester from "../../scripts/AuthRequester";
 import { createPlannerFingerprint } from "../planner/build-workflow/plannerFingerprint";
 import { jauntSpacing, jauntTypography } from "../../design-system/tokens";
+import { trackEvent } from "../../telemetry/telemetry";
 
 const RESUME_SAVE_KEY = "jaunt.resumeSaveTrip";
 
@@ -120,6 +121,8 @@ export default function SaveTrip({
     (name) => {
       setSaving(true);
       onStatusChange("saving");
+      const mode = currentTrip ? "update" : "create";
+      trackEvent("trip_save_started", { feature: "trip", mode });
       const payload = buildTripPayload(
         { origin, destination, route, detourList },
         name,
@@ -147,6 +150,7 @@ export default function SaveTrip({
               },
             },
           });
+          return "create";
         });
 
       const save = currentTrip
@@ -177,6 +181,7 @@ export default function SaveTrip({
                   },
                 },
               });
+              return "update";
             })
             .catch((error) => {
               if (error?.response?.status === 404) {
@@ -187,15 +192,24 @@ export default function SaveTrip({
         : create();
 
       return save
-        .then(() => {
+        .then((completedMode) => {
           setNameDialogOpen(false);
           dispatch({ type: "BUMP_TRIPS_REVISION" });
           onStatusChange("idle");
           showToast("Jaunt saved", "success");
+          trackEvent("trip_save_succeeded", {
+            feature: "trip",
+            mode: completedMode,
+          });
         })
         .catch(() => {
           onStatusChange("failed");
           showToast("Could not save Jaunt. Please try again.", "error");
+          trackEvent("trip_save_failed", {
+            failureClass: "request_failed",
+            feature: "trip",
+            mode,
+          });
         })
         .finally(() => setSaving(false));
     },
@@ -233,6 +247,7 @@ export default function SaveTrip({
   const handlePrimaryClick = () => {
     if (!user) {
       setSignInDialogOpen(true);
+      trackEvent("trip_save_auth_required", { feature: "trip" });
       return;
     }
     requestSave();
@@ -240,6 +255,7 @@ export default function SaveTrip({
 
   const handleSignIn = () => {
     sessionStorage.setItem(RESUME_SAVE_KEY, "1");
+    trackEvent("sign_in_started", { feature: "trip", source: "save" });
     auth.login();
   };
 

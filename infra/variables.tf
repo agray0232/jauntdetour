@@ -16,6 +16,30 @@ variable "location" {
   default     = "centralus"
 }
 
+variable "log_analytics_workspace_name" {
+  description = "Name of the Log Analytics workspace used for application telemetry"
+  type        = string
+  default     = "jauntdetour-logs-prod"
+}
+
+variable "application_insights_name" {
+  description = "Name of the workspace-based Application Insights resource"
+  type        = string
+  default     = "jauntdetour-insights-prod"
+}
+
+variable "telemetry_retention_days" {
+  description = "Number of days detailed application telemetry is retained"
+  type        = number
+  default     = 90
+}
+
+variable "telemetry_daily_quota_gb" {
+  description = "Daily telemetry ingestion cap in gigabytes"
+  type        = number
+  default     = 1
+}
+
 variable "server_name" {
   description = "Globally unique name of the PostgreSQL Flexible Server."
   type        = string

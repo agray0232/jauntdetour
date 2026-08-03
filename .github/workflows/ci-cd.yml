@@ -158,6 +158,7 @@ jobs:
           build-args: |
             REACT_APP_GOOGLE_API_KEY=${{ secrets.REACT_APP_GOOGLE_API_KEY }}
             REACT_APP_BACKEND_URL=https://api.jauntdetour.com
+            REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING=${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
