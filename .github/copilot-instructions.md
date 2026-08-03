@@ -32,11 +32,13 @@ trips.
     (`https://<subdomain>.ciamlogin.com/<tenantId>`) or CIAM discovery fails with
     `endpoints_resolution_error`. Config: `backend/config/auth.js`.
   - Env: `ENTRA_TENANT_SUBDOMAIN`, `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID`,
-    `ENTRA_CLIENT_SECRET`, `ENTRA_REDIRECT_URI`, `SESSION_SECRET`, `FRONTEND_URL`.
+    `ENTRA_CLIENT_SECRET`, `ENTRA_REDIRECT_URI`, `SESSION_SECRET`, `FRONTEND_URL`,
+    `CORS_ALLOWED_ORIGINS`.
 - **Cookies/CORS**: session cookie is `httpOnly`; `sameSite="none"` + `secure` in
   prod (frontend/backend are cross-site on `*.azurewebsites.net`), `lax` in dev.
-  CORS uses an explicit origin (`FRONTEND_URL`) + `credentials: true`; frontend
-  axios calls that need auth use `withCredentials: true`.
+  CORS uses the explicit `CORS_ALLOWED_ORIGINS` allowlist + `credentials: true`
+  (falling back to `FRONTEND_URL`); frontend axios calls that need auth use
+  `withCredentials: true`.
 - **Data access: repository pattern** (`backend/app/repositories/*Repository.js`).
   A `pg` pool (or a transaction client) is injected via the constructor. All SQL
   is parameterized. Every query is scoped by `user_id`.
