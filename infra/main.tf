@@ -19,17 +19,17 @@ resource "azurerm_log_analytics_workspace" "main" {
 }
 
 resource "azurerm_application_insights" "main" {
-  name                                  = var.application_insights_name
-  resource_group_name                   = data.azurerm_resource_group.main.name
-  location                              = var.location
-  workspace_id                          = azurerm_log_analytics_workspace.main.id
-  application_type                      = "web"
-  retention_in_days                     = var.telemetry_retention_days
-  daily_data_cap_in_gb                  = var.telemetry_daily_quota_gb
-  daily_data_cap_notifications_disabled = false
-  disable_ip_masking                    = false
-  local_authentication_disabled         = false
-  sampling_percentage                   = 100
+  name                                 = var.application_insights_name
+  resource_group_name                  = data.azurerm_resource_group.main.name
+  location                             = var.location
+  workspace_id                         = azurerm_log_analytics_workspace.main.id
+  application_type                     = "web"
+  retention_in_days                    = var.telemetry_retention_days
+  daily_data_cap_in_gb                 = var.telemetry_daily_quota_gb
+  daily_data_cap_notifications_enabled = true
+  ip_masking_enabled                   = true
+  local_authentication_enabled         = true
+  sampling_percentage                  = 100
 
   tags = {
     Project     = "JauntDetour"

@@ -79,6 +79,8 @@ typings/
 .terraform/
 *.tfstate
 *.tfstate.*
+*.tfstate
+*.tfstate.*
 crash.log
 *.tfvars
 !*.tfvars.example
