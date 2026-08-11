@@ -12,7 +12,9 @@ test.beforeEach(async ({ page }) => {
 
 test("loads the branded application foundation", async ({ page, request }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveTitle("JauntDetour");
+  await expect(page).toHaveTitle(
+    "JauntDetour | Road Trip Planner with Interesting Stops"
+  );
   await expect(
     page.getByRole("heading", {
       name: "Find the stop that makes the drive.",
