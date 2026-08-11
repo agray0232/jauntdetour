@@ -36,8 +36,16 @@ import {
   jauntTypography,
 } from "../design-system/tokens";
 import TripRequester from "../scripts/TripRequester";
+import { trackEvent } from "../telemetry/telemetry";
 
 const PAGE_SIZE = 10;
+
+function getCountBucket(count) {
+  if (count === 0) return "0";
+  if (count <= 5) return "1-5";
+  if (count <= 10) return "6-10";
+  return "11+";
+}
 
 const useStyles = makeStyles({
   page: {
@@ -239,6 +247,11 @@ export default function MyJauntsPage() {
         setTotal(data.total || 0);
         setPage(data.page || nextPage);
         setStatus("ready");
+        trackEvent("trip_list_viewed", {
+          countBucket: getCountBucket((data.trips || []).length),
+          feature: "trip",
+          source: "list",
+        });
       })
       .catch(() => {
         if (requestId === latestListRequest.current) setStatus("error");
@@ -257,6 +270,7 @@ export default function MyJauntsPage() {
     new TripRequester()
       .duplicateTrip(trip.trip_id)
       .then(() => {
+        trackEvent("trip_duplicated", { feature: "trip", source: "list" });
         dispatchToast(
           <Toast>
             <ToastTitle>Jaunt duplicated</ToastTitle>
@@ -266,6 +280,11 @@ export default function MyJauntsPage() {
         load(page);
       })
       .catch(() => {
+        trackEvent("trip_duplicate_failed", {
+          failureClass: "request_failed",
+          feature: "trip",
+          source: "list",
+        });
         dispatchToast(
           <Toast>
             <ToastTitle>Could not duplicate that Jaunt.</ToastTitle>
@@ -282,6 +301,7 @@ export default function MyJauntsPage() {
     new TripRequester()
       .deleteTrip(deleteTarget.trip_id)
       .then(() => {
+        trackEvent("trip_deleted", { feature: "trip", source: "list" });
         const remaining = trips.filter(
           (trip) => trip.trip_id !== deleteTarget.trip_id
         );
@@ -299,6 +319,11 @@ export default function MyJauntsPage() {
         }
       })
       .catch(() => {
+        trackEvent("trip_delete_failed", {
+          failureClass: "request_failed",
+          feature: "trip",
+          source: "list",
+        });
         dispatchToast(
           <Toast>
             <ToastTitle>Could not delete that Jaunt.</ToastTitle>
@@ -387,6 +412,12 @@ export default function MyJauntsPage() {
                       <Link
                         className={styles.actionLink}
                         to={`/trips/${trip.trip_id}`}
+                        onClick={() =>
+                          trackEvent("trip_opened", {
+                            feature: "trip",
+                            source: "list",
+                          })
+                        }
                       >
                         Open
                       </Link>

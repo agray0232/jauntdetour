@@ -68,6 +68,17 @@ describe("application routes", () => {
     expect(
       screen.getByRole("link", { name: "Plan your Jaunt" })
     ).toHaveAttribute("href", "/plan");
+    const primaryNavigation = screen.getByRole("navigation", {
+      name: "Primary navigation",
+    });
+    expect(
+      within(primaryNavigation).queryByRole("link", { name: "Privacy" })
+    ).not.toBeInTheDocument();
+    expect(
+      within(
+        screen.getByRole("navigation", { name: "Footer navigation" })
+      ).getByRole("link", { name: "Privacy" })
+    ).toHaveAttribute("href", "/privacy");
     expect(
       await screen.findByRole("button", { name: "Sign in" })
     ).toBeVisible();

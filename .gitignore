@@ -92,3 +92,6 @@ override.tf.json
 .next
 
 .DS_Store
+
+# Copilot agent scratch/tracking artifacts
+.copilot-tracking/

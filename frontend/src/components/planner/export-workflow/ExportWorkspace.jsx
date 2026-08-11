@@ -12,6 +12,7 @@ import {
 import { OpenRegular } from "@fluentui/react-icons";
 import { SiGooglemaps } from "react-icons/si";
 import { exportToGoogleMaps } from "../../../utils/googleMapsExport";
+import { trackEvent } from "../../../telemetry/telemetry";
 import {
   jauntColors,
   jauntRadius,
@@ -145,6 +146,15 @@ export default function ExportWorkspace({ destination, detourList, origin }) {
   const styles = useStyles();
   const stopCount = detourList.length;
 
+  const handleExport = () => {
+    trackEvent("trip_export_opened", {
+      countBucket: stopCount === 0 ? "0" : stopCount <= 5 ? "1-5" : "6+",
+      feature: "export",
+      source: "planner",
+    });
+    exportToGoogleMaps(origin, destination, detourList);
+  };
+
   return (
     <section className={styles.root} aria-labelledby="export-title">
       <div className={styles.heading}>
@@ -203,7 +213,7 @@ export default function ExportWorkspace({ destination, detourList, origin }) {
           className={styles.open}
           appearance="primary"
           icon={<OpenRegular />}
-          onClick={() => exportToGoogleMaps(origin, destination, detourList)}
+          onClick={handleExport}
         >
           Open in Google Maps
         </Button>

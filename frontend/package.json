@@ -5,6 +5,7 @@
   "dependencies": {
     "@fluentui/react-components": "^9.74.3",
     "@fluentui/react-icons": "^2.0.331",
+    "@microsoft/applicationinsights-web": "^3.4.3",
     "@vis.gl/react-google-maps": "1.5.4",
     "axios": "1.12.0",
     "loglevel": "^1.9.2",

@@ -11,8 +11,10 @@ import { FluentProvider } from "@fluentui/react-components";
 import RouteForm from "./RouteForm";
 import RouteRequester from "../../../scripts/RouteRequester";
 import { jauntDetourTheme } from "../../../design-system/jauntDetourTheme";
+import { trackEvent } from "../../../telemetry/telemetry";
 
 jest.mock("../../../scripts/RouteRequester");
+jest.mock("../../../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
 
 function createProps(overrides = {}) {
   return {
@@ -42,6 +44,7 @@ function renderForm(props) {
 describe("RouteForm", () => {
   beforeEach(() => {
     RouteRequester.mockReset();
+    trackEvent.mockReset();
   });
 
   it("associates required validation with both route fields", () => {
@@ -90,6 +93,12 @@ describe("RouteForm", () => {
     expect(props.setDestination).toHaveBeenCalledWith("Charlotte, NC");
     expect(props.setTripSummary).toHaveBeenCalledWith(route.summary);
     expect(props.onRouteReady).toHaveBeenCalledTimes(1);
+    expect(trackEvent).toHaveBeenNthCalledWith(1, "route_search_started", {
+      feature: "route",
+    });
+    expect(trackEvent).toHaveBeenNthCalledWith(2, "route_search_succeeded", {
+      feature: "route",
+    });
   });
 
   it("retains the prior route when a request fails and supports retry", async () => {
@@ -108,6 +117,10 @@ describe("RouteForm", () => {
       await screen.findByText(/route could not be created/i)
     ).toBeVisible();
     expect(props.setRoute).not.toHaveBeenCalled();
+    expect(trackEvent).toHaveBeenLastCalledWith("route_search_failed", {
+      failureClass: "request_failed",
+      feature: "route",
+    });
 
     fireEvent.click(screen.getByRole("button", { name: "Create route" }));
     await waitFor(() => expect(props.setRoute).toHaveBeenCalledTimes(1));
@@ -126,6 +139,10 @@ describe("RouteForm", () => {
     expect(await screen.findByText(/could not find a drive/i)).toBeVisible();
     expect(props.setOrigin).not.toHaveBeenCalled();
     expect(props.setRoute).not.toHaveBeenCalled();
+    expect(trackEvent).toHaveBeenLastCalledWith("route_search_failed", {
+      failureClass: "no_route",
+      feature: "route",
+    });
   });
 
   it("clears local values and Redux planning state", () => {

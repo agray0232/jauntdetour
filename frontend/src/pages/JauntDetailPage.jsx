@@ -42,6 +42,7 @@ import {
   jauntTypography,
 } from "../design-system/tokens";
 import TripRequester from "../scripts/TripRequester";
+import { trackEvent } from "../telemetry/telemetry";
 import applyTripView from "../utils/applyTripView";
 import { getDetourIconComponent } from "../utils/detourIcons";
 import { exportToGoogleMaps } from "../utils/googleMapsExport";
@@ -257,6 +258,13 @@ export default function JauntDetailPage() {
         if (requestId !== requestRef.current) return;
         setView(data);
         setStatus("ready");
+        const detourCount = (data.detours || []).length;
+        trackEvent("trip_detail_viewed", {
+          countBucket:
+            detourCount === 0 ? "0" : detourCount <= 5 ? "1-5" : "6+",
+          feature: "trip",
+          source: "detail",
+        });
       })
       .catch((error) => {
         if (requestId !== requestRef.current) return;
@@ -281,6 +289,7 @@ export default function JauntDetailPage() {
   };
 
   const requestResume = () => {
+    trackEvent("trip_resume_started", { feature: "trip", source: "detail" });
     const plannerState = {
       currentTrip,
       destination,
@@ -304,6 +313,7 @@ export default function JauntDetailPage() {
     new TripRequester()
       .duplicateTrip(tripId)
       .then(() => {
+        trackEvent("trip_duplicated", { feature: "trip", source: "detail" });
         dispatch({ type: "BUMP_TRIPS_REVISION" });
         dispatchToast(
           <Toast>
@@ -313,6 +323,11 @@ export default function JauntDetailPage() {
         );
       })
       .catch(() => {
+        trackEvent("trip_duplicate_failed", {
+          failureClass: "request_failed",
+          feature: "trip",
+          source: "detail",
+        });
         dispatchToast(
           <Toast>
             <ToastTitle>Could not duplicate this Jaunt.</ToastTitle>
@@ -328,10 +343,16 @@ export default function JauntDetailPage() {
     new TripRequester()
       .deleteTrip(tripId)
       .then(() => {
+        trackEvent("trip_deleted", { feature: "trip", source: "detail" });
         dispatch({ type: "BUMP_TRIPS_REVISION" });
         navigate("/trips", { replace: true });
       })
       .catch(() => {
+        trackEvent("trip_delete_failed", {
+          failureClass: "request_failed",
+          feature: "trip",
+          source: "detail",
+        });
         setDeleteConfirmation(false);
         setOperation(null);
         dispatchToast(
@@ -490,13 +511,23 @@ export default function JauntDetailPage() {
           <Button
             appearance="secondary"
             icon={<OpenRegular />}
-            onClick={() =>
+            onClick={() => {
+              trackEvent("trip_export_opened", {
+                countBucket:
+                  detours.length === 0
+                    ? "0"
+                    : detours.length <= 5
+                      ? "1-5"
+                      : "6+",
+                feature: "export",
+                source: "detail",
+              });
               exportToGoogleMaps(
                 trip.origin?.address || "",
                 trip.destination?.address || "",
                 detours
-              )
-            }
+              );
+            }}
           >
             Open in Google Maps
           </Button>

@@ -9,9 +9,11 @@ import AuthRequester from "../../scripts/AuthRequester";
 import mainReducer from "../../reducers/main-reducer";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
 import { createPlannerFingerprint } from "../planner/build-workflow/plannerFingerprint";
+import { trackEvent } from "../../telemetry/telemetry";
 
 jest.mock("../../scripts/TripRequester");
 jest.mock("../../scripts/AuthRequester");
+jest.mock("../../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
 
 const route = {
   overview_polyline: { points: "encoded" },
@@ -61,6 +63,7 @@ describe("SaveTrip", () => {
     AuthRequester.mockReset();
     AuthRequester.mockImplementation(() => ({ login: jest.fn() }));
     sessionStorage.clear();
+    trackEvent.mockReset();
   });
 
   it("shows save intent before requiring authentication", async () => {
@@ -71,6 +74,9 @@ describe("SaveTrip", () => {
     expect(
       await screen.findByRole("dialog", { name: "Sign in to save your Jaunt" })
     ).toBeVisible();
+    expect(trackEvent).toHaveBeenCalledWith("trip_save_auth_required", {
+      feature: "trip",
+    });
   });
 
   it("offers update and clear actions for a loaded Jaunt", () => {
@@ -137,6 +143,14 @@ describe("SaveTrip", () => {
         tripName: "Weekend",
       })
     );
+    expect(trackEvent).toHaveBeenNthCalledWith(1, "trip_save_started", {
+      feature: "trip",
+      mode: "create",
+    });
+    expect(trackEvent).toHaveBeenNthCalledWith(2, "trip_save_succeeded", {
+      feature: "trip",
+      mode: "create",
+    });
   });
 
   it("reports a failed save without changing the loaded baseline", async () => {
@@ -153,5 +167,34 @@ describe("SaveTrip", () => {
       expect(onStatusChange).toHaveBeenLastCalledWith("failed")
     );
     expect(store.getState().currentTrip).toBeNull();
+    expect(trackEvent).toHaveBeenLastCalledWith("trip_save_failed", {
+      failureClass: "request_failed",
+      feature: "trip",
+      mode: "create",
+    });
+  });
+
+  it("reports create when a missing loaded Jaunt falls back from update", async () => {
+    const updateTrip = jest
+      .fn()
+      .mockRejectedValue({ response: { status: 404 } });
+    const saveTrip = jest.fn().mockResolvedValue({
+      trip: { trip_id: "trip-2", trip_name: "Weekend" },
+    });
+    TripRequester.mockImplementation(() => ({ saveTrip, updateTrip }));
+    renderSaveTrip(
+      createState({
+        user: { email: "traveler@example.com" },
+        currentTrip: { tripId: "trip-1", tripName: "Weekend" },
+      })
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Update Jaunt" }));
+
+    await waitFor(() => expect(saveTrip).toHaveBeenCalledTimes(1));
+    expect(trackEvent).toHaveBeenLastCalledWith("trip_save_succeeded", {
+      feature: "trip",
+      mode: "create",
+    });
   });
 });

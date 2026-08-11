@@ -22,6 +22,7 @@ import {
 } from "@fluentui/react-icons";
 import { moveDetour, recalculateItinerary } from "./routeMutations";
 import { getDetourIconComponent } from "../../../utils/detourIcons";
+import { trackEvent } from "../../../telemetry/telemetry";
 import {
   jauntColors,
   jauntRadius,
@@ -176,6 +177,16 @@ export default function JauntItinerary({
       setPending(null);
 
       if (mutation.kind === "remove") {
+        trackEvent("detour_removed", {
+          category: detourList[mutation.index]?.type || "Unspecified",
+          countBucket:
+            nextDetours.length === 0
+              ? "0"
+              : nextDetours.length <= 5
+                ? "1-5"
+                : "6+",
+          feature: "detour",
+        });
         const focusIndex = Math.min(mutation.index, nextDetours.length - 1);
         window.setTimeout(() => {
           if (focusIndex >= 0) {
