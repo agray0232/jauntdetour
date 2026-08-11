@@ -75,7 +75,7 @@ export default function PrivacyPage() {
             <li>Normalized page names and named feature actions</li>
             <li>Success, empty, and failure outcomes for planning tasks</li>
             <li>Approximate time while a page is visible</li>
-            <li>Browser performance, application errors, and API timing</li>
+            <li>Browser performance, plus server-side errors and API timing</li>
             <li>
               An internal account identifier while signed in, without your email
               or display name
