@@ -6,6 +6,10 @@ const {
 
 let initialized = false;
 
+function sanitizeUrlPath(value) {
+  return String(value || "/").split(/[?#]/, 1)[0];
+}
+
 function initializeBackendTelemetry({
   connectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
   useAzureMonitorImpl = useAzureMonitor,
@@ -32,10 +36,6 @@ function initializeBackendTelemetry({
   });
   initialized = true;
   return true;
-}
-
-function sanitizeUrlPath(value) {
-  return String(value || "/").split(/[?#]/, 1)[0];
 }
 
 function resetBackendTelemetryForTests() {
