@@ -79,8 +79,6 @@ typings/
 .terraform/
 *.tfstate
 *.tfstate.*
-*.tfstate
-*.tfstate.*
 crash.log
 *.tfvars
 !*.tfvars.example
@@ -94,3 +92,6 @@ override.tf.json
 .next
 
 .DS_Store
+
+# Copilot agent scratch/tracking artifacts
+.copilot-tracking/
