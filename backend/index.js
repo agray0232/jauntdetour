@@ -14,9 +14,11 @@ const TripRepository = require("./app/repositories/TripRepository");
 const DetourRepository = require("./app/repositories/DetourRepository");
 const createAuthRouter = require("./app/routes/auth");
 const createTripsRouter = require("./app/routes/trips");
+const createCorsOptions = require("./app/middleware/corsConfig");
 
 const IS_PROD = process.env.NODE_ENV === "production";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3001";
+const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
 if (!SESSION_SECRET) {
@@ -37,10 +39,16 @@ app.use(cookieParser());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
-// Explicit origin + credentials so the browser sends/accepts the session cookie
-// on cross-origin XHR from the frontend dev server. A wildcard origin cannot be
-// combined with credentials.
-app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+// Explicit origins + credentials allow trusted frontends to use the session
+// cookie. A wildcard origin cannot be combined with credentials.
+app.use(
+  cors(
+    createCorsOptions({
+      allowedOrigins: CORS_ALLOWED_ORIGINS,
+      fallbackOrigin: FRONTEND_URL,
+    })
+  )
+);
 
 app.use(
   session({

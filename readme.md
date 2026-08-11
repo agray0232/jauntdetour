@@ -58,7 +58,8 @@ ENTRA_CLIENT_ID=<app registration client id>
 ENTRA_CLIENT_SECRET=<app registration client secret>
 ENTRA_REDIRECT_URI=http://localhost:3000/auth/callback
 SESSION_SECRET=<long random string>       # e.g. openssl rand -base64 32
-FRONTEND_URL=http://localhost:3001        # CORS origin + post-login redirect
+FRONTEND_URL=http://localhost:3001        # post-login/logout destination
+CORS_ALLOWED_ORIGINS=http://localhost:3001 # comma-delimited trusted origins
 ```
 
 Frontend
