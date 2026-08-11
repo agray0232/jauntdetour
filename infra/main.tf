@@ -3,6 +3,40 @@ data "azurerm_resource_group" "main" {
   name = var.resource_group_name
 }
 
+// Workspace-based Application Insights stores product and operational telemetry.
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = var.log_analytics_workspace_name
+  resource_group_name = data.azurerm_resource_group.main.name
+  location            = var.location
+  sku                 = "PerGB2018"
+  retention_in_days   = var.telemetry_retention_days
+  daily_quota_gb      = var.telemetry_daily_quota_gb
+
+  tags = {
+    Project     = "JauntDetour"
+    Environment = var.environment
+  }
+}
+
+resource "azurerm_application_insights" "main" {
+  name                                 = var.application_insights_name
+  resource_group_name                  = data.azurerm_resource_group.main.name
+  location                             = var.location
+  workspace_id                         = azurerm_log_analytics_workspace.main.id
+  application_type                     = "web"
+  retention_in_days                    = var.telemetry_retention_days
+  daily_data_cap_in_gb                 = var.telemetry_daily_quota_gb
+  daily_data_cap_notifications_enabled = true
+  ip_masking_enabled                   = true
+  local_authentication_enabled         = true
+  sampling_percentage                  = 100
+
+  tags = {
+    Project     = "JauntDetour"
+    Environment = var.environment
+  }
+}
+
 # Azure Database for PostgreSQL - Flexible Server.
 # Dev defaults (B1ms / Burstable / 32 GB) are covered by the 12-month free tier.
 resource "azurerm_postgresql_flexible_server" "main" {

@@ -5,11 +5,16 @@ import { FluentProvider } from "@fluentui/react-components";
 import ExportWorkspace from "./ExportWorkspace";
 import { exportToGoogleMaps } from "../../../utils/googleMapsExport";
 import { jauntDetourTheme } from "../../../design-system/jauntDetourTheme";
+import { trackEvent } from "../../../telemetry/telemetry";
 
 jest.mock("../../../utils/googleMapsExport");
+jest.mock("../../../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
 
 describe("ExportWorkspace", () => {
-  beforeEach(() => exportToGoogleMaps.mockReset());
+  beforeEach(() => {
+    exportToGoogleMaps.mockReset();
+    trackEvent.mockReset();
+  });
 
   it("summarizes the current Jaunt and opens it in Google Maps", () => {
     const detourList = [
@@ -52,6 +57,11 @@ describe("ExportWorkspace", () => {
       "Charlotte",
       detourList
     );
+    expect(trackEvent).toHaveBeenCalledWith("trip_export_opened", {
+      countBucket: "1-5",
+      feature: "export",
+      source: "planner",
+    });
   });
 
   it("has no automated accessibility violations", async () => {

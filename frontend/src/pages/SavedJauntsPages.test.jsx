@@ -7,10 +7,14 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { jauntDetourTheme } from "../design-system/jauntDetourTheme";
 import mainReducer from "../reducers/main-reducer";
 import TripRequester from "../scripts/TripRequester";
+import { trackEvent } from "../telemetry/telemetry";
+import { exportToGoogleMaps } from "../utils/googleMapsExport";
 import JauntDetailPage from "./JauntDetailPage";
 import MyJauntsPage from "./MyJauntsPage";
 
 jest.mock("../scripts/TripRequester");
+jest.mock("../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
+jest.mock("../utils/googleMapsExport");
 jest.mock(
   "../components/MapContainer",
   () =>
@@ -126,6 +130,11 @@ describe("MyJauntsPage", () => {
       "href",
       "/trips/trip-1"
     );
+    expect(trackEvent).toHaveBeenCalledWith("trip_list_viewed", {
+      countBucket: "1-5",
+      feature: "trip",
+      source: "list",
+    });
 
     listTrips.mockResolvedValueOnce({
       trips: [],
@@ -147,6 +156,12 @@ describe("MyJauntsPage", () => {
     );
     fireEvent.click(await screen.findByRole("menuitem", { name: "Duplicate" }));
     await waitFor(() => expect(duplicateTrip).toHaveBeenCalledWith("trip-1"));
+    await waitFor(() =>
+      expect(trackEvent).toHaveBeenCalledWith("trip_duplicated", {
+        feature: "trip",
+        source: "list",
+      })
+    );
 
     fireEvent.click(
       screen.getByRole("button", { name: "More actions for Carolinas weekend" })
@@ -157,6 +172,12 @@ describe("MyJauntsPage", () => {
     ).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
     await waitFor(() => expect(deleteTrip).toHaveBeenCalledWith("trip-1"));
+    await waitFor(() =>
+      expect(trackEvent).toHaveBeenCalledWith("trip_deleted", {
+        feature: "trip",
+        source: "list",
+      })
+    );
   });
 
   it("offers recovery when the list cannot be loaded", async () => {
@@ -222,6 +243,21 @@ describe("JauntDetailPage", () => {
     ).toBeVisible();
     expect(screen.getByText("Saved route map")).toBeVisible();
     expect(store.getState().origin).toBe("Current route");
+    expect(trackEvent).toHaveBeenCalledWith("trip_detail_viewed", {
+      countBucket: "1-5",
+      feature: "trip",
+      source: "detail",
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open in Google Maps" })
+    );
+    expect(exportToGoogleMaps).toHaveBeenCalled();
+    expect(trackEvent).toHaveBeenCalledWith("trip_export_opened", {
+      countBucket: "1-5",
+      feature: "export",
+      source: "detail",
+    });
   });
 
   it("confirms before replacing different in-progress planning work", async () => {

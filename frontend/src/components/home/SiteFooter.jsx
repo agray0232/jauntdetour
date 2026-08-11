@@ -107,6 +107,9 @@ export default function SiteFooter() {
         <Link className={styles.link} to="/about">
           About
         </Link>
+        <Link className={styles.link} to="/privacy">
+          Privacy
+        </Link>
       </nav>
     </footer>
   );

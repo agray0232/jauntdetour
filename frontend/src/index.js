@@ -9,6 +9,7 @@ import { FluentProvider } from "@fluentui/react-components";
 import { BrowserRouter } from "react-router-dom";
 import { AuthSessionProvider } from "./auth/AuthSessionProvider";
 import { jauntDetourTheme } from "./design-system/jauntDetourTheme";
+import TelemetryProvider from "./telemetry/TelemetryProvider";
 
 // Persist the planning state to sessionStorage so an in-progress trip survives
 // full-page navigations — most importantly the sign-in redirect (backend →
@@ -67,7 +68,9 @@ root.render(
         future={{ v7_relativeSplatPath: true, v7_startTransition: true }}
       >
         <AuthSessionProvider>
-          <App />
+          <TelemetryProvider>
+            <App />
+          </TelemetryProvider>
         </AuthSessionProvider>
       </BrowserRouter>
     </FluentProvider>

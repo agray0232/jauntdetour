@@ -6,9 +6,11 @@ import DiscoverWorkspace from "./DiscoverWorkspace";
 import DetourRequester from "../../../scripts/DetourRequester";
 import RouteRequester from "../../../scripts/RouteRequester";
 import { jauntDetourTheme } from "../../../design-system/jauntDetourTheme";
+import { trackEvent } from "../../../telemetry/telemetry";
 
 jest.mock("../../../scripts/DetourRequester");
 jest.mock("../../../scripts/RouteRequester");
+jest.mock("../../../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
 
 function createProps(overrides = {}) {
   return {
@@ -57,6 +59,7 @@ describe("DiscoverWorkspace", () => {
   beforeEach(() => {
     DetourRequester.mockReset();
     RouteRequester.mockReset();
+    trackEvent.mockReset();
   });
 
   it("uses explicit category selection and preserves slider units", () => {
@@ -65,6 +68,10 @@ describe("DiscoverWorkspace", () => {
 
     fireEvent.click(screen.getByRole("radio", { name: "Coffee" }));
     expect(props.setDetourType).toHaveBeenCalledWith("Coffee");
+    expect(trackEvent).toHaveBeenCalledWith("detour_category_selected", {
+      category: "Coffee",
+      feature: "detour",
+    });
     expect(screen.getAllByTestId(/category-icon-/)).toHaveLength(8);
     expect(screen.getByTestId("category-icon-hike")).toHaveAttribute(
       "viewBox",
@@ -166,6 +173,15 @@ describe("DiscoverWorkspace", () => {
     expect(props.setDetourHighlight).toHaveBeenCalledWith([
       { id: "place-1", highlight: false },
     ]);
+    expect(trackEvent).toHaveBeenNthCalledWith(1, "detour_search_started", {
+      category: "Hike",
+      feature: "detour",
+    });
+    expect(trackEvent).toHaveBeenNthCalledWith(2, "detour_search_succeeded", {
+      category: "Hike",
+      feature: "detour",
+      resultCountBucket: "1-5",
+    });
   });
 
   it("shows an empty result state", async () => {
@@ -179,6 +195,11 @@ describe("DiscoverWorkspace", () => {
     expect(
       await screen.findByText(/no places matched this search/i)
     ).toBeVisible();
+    expect(trackEvent).toHaveBeenLastCalledWith("detour_search_empty", {
+      category: "Hike",
+      feature: "detour",
+      resultCountBucket: "0",
+    });
   });
 
   it("shows an error and retries the same search", async () => {
@@ -193,6 +214,11 @@ describe("DiscoverWorkspace", () => {
     expect(
       await screen.findByText(/could not search this area/i)
     ).toBeVisible();
+    expect(trackEvent).toHaveBeenLastCalledWith("detour_search_failed", {
+      category: "Hike",
+      failureClass: "request_failed",
+      feature: "detour",
+    });
 
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(getDetours).toHaveBeenCalledTimes(2));
