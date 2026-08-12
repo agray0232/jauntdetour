@@ -213,6 +213,10 @@ const useStyles = makeStyles({
     backgroundColor: jauntColors.brand.primarySubtle,
     ...shorthands.border("2px", "solid", jauntColors.brand.primary),
   },
+  hoveredResult: {
+    backgroundColor: jauntColors.brand.accentSubtle,
+    ...shorthands.border("2px", "solid", jauntColors.brand.accent),
+  },
   resultSelection: {
     position: "absolute",
     inset: 0,
@@ -614,6 +618,7 @@ export default function DiscoverWorkspace(props) {
           <ol className={styles.resultList}>
             {props.detourOptions.map((result, index) => {
               const selected = selectedId === result.place_id;
+              const hovered = props.hoveredDetourId === result.place_id;
               const added = props.detourList.some(
                 (detour) => detour.placeId === result.place_id
               );
@@ -624,9 +629,12 @@ export default function DiscoverWorkspace(props) {
                 <li
                   className={mergeClasses(
                     styles.result,
+                    hovered && styles.hoveredResult,
                     selected && styles.selectedResult
                   )}
                   key={result.place_id || result.id || result.name}
+                  onMouseEnter={() => props.onDetourHover(result.place_id)}
+                  onMouseLeave={() => props.onDetourHover(null)}
                 >
                   <button
                     className={styles.resultSelection}
@@ -687,7 +695,9 @@ DiscoverWorkspace.propTypes = {
   detourSearchRadius: PropTypes.number.isRequired,
   detourType: PropTypes.string.isRequired,
   feedback: PropTypes.string,
+  hoveredDetourId: PropTypes.string,
   onAdded: PropTypes.func.isRequired,
+  onDetourHover: PropTypes.func.isRequired,
   onDismissFeedback: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   route: PropTypes.object.isRequired,
@@ -703,4 +713,5 @@ DiscoverWorkspace.propTypes = {
 
 DiscoverWorkspace.defaultProps = {
   feedback: "",
+  hoveredDetourId: null,
 };

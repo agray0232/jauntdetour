@@ -1,21 +1,40 @@
 import React from "react";
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import MapContainer from "./MapContainer";
 
 const mockMapProps = jest.fn();
+const mockPinProps = jest.fn();
 const mockUseMap = jest.fn();
 
 jest.mock("@vis.gl/react-google-maps", () => {
   const React = require("react");
 
   return {
-    AdvancedMarker: ({ children }) => <>{children}</>,
+    AdvancedMarker: ({
+      children,
+      onClick,
+      onMouseEnter,
+      onMouseLeave,
+      title,
+    }) => (
+      <div
+        data-testid={title ? `marker-${title}` : undefined}
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        {children}
+      </div>
+    ),
     APIProvider: ({ children }) => <>{children}</>,
     Map: React.forwardRef(function MockMap({ children, ...props }, ref) {
       mockMapProps(props);
       return <div ref={ref}>{children}</div>;
     }),
-    Pin: () => null,
+    Pin: (props) => {
+      mockPinProps(props);
+      return null;
+    },
     useMap: () => mockUseMap(),
     useMapsLibrary: () => ({}),
   };
@@ -31,6 +50,7 @@ function createProps(overrides = {}) {
     detourOptions: [],
     detourHighlight: [],
     detourList: [],
+    onDetourHover: jest.fn(),
     setDetourHighlight: jest.fn(),
     ...overrides,
   };
@@ -39,6 +59,7 @@ function createProps(overrides = {}) {
 describe("MapContainer", () => {
   beforeEach(() => {
     mockMapProps.mockClear();
+    mockPinProps.mockClear();
     mockUseMap.mockReturnValue(null);
   });
 
@@ -109,5 +130,59 @@ describe("MapContainer", () => {
 
     delete window.google;
     jest.useRealTimers();
+  });
+
+  test("previews a detour marker on hover without selecting it", () => {
+    const detour = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const props = createProps({
+      detourOptions: [detour],
+      hoveredDetourId: "place-1",
+    });
+    render(<MapContainer {...props} />);
+
+    expect(mockPinProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        background: "#e36a2e",
+        scale: 0.85,
+      })
+    );
+
+    const marker = screen.getByTestId("marker-1. Paris Mountain");
+    fireEvent.mouseEnter(marker);
+    expect(props.onDetourHover).toHaveBeenLastCalledWith("place-1");
+    expect(props.setDetourHighlight).not.toHaveBeenCalled();
+
+    fireEvent.mouseLeave(marker);
+    expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
+  });
+
+  test("keeps click selection visually distinct from hover preview", () => {
+    const detour = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const props = createProps({
+      detourOptions: [detour],
+      detourHighlight: [{ id: "place-1", highlight: true }],
+      hoveredDetourId: "place-1",
+    });
+    render(<MapContainer {...props} />);
+
+    expect(mockPinProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        background: "#b84a18",
+        scale: 1,
+      })
+    );
+
+    fireEvent.click(screen.getByTestId("marker-1. Paris Mountain"));
+    expect(props.setDetourHighlight).toHaveBeenCalledWith([
+      { id: "place-1", highlight: true },
+    ]);
   });
 });

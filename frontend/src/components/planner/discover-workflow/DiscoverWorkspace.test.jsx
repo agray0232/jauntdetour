@@ -42,6 +42,7 @@ function createProps(overrides = {}) {
     addDetour: jest.fn(),
     feedback: "",
     onAdded: jest.fn(),
+    onDetourHover: jest.fn(),
     onDismissFeedback: jest.fn(),
     ...overrides,
   };
@@ -281,6 +282,29 @@ describe("DiscoverWorkspace", () => {
     expect(props.setDetourOptions).toHaveBeenLastCalledWith([]);
     expect(props.setDetourHighlight).toHaveBeenLastCalledWith([]);
     expect(props.onAdded).toHaveBeenCalledWith("Paris Mountain", 18);
+  });
+
+  it("previews a result on hover without selecting it or showing Add", () => {
+    const result = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const props = createProps({ detourOptions: [result] });
+    renderWorkspace(props);
+
+    const resultCard = screen.getByRole("listitem");
+    fireEvent.mouseEnter(resultCard);
+
+    expect(props.onDetourHover).toHaveBeenLastCalledWith("place-1");
+    expect(props.setDetourHighlight).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("button", { name: "Add" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.mouseLeave(resultCard);
+    expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
   });
 
   it("keeps the result selected and offers retry when add rerouting fails", async () => {
