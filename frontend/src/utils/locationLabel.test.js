@@ -8,7 +8,9 @@ describe("formatLocationLabel", () => {
 
   it("leaves non-US country fields untouched", () => {
     expect(formatLocationLabel("Paris, France")).toBe("Paris, France");
-    expect(formatLocationLabel("London, ON, Canada")).toBe("London, ON, Canada");
+    expect(formatLocationLabel("London, ON, Canada")).toBe(
+      "London, ON, Canada"
+    );
   });
 
   it("only drops a whole final segment, never a substring", () => {
