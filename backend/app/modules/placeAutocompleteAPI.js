@@ -10,7 +10,12 @@ const FIELD_MASK = [
 ].join(",");
 
 function formatLocationLabel(value) {
-  return (value || "").replace(/,?\s+USA$/i, "");
+  const label = value || "";
+  const segments = label.split(",");
+  if (segments.length > 1 && segments[segments.length - 1].trim() === "USA") {
+    return segments.slice(0, -1).join(",").trimEnd();
+  }
+  return label;
 }
 
 function normalizeSuggestions(data) {

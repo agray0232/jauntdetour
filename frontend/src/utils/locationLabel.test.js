@@ -1,18 +1,24 @@
 import { formatLocationLabel } from "./locationLabel";
 
 describe("formatLocationLabel", () => {
-  it("strips a trailing US country segment", () => {
+  it("drops a trailing USA country field", () => {
     expect(formatLocationLabel("Ashland, OH, USA")).toBe("Ashland, OH");
     expect(formatLocationLabel("OH, USA")).toBe("OH");
   });
 
-  it("is case-insensitive and tolerates missing comma", () => {
-    expect(formatLocationLabel("Portland usa")).toBe("Portland");
+  it("leaves non-US country fields untouched", () => {
+    expect(formatLocationLabel("Paris, France")).toBe("Paris, France");
+    expect(formatLocationLabel("London, ON, Canada")).toBe("London, ON, Canada");
   });
 
-  it("leaves non-US labels untouched", () => {
-    expect(formatLocationLabel("Paris, France")).toBe("Paris, France");
+  it("only drops a whole final segment, never a substring", () => {
+    expect(formatLocationLabel("Mall of USA, CA, USA")).toBe("Mall of USA, CA");
     expect(formatLocationLabel("USANville, CA")).toBe("USANville, CA");
+    expect(formatLocationLabel("Portland USA")).toBe("Portland USA");
+  });
+
+  it("keeps a bare USA when it is the only segment", () => {
+    expect(formatLocationLabel("USA")).toBe("USA");
   });
 
   it("returns an empty string for nullish input", () => {
