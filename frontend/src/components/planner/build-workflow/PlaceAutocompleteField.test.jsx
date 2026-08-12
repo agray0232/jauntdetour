@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import { LocationRegular } from "@fluentui/react-icons";
 import { axe } from "jest-axe";
@@ -91,7 +85,7 @@ describe("PlaceAutocompleteField", () => {
       jest.advanceTimersByTime(250);
     });
 
-    const option = await screen.findByRole("option", {
+    const option = screen.getByRole("option", {
       name: /Ashland OH, USA/i,
     });
     expect(
@@ -128,7 +122,7 @@ describe("PlaceAutocompleteField", () => {
     });
 
     expect(
-      await screen.findByText(/suggestions are unavailable/i)
+      screen.getByText(/suggestions are unavailable/i)
     ).toBeInTheDocument();
     expect(input).toHaveValue("Ashland");
     expect(input).not.toBeDisabled();
@@ -155,7 +149,10 @@ describe("PlaceAutocompleteField", () => {
     await act(async () => jest.advanceTimersByTime(250));
     fireEvent.input(input, { target: { value: "Ashland" } });
     await act(async () => jest.advanceTimersByTime(250));
-    await screen.findByRole("option", { name: /Ashland KY, USA/i });
+    expect(getSuggestions).toHaveBeenCalledTimes(2);
+    expect(
+      screen.getByRole("option", { name: /Ashland KY, USA/i })
+    ).toBeInTheDocument();
 
     await act(async () => {
       resolveFirst([
