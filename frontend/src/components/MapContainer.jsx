@@ -292,7 +292,7 @@ function MapContainer(props) {
                           : jauntColors.map.result
                     }
                     glyphColor={
-                      highlight || hovered
+                      highlight
                         ? jauntColors.neutral.foregroundOnDark
                         : jauntColors.map.endpoint
                     }

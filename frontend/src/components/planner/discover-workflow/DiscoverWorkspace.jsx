@@ -642,6 +642,8 @@ export default function DiscoverWorkspace(props) {
                     aria-label={`Select ${result.name}`}
                     aria-pressed={selected}
                     onClick={() => selectResult(result.place_id)}
+                    onFocus={() => props.onDetourHover(result.place_id)}
+                    onBlur={() => props.onDetourHover(null)}
                   />
                   <span className={styles.resultDetails}>
                     <span className={styles.resultNumber} aria-hidden="true">

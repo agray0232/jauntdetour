@@ -147,6 +147,7 @@ describe("MapContainer", () => {
     expect(mockPinProps).toHaveBeenLastCalledWith(
       expect.objectContaining({
         background: "#e36a2e",
+        glyphColor: "#14282f",
         scale: 0.85,
       })
     );
@@ -176,6 +177,7 @@ describe("MapContainer", () => {
     expect(mockPinProps).toHaveBeenLastCalledWith(
       expect.objectContaining({
         background: "#b84a18",
+        glyphColor: "#ffffff",
         scale: 1,
       })
     );

@@ -307,6 +307,28 @@ describe("DiscoverWorkspace", () => {
     expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
   });
 
+  it("previews a result on keyboard focus and clears it on blur", () => {
+    const result = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const props = createProps({ detourOptions: [result] });
+    renderWorkspace(props);
+
+    const selectButton = screen.getByRole("button", {
+      name: "Select Paris Mountain",
+    });
+    fireEvent.focus(selectButton);
+
+    expect(props.onDetourHover).toHaveBeenLastCalledWith("place-1");
+    expect(props.setDetourHighlight).not.toHaveBeenCalled();
+
+    fireEvent.blur(selectButton);
+    expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
+  });
+
   it("keeps the result selected and offers retry when add rerouting fails", async () => {
     const result = {
       name: "Paris Mountain",
