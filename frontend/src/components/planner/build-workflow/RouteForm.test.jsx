@@ -15,6 +15,44 @@ import { trackEvent } from "../../../telemetry/telemetry";
 
 jest.mock("../../../scripts/RouteRequester");
 jest.mock("../../../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
+jest.mock("./PlaceAutocompleteField", () => {
+  const React = require("react");
+
+  return function MockPlaceAutocompleteField({
+    invalid,
+    label,
+    onSelect,
+    onValueChange,
+    validationMessage,
+    value,
+  }) {
+    return React.createElement(
+      "div",
+      null,
+      React.createElement("label", null, label),
+      React.createElement("input", {
+        "aria-label": label,
+        value,
+        onChange: (event) => onValueChange(event.target.value),
+      }),
+      value === "Ashland"
+        ? React.createElement(
+            "button",
+            {
+              type: "button",
+              onClick: () =>
+                onSelect({
+                  placeId: `place-${label.toLowerCase()}`,
+                  text: `Ashland ${label}`,
+                }),
+            },
+            `Select ${label} suggestion`
+          )
+        : null,
+      invalid ? React.createElement("span", null, validationMessage) : null
+    );
+  };
+});
 
 function createProps(overrides = {}) {
   return {
@@ -99,6 +137,138 @@ describe("RouteForm", () => {
     expect(trackEvent).toHaveBeenNthCalledWith(2, "route_search_succeeded", {
       feature: "route",
     });
+  });
+
+  it("routes selected suggestions by place ID", async () => {
+    const route = {
+      summary: {},
+      legs: [
+        {
+          start_address: "1 Stadium Drive, Ashland, OH, USA",
+          end_address: "99 Main Street, Ashland, KY, USA",
+        },
+      ],
+    };
+    const getRoute = jest.fn().mockResolvedValue({ routes: [route] });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const props = createProps();
+    renderForm(props);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Start" }), {
+      target: { value: "Ashland" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Select Start suggestion" })
+    );
+    fireEvent.change(screen.getByRole("textbox", { name: "Destination" }), {
+      target: { value: "Ashland" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Select Destination suggestion" })
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Create route" }));
+
+    await waitFor(() => expect(props.setRoute).toHaveBeenCalledWith(route));
+    expect(getRoute).toHaveBeenCalledWith(
+      "place_id:place-start",
+      "place_id:place-destination",
+      "Address",
+      {}
+    );
+    expect(props.setOrigin).toHaveBeenCalledWith("Ashland Start");
+    expect(props.setDestination).toHaveBeenCalledWith("Ashland Destination");
+  });
+
+  it("falls back to edited free text after a suggestion was selected", async () => {
+    const route = { summary: {}, legs: [] };
+    const getRoute = jest.fn().mockResolvedValue({ routes: [route] });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    renderForm(createProps({ destination: "Charlotte" }));
+
+    const start = screen.getByRole("textbox", { name: "Start" });
+    fireEvent.change(start, { target: { value: "Ashland" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Select Start suggestion" })
+    );
+    fireEvent.change(start, { target: { value: "Ashland custom" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create route" }));
+
+    await waitFor(() => expect(getRoute).toHaveBeenCalled());
+    expect(getRoute).toHaveBeenCalledWith(
+      "Ashland custom",
+      "Charlotte",
+      "Address",
+      {}
+    );
+  });
+
+  it("preserves a selected place while resolving a free-text endpoint", async () => {
+    const route = {
+      summary: {},
+      legs: [
+        {
+          start_address: "1 AMB Drive Northwest, Atlanta, GA, USA",
+          end_address: "Athens, GA, USA",
+        },
+      ],
+    };
+    RouteRequester.mockImplementation(() => ({
+      getRoute: jest.fn().mockResolvedValue({ routes: [route] }),
+    }));
+    const props = createProps();
+    renderForm(props);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Start" }), {
+      target: { value: "Ashland" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Select Start suggestion" })
+    );
+    fireEvent.change(screen.getByRole("textbox", { name: "Destination" }), {
+      target: { value: "athens georgiaa" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Create route" }));
+
+    await waitFor(() =>
+      expect(props.setOrigin).toHaveBeenCalledWith("Ashland Start")
+    );
+    expect(props.setDestination).toHaveBeenCalledWith("Athens, GA");
+  });
+
+  it("replaces free text with the locations resolved by Google", async () => {
+    const route = {
+      summary: { distance: 120, time: { hours: 2, min: 5 } },
+      legs: [
+        {
+          start_address: "Ashland, OH 44805, USA",
+          end_address: "Lexington, KY, USA",
+        },
+      ],
+    };
+    RouteRequester.mockImplementation(() => ({
+      getRoute: jest.fn().mockResolvedValue({ routes: [route] }),
+    }));
+    const props = createProps();
+    renderForm(props);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Start" }), {
+      target: { value: "Ashland ohioo" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Destination" }), {
+      target: { value: "Lexington" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Create route" }));
+
+    await waitFor(() =>
+      expect(props.setOrigin).toHaveBeenCalledWith("Ashland, OH 44805")
+    );
+    expect(props.setDestination).toHaveBeenCalledWith("Lexington, KY");
+    expect(screen.getByRole("textbox", { name: "Start" })).toHaveValue(
+      "Ashland, OH 44805"
+    );
+    expect(screen.getByRole("textbox", { name: "Destination" })).toHaveValue(
+      "Lexington, KY"
+    );
   });
 
   it("retains the prior route when a request fails and supports retry", async () => {

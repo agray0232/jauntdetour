@@ -115,8 +115,8 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   );
   await page.goto("/plan", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("textbox", { name: "Start" })).toHaveCount(1);
-  await expect(page.getByRole("textbox", { name: "Destination" })).toHaveCount(
+  await expect(page.getByRole("combobox", { name: "Start" })).toHaveCount(1);
+  await expect(page.getByRole("combobox", { name: "Destination" })).toHaveCount(
     1
   );
   await expect(page.locator('nav:visible a[href="/plan"]')).toHaveAttribute(
@@ -135,9 +135,9 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   );
   await expect(page.getByRole("tab", { name: "Discover" })).toBeDisabled();
 
-  await page.getByRole("textbox", { name: "Start" }).fill("Atlanta, GA");
+  await page.getByRole("combobox", { name: "Start" }).fill("Atlanta, GA");
   await page
-    .getByRole("textbox", { name: "Destination" })
+    .getByRole("combobox", { name: "Destination" })
     .fill("Charlotte, NC");
   await page.getByRole("button", { name: "Create route" }).click();
   await expect(
