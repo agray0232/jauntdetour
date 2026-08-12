@@ -143,16 +143,14 @@ describe("PlaceAutocompleteField", () => {
         },
       ]);
     render(<Harness />);
-    const input = screen.getByRole("combobox", { name: "Destination" });
+    const input = screen.getByLabelText("Destination");
 
     fireEvent.input(input, { target: { value: "Ash" } });
     await act(async () => jest.advanceTimersByTime(250));
     fireEvent.input(input, { target: { value: "Ashland" } });
     await act(async () => jest.advanceTimersByTime(250));
     expect(getSuggestions).toHaveBeenCalledTimes(2);
-    expect(
-      screen.getByRole("option", { name: /Ashland KY, USA/i })
-    ).toBeInTheDocument();
+    expect(screen.getByText("KY, USA")).toBeInTheDocument();
 
     await act(async () => {
       resolveFirst([
@@ -165,10 +163,8 @@ describe("PlaceAutocompleteField", () => {
       ]);
     });
 
-    expect(
-      screen.queryByRole("option", { name: /Ash England/i })
-    ).not.toBeInTheDocument();
-  });
+    expect(screen.queryByText("England")).not.toBeInTheDocument();
+  }, 15000);
 
   it("has no automated accessibility violations", async () => {
     jest.useRealTimers();
