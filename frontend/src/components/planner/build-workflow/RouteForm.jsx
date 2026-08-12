@@ -26,6 +26,7 @@ import RouteRequester from "../../../scripts/RouteRequester";
 import PlaceAutocompleteField from "./PlaceAutocompleteField";
 import { jauntSpacing, jauntTypography } from "../../../design-system/tokens";
 import { trackEvent } from "../../../telemetry/telemetry";
+import { formatLocationLabel } from "../../../utils/locationLabel";
 
 const useStyles = makeStyles({
   root: {
@@ -72,10 +73,6 @@ function normalizeEndpoint(value) {
     return value;
   }
   return value?.address || "";
-}
-
-function formatLocationLabel(value) {
-  return (value || "").replace(/,?\s+USA$/i, "");
 }
 
 export default function RouteForm({
