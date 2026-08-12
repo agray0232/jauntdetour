@@ -54,6 +54,16 @@ const useStyles = makeStyles({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
+  visuallyHidden: {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: 0,
+    margin: "-1px",
+    overflow: "hidden",
+    clip: "rect(0, 0, 0, 0)",
+    whiteSpace: "nowrap",
+  },
 });
 
 export default function PlaceAutocompleteField({
@@ -110,7 +120,10 @@ export default function PlaceAutocompleteField({
       }
     }, SEARCH_DELAY_MS);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(timeoutId);
+      requestIdRef.current += 1;
+    };
   }, [selectedPlace, value]);
 
   const handleInput = (event) => {
@@ -168,7 +181,7 @@ export default function PlaceAutocompleteField({
             onFocus: () => setOpen(canOpen),
             spellCheck: false,
           }}
-          open={open}
+          open={open && canOpen}
           placeholder={placeholder}
           selectedOptions={selectedPlace ? [selectedPlace.placeId] : []}
           size="large"
@@ -201,7 +214,7 @@ export default function PlaceAutocompleteField({
             </Option>
           ))}
         </Combobox>
-        <span role="status" className="sr-only">
+        <span role="status" className={styles.visuallyHidden}>
           {statusMessage}
         </span>
       </div>
