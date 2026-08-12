@@ -17,11 +17,27 @@ import {
   getVisibleDetourOptions,
 } from "./planner/discover-workflow/discoverRoute";
 
+const CONTIGUOUS_US_BOUNDS = {
+  north: 49.384358,
+  south: 24.396308,
+  east: -66.93457,
+  west: -124.848974,
+  padding: 24,
+};
+
+const WORLD_BOUNDS = {
+  north: 85.051129,
+  south: -85.051129,
+  east: 180,
+  west: -180,
+};
+
+const MIN_ZOOM = 4;
+
 // Custom hook for map bounds adjustment - only on route change
 function useMapBounds(map, route) {
   const mapsLibrary = useMapsLibrary("maps");
   const lastRouteIdRef = useRef(null);
-  const hasSetBoundsRef = useRef(false);
 
   useEffect(() => {
     if (!map || !mapsLibrary || !route) return;
@@ -48,7 +64,6 @@ function useMapBounds(map, route) {
 
         map.fitBounds(bounds);
         lastRouteIdRef.current = routeId;
-        hasSetBoundsRef.current = true;
       }
     }, 100);
 
@@ -201,12 +216,16 @@ function MapContainer(props) {
     <APIProvider apiKey={config.GOOGLE_API_KEY}>
       <Map
         ref={mapRef}
-        defaultZoom={9}
+        defaultBounds={CONTIGUOUS_US_BOUNDS}
+        minZoom={MIN_ZOOM}
+        restriction={{
+          latLngBounds: WORLD_BOUNDS,
+          strictBounds: true,
+        }}
         style={{
           width: "100%",
           height: "100%",
         }}
-        defaultCenter={{ lat: 33.749, lng: -84.388 }}
         fullscreenControl={false}
         mapId="DEMO_MAP_ID"
         streetViewControl={false}
