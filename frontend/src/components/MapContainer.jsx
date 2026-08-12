@@ -267,24 +267,29 @@ function MapContainer(props) {
                   detourHighlight.id === detour.place_id &&
                   detourHighlight.highlight
               );
+              const hovered = props.hoveredDetourId === detour.place_id;
 
               return (
                 <AdvancedMarker
                   key={`detour-option-${detour.place_id || index}`}
                   title={`${index + 1}. ${detour.name}`}
                   onClick={() => selectDetourOption(detour.place_id)}
+                  onMouseEnter={() => props.onDetourHover?.(detour.place_id)}
+                  onMouseLeave={() => props.onDetourHover?.(null)}
                   position={{
                     lat: detour.geometry.location.lat,
                     lng: detour.geometry.location.lng,
                   }}
-                  zIndex={highlight ? 2 : 1}
+                  zIndex={highlight ? 3 : hovered ? 2 : 1}
                 >
                   <Pin
                     scale={highlight ? 1 : 0.85}
                     background={
                       highlight
                         ? jauntColors.map.selected
-                        : jauntColors.map.result
+                        : hovered
+                          ? jauntColors.brand.accent
+                          : jauntColors.map.result
                     }
                     glyphColor={
                       highlight
@@ -338,7 +343,9 @@ MapContainer.propTypes = {
   showDetourSearchPoint: PropTypes.bool,
   detourOptions: PropTypes.array,
   detourHighlight: PropTypes.array,
+  hoveredDetourId: PropTypes.string,
   detourList: PropTypes.array,
+  onDetourHover: PropTypes.func,
   setDetourHighlight: PropTypes.func,
 };
 

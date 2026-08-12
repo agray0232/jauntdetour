@@ -167,6 +167,10 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await page.getByRole("button", { name: "Search this area" }).click();
   await expect(page.getByRole("heading", { name: "2 places" })).toBeVisible();
   await expect(page.getByRole("listitem")).toHaveCount(2);
+  await page.getByRole("listitem").first().hover();
+  await expect(
+    page.getByRole("button", { name: "Add", exact: true })
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Select Paris Mountain" }).click();
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByRole("tab", { name: "Discover" })).toHaveAttribute(

@@ -234,6 +234,7 @@ export default function PlannerWorkspace(props) {
   const [editingRoute, setEditingRoute] = useState(!props.showDetourButton);
   const [saveOperation, setSaveOperation] = useState("idle");
   const [plannerFeedback, setPlannerFeedback] = useState("");
+  const [hoveredDetourId, setHoveredDetourId] = useState(null);
   const previousSuggestedNameRef = useRef("");
   const previousTripNameRef = useRef(props.tripName);
   const tripNameRef = useRef(props.tripName);
@@ -251,6 +252,10 @@ export default function PlannerWorkspace(props) {
       setEditingRoute(true);
     }
   }, [props.showDetourButton]);
+
+  useEffect(() => {
+    setHoveredDetourId(null);
+  }, [props.detourOptions]);
 
   useEffect(() => {
     if (!plannerFeedback) {
@@ -471,6 +476,8 @@ export default function PlannerWorkspace(props) {
                 detourOptions={props.detourOptions}
                 detourList={props.detourList}
                 detourHighlight={props.detourHighlight}
+                hoveredDetourId={hoveredDetourId}
+                onDetourHover={setHoveredDetourId}
                 addDetour={props.addDetour}
                 setRoute={props.setRoute}
                 setTripSummary={props.setTripSummary}
@@ -537,6 +544,8 @@ export default function PlannerWorkspace(props) {
           detourSearchRadius={props.detourSearchRadius}
           detourOptions={props.detourOptions}
           detourHighlight={props.detourHighlight}
+          hoveredDetourId={hoveredDetourId}
+          onDetourHover={setHoveredDetourId}
           detourList={props.detourList}
           setDetourHighlight={props.setDetourHighlight}
           route={props.route}

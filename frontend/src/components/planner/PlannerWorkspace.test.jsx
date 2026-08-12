@@ -4,6 +4,9 @@ import { FluentProvider } from "@fluentui/react-components";
 import PlannerWorkspace from "./PlannerWorkspace";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
 
+const mockDiscoverProps = jest.fn();
+const mockMapProps = jest.fn();
+
 jest.mock("./build-workflow/RouteForm", () => {
   const PropTypes = require("prop-types");
 
@@ -58,10 +61,20 @@ jest.mock("./build-workflow/BuildRouteDetails", () => {
 jest.mock("./discover-workflow/DiscoverWorkspace", () => {
   const PropTypes = require("prop-types");
 
-  function MockDiscoverWorkspace({ feedback, onAdded, onDismissFeedback }) {
+  function MockDiscoverWorkspace(props) {
+    mockDiscoverProps(props);
+    const {
+      feedback,
+      hoveredDetourId,
+      onAdded,
+      onDetourHover,
+      onDismissFeedback,
+    } = props;
     return (
       <div>
         Discover workspace instance
+        <span data-testid="discover-hovered">{hoveredDetourId || "none"}</span>
+        <button onClick={() => onDetourHover("place-1")}>Hover result</button>
         {feedback ? <span>{feedback}</span> : null}
         <button onClick={() => onAdded("Paris Mountain", 18)}>
           Complete add
@@ -75,7 +88,9 @@ jest.mock("./discover-workflow/DiscoverWorkspace", () => {
 
   MockDiscoverWorkspace.propTypes = {
     feedback: PropTypes.string,
+    hoveredDetourId: PropTypes.string,
     onAdded: PropTypes.func.isRequired,
+    onDetourHover: PropTypes.func.isRequired,
     onDismissFeedback: PropTypes.func.isRequired,
   };
 
@@ -93,8 +108,16 @@ jest.mock(
 jest.mock(
   "../MapContainer",
   () =>
-    function MockMap() {
-      return <div>Map instance</div>;
+    function MockMap(props) {
+      mockMapProps(props);
+      return (
+        <div>
+          Map instance
+          <span data-testid="map-hovered">
+            {props.hoveredDetourId || "none"}
+          </span>
+        </div>
+      );
     }
 );
 
@@ -146,6 +169,11 @@ function renderWorkspace(props) {
 }
 
 describe("PlannerWorkspace", () => {
+  beforeEach(() => {
+    mockDiscoverProps.mockClear();
+    mockMapProps.mockClear();
+  });
+
   it("shows only route entry before a route exists", () => {
     renderWorkspace(createProps());
 
@@ -184,6 +212,28 @@ describe("PlannerWorkspace", () => {
     expect(screen.getAllByText("Discover workspace instance")).toHaveLength(1);
     expect(screen.getAllByText("Map instance")).toHaveLength(1);
     expect(screen.getByText("Not saved")).toBeVisible();
+  });
+
+  it("synchronizes detour hover and clears it when results change", () => {
+    const props = createProps({
+      detourOptions: [{ place_id: "place-1" }],
+      showDetourButton: true,
+      showDetourForm: true,
+    });
+    const { rerender } = renderWorkspace(props);
+
+    fireEvent.click(screen.getByRole("button", { name: "Hover result" }));
+    expect(screen.getByTestId("discover-hovered")).toHaveTextContent("place-1");
+    expect(screen.getByTestId("map-hovered")).toHaveTextContent("place-1");
+
+    rerender(
+      <FluentProvider theme={jauntDetourTheme}>
+        <PlannerWorkspace {...props} detourOptions={[]} />
+      </FluentProvider>
+    );
+
+    expect(screen.getByTestId("discover-hovered")).toHaveTextContent("none");
+    expect(screen.getByTestId("map-hovered")).toHaveTextContent("none");
   });
 
   it("keeps Discover unavailable until a route exists", () => {
