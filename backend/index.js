@@ -7,6 +7,7 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 const routeAPI = require("./app/modules/routeAPI");
 const placesAPI = require("./app/modules/placesAPI");
+const placeAutocompleteAPI = require("./app/modules/placeAutocompleteAPI");
 
 const db = require("./app/db/pool");
 const UserRepository = require("./app/repositories/UserRepository");
@@ -14,6 +15,7 @@ const TripRepository = require("./app/repositories/TripRepository");
 const DetourRepository = require("./app/repositories/DetourRepository");
 const createAuthRouter = require("./app/routes/auth");
 const createTripsRouter = require("./app/routes/trips");
+const createPlaceAutocompleteRouter = require("./app/routes/placeAutocomplete");
 const createCorsOptions = require("./app/middleware/corsConfig");
 
 const IS_PROD = process.env.NODE_ENV === "production";
@@ -76,6 +78,10 @@ app.use("/auth", createAuthRouter({ userRepository }));
 app.use(
   "/api/trips",
   createTripsRouter({ tripRepository, detourRepository, db })
+);
+app.use(
+  "/api/places/autocomplete",
+  createPlaceAutocompleteRouter({ placeAutocompleteAPI })
 );
 
 app.get("/test", function (req, res) {

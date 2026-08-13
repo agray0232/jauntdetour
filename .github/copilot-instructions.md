@@ -88,6 +88,17 @@ trips.
   substrings + params); routes tested with `supertest` + mocked repos/db. Run
   `cd backend && npm test`.
 - Frontend: `cd frontend && CI=true npm test`.
+- Frontend UI changes that affect semantic roles, accessible names, labels,
+  routes, form controls, or user workflows must inspect
+  `frontend/e2e/**/*.spec.js` and update affected Playwright locators,
+  assertions, and API mocks in the same change. Prefer role-and-name locators
+  that match the rendered accessibility tree.
+- For frontend workflow changes, build the current frontend and run Playwright:
+  `npm run build:frontend && npm --prefix frontend run test:e2e`. If local
+  browser binaries or system dependencies prevent execution, run
+  `cd frontend && npx playwright test --list`, run the relevant unit/integration
+  tests, and explicitly report that E2E execution remains unverified. Do not
+  claim Playwright passed unless the browser suite completed.
 - Keep the suite green and add tests for new backend routes/repos.
 
 ## Reviewing code

@@ -9,8 +9,6 @@ import {
   DialogContent,
   DialogSurface,
   DialogTitle,
-  Field,
-  Input,
   MessageBar,
   MessageBarBody,
   Spinner,
@@ -25,8 +23,10 @@ import {
   NavigationRegular,
 } from "@fluentui/react-icons";
 import RouteRequester from "../../../scripts/RouteRequester";
+import PlaceAutocompleteField from "./PlaceAutocompleteField";
 import { jauntSpacing, jauntTypography } from "../../../design-system/tokens";
 import { trackEvent } from "../../../telemetry/telemetry";
+import { formatLocationLabel } from "../../../utils/locationLabel";
 
 const useStyles = makeStyles({
   root: {
@@ -93,6 +93,8 @@ export default function RouteForm({
   const [destinationValue, setDestinationValue] = useState(
     normalizeEndpoint(destination)
   );
+  const [selectedOrigin, setSelectedOrigin] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -102,10 +104,12 @@ export default function RouteForm({
 
   useEffect(() => {
     setOriginValue(normalizeEndpoint(origin));
+    setSelectedOrigin(null);
   }, [origin]);
 
   useEffect(() => {
     setDestinationValue(normalizeEndpoint(destination));
+    setSelectedDestination(null);
   }, [destination]);
 
   const trimmedOrigin = originValue.trim();
@@ -116,9 +120,32 @@ export default function RouteForm({
   const editingExistingJaunt = onCancel != null;
   const hasExistingDetours = editingExistingJaunt && detourList.length > 0;
 
-  const commitRoute = (nextRoute, { removeDetours = false } = {}) => {
-    setOrigin(trimmedOrigin);
-    setDestination(trimmedDestination);
+  const commitRoute = (
+    nextRoute,
+    {
+      fallbackOrigin = trimmedOrigin,
+      fallbackDestination = trimmedDestination,
+      selectedOriginLabel = null,
+      selectedDestinationLabel = null,
+      removeDetours = false,
+    } = {}
+  ) => {
+    const legs = nextRoute.legs || [];
+    const firstLeg = legs[0];
+    const lastLeg = legs[legs.length - 1];
+    const resolvedOrigin = formatLocationLabel(
+      selectedOriginLabel || firstLeg?.start_address || fallbackOrigin
+    );
+    const resolvedDestination = formatLocationLabel(
+      selectedDestinationLabel || lastLeg?.end_address || fallbackDestination
+    );
+
+    setOriginValue(resolvedOrigin);
+    setDestinationValue(resolvedDestination);
+    setSelectedOrigin(null);
+    setSelectedDestination(null);
+    setOrigin(resolvedOrigin);
+    setDestination(resolvedDestination);
     setRoute(nextRoute);
     setTripSummary(nextRoute.summary);
     if (removeDetours) {
@@ -143,6 +170,16 @@ export default function RouteForm({
 
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+    const submittedOrigin = trimmedOrigin;
+    const submittedDestination = trimmedDestination;
+    const selectedOriginLabel = selectedOrigin?.text || null;
+    const selectedDestinationLabel = selectedDestination?.text || null;
+    const routeOrigin = selectedOrigin
+      ? `place_id:${selectedOrigin.placeId}`
+      : submittedOrigin;
+    const routeDestination = selectedDestination
+      ? `place_id:${selectedDestination.placeId}`
+      : submittedDestination;
     setStatus("loading");
     trackEvent("route_search_started", { feature: "route" });
 
@@ -154,8 +191,8 @@ export default function RouteForm({
       const preserveDetours =
         hasExistingDetours && keepExistingDetours && waypointIds.length > 0;
       const data = await requester.getRoute(
-        trimmedOrigin,
-        trimmedDestination,
+        routeOrigin,
+        routeDestination,
         "Address",
         preserveDetours ? { waypoints: waypointIds } : {}
       );
@@ -167,8 +204,8 @@ export default function RouteForm({
       if (!nextRoute) {
         if (preserveDetours) {
           const directData = await requester.getRoute(
-            trimmedOrigin,
-            trimmedDestination,
+            routeOrigin,
+            routeDestination,
             "Address",
             {}
           );
@@ -178,7 +215,13 @@ export default function RouteForm({
           nextRoute = directData.routes && directData.routes[0];
           if (nextRoute) {
             setStatus("idle");
-            setIncompatibleRoute(nextRoute);
+            setIncompatibleRoute({
+              route: nextRoute,
+              fallbackOrigin: submittedOrigin,
+              fallbackDestination: submittedDestination,
+              selectedOriginLabel,
+              selectedDestinationLabel,
+            });
             return;
           }
         }
@@ -194,6 +237,10 @@ export default function RouteForm({
       }
 
       commitRoute(nextRoute, {
+        fallbackOrigin: submittedOrigin,
+        fallbackDestination: submittedDestination,
+        selectedOriginLabel,
+        selectedDestinationLabel,
         removeDetours: hasExistingDetours && !keepExistingDetours,
       });
     } catch {
@@ -220,6 +267,8 @@ export default function RouteForm({
     requestIdRef.current += 1;
     setOriginValue("");
     setDestinationValue("");
+    setSelectedOrigin(null);
+    setSelectedDestination(null);
     setSubmitted(false);
     setStatus("idle");
     setErrorMessage("");
@@ -252,38 +301,42 @@ export default function RouteForm({
         ) : null}
       </div>
       <div className={styles.fields}>
-        <Field
+        <PlaceAutocompleteField
+          disabled={loading}
+          icon={<NavigationRegular />}
+          invalid={originInvalid}
           label="Start"
-          required
-          validationMessage={originInvalid ? "Enter a starting point." : null}
-          validationState={originInvalid ? "error" : "none"}
-        >
-          <Input
-            aria-label="Start"
-            autoComplete="off"
-            contentBefore={<NavigationRegular aria-hidden="true" />}
-            placeholder="Enter a starting point"
-            size="large"
-            value={originValue}
-            onChange={(event) => setOriginValue(event.target.value)}
-          />
-        </Field>
-        <Field
+          placeholder="Enter a starting point"
+          selectedPlace={selectedOrigin}
+          validationMessage="Enter a starting point."
+          value={originValue}
+          onValueChange={(value) => {
+            setOriginValue(value);
+            setSelectedOrigin(null);
+          }}
+          onSelect={(place) => {
+            setOriginValue(place.text);
+            setSelectedOrigin(place);
+          }}
+        />
+        <PlaceAutocompleteField
+          disabled={loading}
+          icon={<LocationRegular />}
+          invalid={destinationInvalid}
           label="Destination"
-          required
-          validationMessage={destinationInvalid ? "Enter a destination." : null}
-          validationState={destinationInvalid ? "error" : "none"}
-        >
-          <Input
-            aria-label="Destination"
-            autoComplete="off"
-            contentBefore={<LocationRegular aria-hidden="true" />}
-            placeholder="Where are you going?"
-            size="large"
-            value={destinationValue}
-            onChange={(event) => setDestinationValue(event.target.value)}
-          />
-        </Field>
+          placeholder="Where are you going?"
+          selectedPlace={selectedDestination}
+          validationMessage="Enter a destination."
+          value={destinationValue}
+          onValueChange={(value) => {
+            setDestinationValue(value);
+            setSelectedDestination(null);
+          }}
+          onSelect={(place) => {
+            setDestinationValue(place.text);
+            setSelectedDestination(place);
+          }}
+        />
       </div>
 
       {hasExistingDetours ? (
@@ -334,7 +387,7 @@ export default function RouteForm({
       </div>
 
       <Dialog
-        open={incompatibleRoute != null}
+        open={incompatibleRoute !== null}
         onOpenChange={(event, data) => {
           if (!data.open) {
             setIncompatibleRoute(null);
@@ -358,7 +411,14 @@ export default function RouteForm({
               <Button
                 appearance="primary"
                 onClick={() =>
-                  commitRoute(incompatibleRoute, { removeDetours: true })
+                  commitRoute(incompatibleRoute.route, {
+                    fallbackOrigin: incompatibleRoute.fallbackOrigin,
+                    fallbackDestination: incompatibleRoute.fallbackDestination,
+                    selectedOriginLabel: incompatibleRoute.selectedOriginLabel,
+                    selectedDestinationLabel:
+                      incompatibleRoute.selectedDestinationLabel,
+                    removeDetours: true,
+                  })
                 }
               >
                 Proceed
