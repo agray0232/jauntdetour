@@ -75,7 +75,7 @@ function formatAddedTime(addedTime) {
 
   const hours = Math.floor(addedTime / 60);
   const minutes = addedTime % 60;
-  return `${hours ? `${hours} hr ` : ""}${minutes} min added`;
+  return `+ ${hours ? `${hours} hr ` : ""}${minutes} min`;
 }
 
 function MarkerDetails({ feature }) {
@@ -139,6 +139,11 @@ function SelectableMapMarker({
       {showDetails ? (
         <InfoWindow
           ariaLabel={`${feature.heading} details`}
+          className={
+            showDetails === "hovered"
+              ? "jaunt-marker-details--hovered"
+              : "jaunt-marker-details--selected"
+          }
           disableAutoPan
           headerContent={
             <Text
@@ -326,6 +331,10 @@ function MapContainer(props) {
   const mapRef = useRef(null);
   const [selectedFeatureId, setSelectedFeatureId] = useState(null);
   const [hoveredFeatureId, setHoveredFeatureId] = useState(null);
+  const selectedFeatureIdRef = useRef(selectedFeatureId);
+  const hoveredFeatureIdRef = useRef(hoveredFeatureId);
+  selectedFeatureIdRef.current = selectedFeatureId;
+  hoveredFeatureIdRef.current = hoveredFeatureId;
   const routeEndpoints = getRouteEndpoints(
     props.route,
     props.origin,
@@ -375,9 +384,6 @@ function MapContainer(props) {
     ...addedDetourFeatures.map((feature) => feature.id),
   ];
   const visibleFeatureIdsKey = visibleFeatureIds.join("|");
-  const detailsFeatureId = hoveredFeatureId || selectedFeatureId;
-  const detailsFeatureIdRef = useRef(detailsFeatureId);
-  detailsFeatureIdRef.current = detailsFeatureId;
 
   useEffect(() => {
     if (
@@ -398,11 +404,16 @@ function MapContainer(props) {
   }, [hoveredFeatureId, visibleFeatureIdsKey]);
 
   const closeFeatureDetails = (featureId, detailsMode) => {
-    if (detailsFeatureIdRef.current !== featureId) return;
-    if (detailsMode === "selected" && selectedFeatureId === featureId) {
+    if (
+      detailsMode === "selected" &&
+      selectedFeatureIdRef.current === featureId
+    ) {
       setSelectedFeatureId(null);
     }
-    if (detailsMode === "hovered" && hoveredFeatureId === featureId) {
+    if (
+      detailsMode === "hovered" &&
+      hoveredFeatureIdRef.current === featureId
+    ) {
       setHoveredFeatureId(null);
     }
   };
@@ -462,11 +473,11 @@ function MapContainer(props) {
                   onHover={setHoveredFeatureId}
                   onSelect={setSelectedFeatureId}
                   showDetails={
-                    detailsFeatureId === "start"
-                      ? selectedFeatureId === "start"
-                        ? "selected"
-                        : "hovered"
-                      : null
+                    selectedFeatureId === "start"
+                      ? "selected"
+                      : hoveredFeatureId === "start"
+                        ? "hovered"
+                        : null
                   }
                   zIndex={0}
                 />
@@ -484,11 +495,11 @@ function MapContainer(props) {
                   onHover={setHoveredFeatureId}
                   onSelect={setSelectedFeatureId}
                   showDetails={
-                    detailsFeatureId === "destination"
-                      ? selectedFeatureId === "destination"
-                        ? "selected"
-                        : "hovered"
-                      : null
+                    selectedFeatureId === "destination"
+                      ? "selected"
+                      : hoveredFeatureId === "destination"
+                        ? "hovered"
+                        : null
                   }
                   zIndex={0}
                 />
@@ -577,11 +588,11 @@ function MapContainer(props) {
               onHover={setHoveredFeatureId}
               onSelect={setSelectedFeatureId}
               showDetails={
-                detailsFeatureId === feature.id
-                  ? selectedFeatureId === feature.id
-                    ? "selected"
-                    : "hovered"
-                  : null
+                selectedFeatureId === feature.id
+                  ? "selected"
+                  : hoveredFeatureId === feature.id
+                    ? "hovered"
+                    : null
               }
               zIndex={1}
             />

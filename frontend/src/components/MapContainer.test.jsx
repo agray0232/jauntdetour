@@ -13,12 +13,18 @@ jest.mock("@vis.gl/react-google-maps", () => {
   function MockInfoWindow({
     ariaLabel,
     children,
+    className,
     headerContent,
     onClose,
     pixelOffset,
     shouldFocus,
   }) {
-    mockInfoWindowProps({ ariaLabel, pixelOffset, shouldFocus });
+    mockInfoWindowProps({
+      ariaLabel,
+      className,
+      pixelOffset,
+      shouldFocus,
+    });
     const onCloseRef = React.useRef(onClose);
     onCloseRef.current = onClose;
     React.useEffect(() => () => onCloseRef.current(), []);
@@ -31,7 +37,9 @@ jest.mock("@vis.gl/react-google-maps", () => {
       >
         <header>{headerContent}</header>
         {children}
-        <button onClick={onClose}>Close details</button>
+        {className === "jaunt-marker-details--hovered" ? null : (
+          <button onClick={onClose}>Close details</button>
+        )}
       </section>
     );
   }
@@ -235,8 +243,14 @@ describe("MapContainer", () => {
       screen.getByRole("dialog", { name: "Start details" })
     ).toHaveAttribute("data-should-focus", "false");
     expect(mockInfoWindowProps).toHaveBeenLastCalledWith(
-      expect.objectContaining({ pixelOffset: [0, -46] })
+      expect.objectContaining({
+        className: "jaunt-marker-details--hovered",
+        pixelOffset: [0, -46],
+      })
     );
+    expect(
+      screen.queryByRole("button", { name: "Close details" })
+    ).not.toBeInTheDocument();
     expect(
       mockPinProps.mock.calls.some(([pinProps]) => pinProps.scale === 1.25)
     ).toBe(true);
@@ -252,18 +266,30 @@ describe("MapContainer", () => {
     expect(
       screen.getByRole("dialog", { name: "Start details" })
     ).toHaveTextContent("Atlanta, GA");
+    expect(mockInfoWindowProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        className: "jaunt-marker-details--selected",
+      })
+    );
+    expect(
+      screen.getByRole("button", { name: "Close details" })
+    ).toBeInTheDocument();
 
     fireEvent.mouseEnter(destinationMarker);
     expect(
-      screen.queryByRole("dialog", { name: "Start details" })
-    ).not.toBeInTheDocument();
+      screen.getByRole("dialog", { name: "Start details" })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("dialog", { name: "Destination details" })
     ).toBeInTheDocument();
+    expect(screen.getAllByRole("dialog")).toHaveLength(2);
     fireEvent.mouseLeave(destinationMarker);
     expect(
       screen.getByRole("dialog", { name: "Start details" })
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("dialog", { name: "Destination details" })
+    ).not.toBeInTheDocument();
 
     fireEvent.click(destinationMarker);
     expect(
@@ -471,7 +497,10 @@ describe("MapContainer", () => {
       screen.getByRole("dialog", { name: "Paris Mountain details" })
     ).toHaveAttribute("data-should-focus", "false");
     expect(mockInfoWindowProps).toHaveBeenLastCalledWith(
-      expect.objectContaining({ pixelOffset: [0, -46] })
+      expect.objectContaining({
+        className: "jaunt-marker-details--hovered",
+        pixelOffset: [0, -46],
+      })
     );
     fireEvent.mouseLeave(detourMarker);
     expect(
@@ -485,7 +514,7 @@ describe("MapContainer", () => {
     expect(screen.getByText("Paris Mountain")).toBeInTheDocument();
     expect(details).toHaveTextContent("Hike");
     expect(details).toHaveTextContent("4.7 rating");
-    expect(details).toHaveTextContent("18 min added");
+    expect(details).toHaveTextContent("+ 18 min");
     fireEvent.click(screen.getByRole("button", { name: "Close details" }));
     expect(details).not.toBeInTheDocument();
 

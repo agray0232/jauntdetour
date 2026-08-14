@@ -155,10 +155,28 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(destinationMarker).toHaveCount(1);
   await startMarker.hover();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+  await expect(
+    page.getByRole("button", { name: "Close", exact: true })
+  ).toHaveCount(0);
   await page.getByRole("region", { name: "Route summary" }).hover();
   await expect(page.getByLabel("Start details")).toHaveCount(0);
   await startMarker.click();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+  await expect(
+    page.getByRole("button", { name: "Close", exact: true })
+  ).toHaveCount(1);
+  await destinationMarker.hover();
+  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+  await expect(page.getByLabel("Destination details")).toContainText(
+    "Charlotte, NC"
+  );
+  await expect(page.getByRole("dialog")).toHaveCount(2);
+  await expect(
+    page.getByRole("button", { name: "Close", exact: true })
+  ).toHaveCount(1);
+  await page.getByRole("region", { name: "Route summary" }).hover();
+  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+  await expect(page.getByLabel("Destination details")).toHaveCount(0);
   await destinationMarker.focus();
   await page.keyboard.press("Enter");
   await expect(page.getByLabel("Start details")).toHaveCount(0);
@@ -213,7 +231,7 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   const detourDetails = page.getByLabel("Paris Mountain details");
   await expect(detourDetails).toContainText("Hike");
   await expect(detourDetails).toContainText("4.7 rating");
-  await expect(detourDetails).toContainText("18 min added");
+  await expect(detourDetails).toContainText("+ 18 min");
   await page.keyboard.press("Escape");
   await expect(detourDetails).toHaveCount(0);
 
@@ -379,7 +397,7 @@ test("selects marker details on a saved Jaunt map", async ({ page }) => {
   const details = page.getByLabel("Paris Mountain details");
   await expect(details).toContainText("Hike");
   await expect(details).toContainText("4.7 rating");
-  await expect(details).toContainText("18 min added");
+  await expect(details).toContainText("+ 18 min");
 });
 
 test("protects saved Jaunts while preserving anonymous planning", async ({
