@@ -300,7 +300,7 @@ describe("MapContainer", () => {
     ).toHaveTextContent("Charlotte, NC");
 
     fireEvent.mouseEnter(destinationMarker);
-    fireEvent.keyDown(destinationMarker, { key: "Escape" });
+    fireEvent.keyDown(document, { key: "Escape" });
     expect(
       screen.queryByRole("dialog", { name: "Destination details" })
     ).not.toBeInTheDocument();

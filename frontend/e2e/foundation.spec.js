@@ -390,9 +390,13 @@ test("selects marker details on a saved Jaunt map", async ({ page }) => {
     page.getByRole("heading", { name: "Carolinas weekend" })
   ).toBeVisible();
 
-  await page.getByTitle("Jaunt start").click();
+  const savedStartMarker = page.getByTitle("Jaunt start");
+  await savedStartMarker.focus();
+  await page.keyboard.press("Enter");
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-  await page.getByTitle("Paris Mountain, added stop").click();
+  const savedDetourMarker = page.getByTitle("Paris Mountain, added stop");
+  await savedDetourMarker.focus();
+  await page.keyboard.press("Enter");
   await expect(page.getByLabel("Start details")).toHaveCount(0);
   const details = page.getByLabel("Paris Mountain details");
   await expect(details).toContainText("Hike");

@@ -117,12 +117,6 @@ function SelectableMapMarker({
         position={feature.position}
         title={feature.accessibleName}
         onClick={() => onSelect(feature.id)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape" && showDetails === "selected") {
-            onHover(null);
-            onClose(feature.id, "selected");
-          }
-        }}
         onMouseEnter={() => onHover(feature.id)}
         onMouseLeave={() => onHover(null)}
         zIndex={active ? zIndex + 10 : zIndex}
@@ -402,6 +396,20 @@ function MapContainer(props) {
       setHoveredFeatureId(null);
     }
   }, [hoveredFeatureId, visibleFeatureIdsKey]);
+
+  useEffect(() => {
+    if (!selectedFeatureId) return undefined;
+
+    const dismissSelectedFeature = (event) => {
+      if (event.key !== "Escape") return;
+      setHoveredFeatureId(null);
+      setSelectedFeatureId(null);
+    };
+
+    document.addEventListener("keydown", dismissSelectedFeature);
+    return () =>
+      document.removeEventListener("keydown", dismissSelectedFeature);
+  }, [selectedFeatureId]);
 
   const closeFeatureDetails = (featureId, detailsMode) => {
     if (
