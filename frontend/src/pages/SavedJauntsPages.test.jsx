@@ -247,8 +247,11 @@ describe("JauntDetailPage", () => {
     expect(screen.getByText("Saved route map")).toBeVisible();
     expect(mockMapProps).toHaveBeenCalledWith(
       expect.objectContaining({
+        cameraControl: false,
         origin: detailView.trip.origin,
         destination: detailView.trip.destination,
+        mapTypeControl: false,
+        zoomControl: false,
       })
     );
     expect(store.getState().origin).toBe("Current route");
