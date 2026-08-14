@@ -440,6 +440,7 @@ function MapContainer(props) {
       <div className="jaunt-map" style={{ width: "100%", height: "100%" }}>
         <Map
           ref={mapRef}
+          cameraControl={props.cameraControl !== false}
           defaultBounds={CONTIGUOUS_US_BOUNDS}
           minZoom={MIN_ZOOM}
           restriction={{
@@ -452,11 +453,13 @@ function MapContainer(props) {
           }}
           fullscreenControl={false}
           mapId="DEMO_MAP_ID"
+          mapTypeControl={props.mapTypeControl !== false}
           onClick={() => {
             setHoveredFeatureId(null);
             setSelectedFeatureId(null);
           }}
           streetViewControl={false}
+          zoomControl={props.zoomControl !== false}
         >
           <MapResizeObserver />
 
@@ -612,6 +615,7 @@ function MapContainer(props) {
 }
 
 MapContainer.propTypes = {
+  cameraControl: PropTypes.bool,
   origin: PropTypes.shape({
     address: PropTypes.string,
     lat: PropTypes.number,
@@ -630,9 +634,11 @@ MapContainer.propTypes = {
   detourOptions: PropTypes.array,
   detourHighlight: PropTypes.array,
   hoveredDetourId: PropTypes.string,
+  mapTypeControl: PropTypes.bool,
   detourList: PropTypes.array,
   onDetourHover: PropTypes.func,
   setDetourHighlight: PropTypes.func,
+  zoomControl: PropTypes.bool,
 };
 
 MapBounds.propTypes = {

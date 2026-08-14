@@ -119,6 +119,7 @@ describe("MapContainer", () => {
 
     expect(mockMapProps).toHaveBeenCalledWith(
       expect.objectContaining({
+        cameraControl: true,
         defaultBounds: {
           north: 49.384358,
           south: 24.396308,
@@ -126,6 +127,7 @@ describe("MapContainer", () => {
           west: -124.848974,
           padding: 24,
         },
+        mapTypeControl: true,
         minZoom: 4,
         restriction: {
           latLngBounds: {
@@ -136,6 +138,7 @@ describe("MapContainer", () => {
           },
           strictBounds: true,
         },
+        zoomControl: true,
       })
     );
   });

@@ -535,14 +535,17 @@ export default function JauntDetailPage() {
         <div className={styles.map} aria-label="Saved route preview">
           {route ? (
             <MapContainer
+              cameraControl={false}
               origin={trip.origin}
               destination={trip.destination}
               detourHighlight={[]}
               detourList={detours}
               detourOptions={[]}
+              mapTypeControl={false}
               route={route}
               showDetourSearchPoint={false}
               showRoute
+              zoomControl={false}
             />
           ) : (
             <div className={styles.state}>Map preview unavailable</div>
