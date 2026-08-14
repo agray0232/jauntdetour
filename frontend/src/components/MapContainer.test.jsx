@@ -3,32 +3,72 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import MapContainer from "./MapContainer";
 
 const mockMapProps = jest.fn();
+const mockInfoWindowProps = jest.fn();
 const mockPinProps = jest.fn();
 const mockUseMap = jest.fn();
 
 jest.mock("@vis.gl/react-google-maps", () => {
   const React = require("react");
 
-  return {
-    AdvancedMarker: ({
-      children,
-      onClick,
-      onMouseEnter,
-      onMouseLeave,
-      position,
-      title,
-    }) => (
-      <div
-        data-testid={title ? `marker-${title}` : undefined}
-        data-position={position ? `${position.lat},${position.lng}` : undefined}
-        onClick={onClick}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
+  function MockInfoWindow({
+    ariaLabel,
+    children,
+    headerContent,
+    onClose,
+    pixelOffset,
+    shouldFocus,
+  }) {
+    mockInfoWindowProps({ ariaLabel, pixelOffset, shouldFocus });
+    const onCloseRef = React.useRef(onClose);
+    onCloseRef.current = onClose;
+    React.useEffect(() => () => onCloseRef.current(), []);
+
+    return (
+      <section
+        aria-label={ariaLabel}
+        data-should-focus={`${shouldFocus}`}
+        role="dialog"
       >
+        <header>{headerContent}</header>
         {children}
-      </div>
-    ),
+        <button onClick={onClose}>Close details</button>
+      </section>
+    );
+  }
+
+  return {
+    AdvancedMarker: React.forwardRef(function MockAdvancedMarker(
+      {
+        children,
+        onClick,
+        onKeyDown,
+        onMouseEnter,
+        onMouseLeave,
+        position,
+        title,
+      },
+      ref
+    ) {
+      React.useImperativeHandle(ref, () => ({ title }), [title]);
+      return (
+        <div
+          aria-label={title || undefined}
+          data-testid={title ? `marker-${title}` : undefined}
+          data-position={
+            position ? `${position.lat},${position.lng}` : undefined
+          }
+          onClick={onClick}
+          onKeyDown={onKeyDown}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          role={title ? "button" : undefined}
+        >
+          {children}
+        </div>
+      );
+    }),
     APIProvider: ({ children }) => <>{children}</>,
+    InfoWindow: MockInfoWindow,
     Map: React.forwardRef(function MockMap({ children, ...props }, ref) {
       mockMapProps(props);
       return <div ref={ref}>{children}</div>;
@@ -61,6 +101,7 @@ function createProps(overrides = {}) {
 describe("MapContainer", () => {
   beforeEach(() => {
     mockMapProps.mockClear();
+    mockInfoWindowProps.mockClear();
     mockPinProps.mockClear();
     mockUseMap.mockReturnValue(null);
   });
@@ -142,10 +183,12 @@ describe("MapContainer", () => {
           route: {
             legs: [
               {
+                start_address: "Atlanta, GA",
                 start_location: { lat: 0, lng: -84.388 },
                 end_location: { lat: 34.9, lng: -82.4 },
               },
               {
+                end_address: "Charlotte, NC",
                 start_location: { lat: 34.9, lng: -82.4 },
                 end_location: { lat: 35.2271, lng: 0 },
               },
@@ -181,6 +224,66 @@ describe("MapContainer", () => {
         scale: 1.1,
       })
     );
+
+    const startMarker = screen.getByRole("button", { name: "Jaunt start" });
+    const destinationMarker = screen.getByRole("button", {
+      name: "Jaunt destination",
+    });
+
+    fireEvent.mouseEnter(startMarker);
+    expect(
+      screen.getByRole("dialog", { name: "Start details" })
+    ).toHaveAttribute("data-should-focus", "false");
+    expect(mockInfoWindowProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({ pixelOffset: [0, -46] })
+    );
+    expect(
+      mockPinProps.mock.calls.some(([pinProps]) => pinProps.scale === 1.25)
+    ).toBe(true);
+    fireEvent.mouseLeave(startMarker);
+    expect(
+      screen.queryByRole("dialog", { name: "Start details" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(startMarker);
+    expect(
+      mockPinProps.mock.calls.some(([pinProps]) => pinProps.scale === 1.25)
+    ).toBe(true);
+    expect(
+      screen.getByRole("dialog", { name: "Start details" })
+    ).toHaveTextContent("Atlanta, GA");
+
+    fireEvent.mouseEnter(destinationMarker);
+    expect(
+      screen.queryByRole("dialog", { name: "Start details" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Destination details" })
+    ).toBeInTheDocument();
+    fireEvent.mouseLeave(destinationMarker);
+    expect(
+      screen.getByRole("dialog", { name: "Start details" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(destinationMarker);
+    expect(
+      screen.queryByRole("dialog", { name: "Start details" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Destination details" })
+    ).toHaveTextContent("Charlotte, NC");
+
+    fireEvent.mouseEnter(destinationMarker);
+    fireEvent.keyDown(destinationMarker, { key: "Escape" });
+    expect(
+      screen.queryByRole("dialog", { name: "Destination details" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(destinationMarker);
+    act(() => mockMapProps.mock.lastCall[0].onClick());
+    expect(
+      screen.queryByRole("dialog", { name: "Destination details" })
+    ).not.toBeInTheDocument();
   });
 
   test("falls back to persisted endpoints when saved routes have no legs", () => {
@@ -333,21 +436,20 @@ describe("MapContainer", () => {
   });
 
   test("anchors added detours with category icons in stop-colored pins", () => {
-    render(
-      <MapContainer
-        {...createProps({
-          detourList: [
-            {
-              name: "Paris Mountain",
-              placeId: "place-1",
-              type: "Hike",
-              lat: 34.9,
-              lng: -82.4,
-            },
-          ],
-        })}
-      />
-    );
+    const props = createProps({
+      detourList: [
+        {
+          name: "Paris Mountain",
+          placeId: "place-1",
+          type: "Hike",
+          rating: 4.7,
+          addedTime: 18,
+          lat: 34.9,
+          lng: -82.4,
+        },
+      ],
+    });
+    const { rerender } = render(<MapContainer {...props} />);
 
     expect(
       screen.getByTestId("marker-Paris Mountain, added stop")
@@ -360,6 +462,38 @@ describe("MapContainer", () => {
         scale: 1.1,
       })
     );
+
+    const detourMarker = screen.getByRole("button", {
+      name: "Paris Mountain, added stop",
+    });
+    fireEvent.mouseEnter(detourMarker);
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toHaveAttribute("data-should-focus", "false");
+    expect(mockInfoWindowProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({ pixelOffset: [0, -46] })
+    );
+    fireEvent.mouseLeave(detourMarker);
+    expect(
+      screen.queryByRole("dialog", { name: "Paris Mountain details" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(detourMarker);
+    const details = screen.getByRole("dialog", {
+      name: "Paris Mountain details",
+    });
+    expect(screen.getByText("Paris Mountain")).toBeInTheDocument();
+    expect(details).toHaveTextContent("Hike");
+    expect(details).toHaveTextContent("4.7 rating");
+    expect(details).toHaveTextContent("18 min added");
+    fireEvent.click(screen.getByRole("button", { name: "Close details" }));
+    expect(details).not.toBeInTheDocument();
+
+    fireEvent.click(detourMarker);
+    rerender(<MapContainer {...props} detourList={[]} />);
+    expect(
+      screen.queryByRole("dialog", { name: "Paris Mountain details" })
+    ).not.toBeInTheDocument();
   });
 
   test("previews a detour marker on hover without selecting it", () => {

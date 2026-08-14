@@ -18,3 +18,8 @@ code {
   font-family:
     source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+
+/* Google Maps does not expose an InfoWindow tail visibility option. */
+.jaunt-map .gm-style-iw-tc {
+  display: none;
+}

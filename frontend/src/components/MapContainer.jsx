@@ -1,9 +1,11 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
+import { Text } from "@fluentui/react-components";
 //import { Map, Circle , Polyline, Marker, GoogleApiWrapper } from 'google-maps-react';
 import {
   AdvancedMarker,
   APIProvider,
+  InfoWindow,
   Map,
   Pin,
   useMap,
@@ -33,6 +35,7 @@ const WORLD_BOUNDS = {
 };
 
 const MIN_ZOOM = 4;
+const MARKER_DETAILS_OFFSET = [0, -46];
 
 function normalizeCoordinates(location) {
   if (!Number.isFinite(location?.lat) || !Number.isFinite(location?.lng)) {
@@ -67,20 +70,94 @@ function getRouteEndpoints(route, origin, destination) {
   };
 }
 
-function RouteEndpointMarker({ position, title, type }) {
-  if (!position) return null;
+function formatAddedTime(addedTime) {
+  if (!Number.isFinite(addedTime) || addedTime < 0) return null;
 
+  const hours = Math.floor(addedTime / 60);
+  const minutes = addedTime % 60;
+  return `${hours ? `${hours} hr ` : ""}${minutes} min added`;
+}
+
+function MarkerDetails({ feature }) {
   return (
-    <AdvancedMarker position={position} title={title} zIndex={0}>
-      <Pin
-        scale={1.1}
-        background={jauntColors.map.endpoint}
-        borderColor={jauntColors.neutral.foregroundOnDark}
-        glyphColor={jauntColors.neutral.foregroundOnDark}
+    <div
+      style={{
+        display: "grid",
+        width: "12rem",
+        maxWidth: "100%",
+        minWidth: 0,
+        rowGap: "0.25rem",
+        color: jauntColors.neutral.foreground,
+      }}
+    >
+      {feature.address ? <Text size={200}>{feature.address}</Text> : null}
+      {feature.category ? <Text size={200}>{feature.category}</Text> : null}
+      {feature.rating ? <Text size={200}>{feature.rating} rating</Text> : null}
+      {feature.addedTimeText ? (
+        <Text size={200}>{feature.addedTimeText}</Text>
+      ) : null}
+    </div>
+  );
+}
+
+function SelectableMapMarker({
+  active,
+  background,
+  feature,
+  iconType,
+  onClose,
+  onHover,
+  onSelect,
+  showDetails,
+  zIndex,
+}) {
+  return (
+    <>
+      <AdvancedMarker
+        position={feature.position}
+        title={feature.accessibleName}
+        onClick={() => onSelect(feature.id)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && showDetails === "selected") {
+            onHover(null);
+            onClose(feature.id, "selected");
+          }
+        }}
+        onMouseEnter={() => onHover(feature.id)}
+        onMouseLeave={() => onHover(null)}
+        zIndex={active ? zIndex + 10 : zIndex}
       >
-        {getDetourIconComponent(type, "1.125rem")}
-      </Pin>
-    </AdvancedMarker>
+        <Pin
+          scale={active ? 1.25 : 1.1}
+          background={background}
+          borderColor={jauntColors.neutral.foregroundOnDark}
+          glyphColor={jauntColors.neutral.foregroundOnDark}
+        >
+          {getDetourIconComponent(iconType, "1.125rem")}
+        </Pin>
+      </AdvancedMarker>
+      {showDetails ? (
+        <InfoWindow
+          ariaLabel={`${feature.heading} details`}
+          disableAutoPan
+          headerContent={
+            <Text
+              style={{ display: "block", transform: "translateY(-0.3125rem)" }}
+              weight="semibold"
+            >
+              {feature.heading}
+            </Text>
+          }
+          maxWidth={280}
+          onClose={() => onClose(feature.id, showDetails)}
+          pixelOffset={MARKER_DETAILS_OFFSET}
+          position={feature.position}
+          shouldFocus={false}
+        >
+          <MarkerDetails feature={feature} />
+        </InfoWindow>
+      ) : null}
+    </>
   );
 }
 
@@ -247,6 +324,8 @@ function DetourCircle({
 // Main MapContainer component - TEST CHANGE
 function MapContainer(props) {
   const mapRef = useRef(null);
+  const [selectedFeatureId, setSelectedFeatureId] = useState(null);
+  const [hoveredFeatureId, setHoveredFeatureId] = useState(null);
   const routeEndpoints = getRouteEndpoints(
     props.route,
     props.origin,
@@ -257,6 +336,76 @@ function MapContainer(props) {
     props.showDetourSearchPoint && props.showRoute
       ? getRoutePoint(props.route, props.detourSearchLocation)
       : null;
+
+  const legs = Array.isArray(props.route?.legs) ? props.route.legs : [];
+  const firstLeg = legs[0];
+  const lastLeg = legs[legs.length - 1];
+  const endpointFeatures = {
+    start: routeEndpoints.start
+      ? {
+          id: "start",
+          accessibleName: "Jaunt start",
+          heading: "Start",
+          address: firstLeg?.start_address || props.origin?.address,
+          position: routeEndpoints.start,
+        }
+      : null,
+    destination: routeEndpoints.destination
+      ? {
+          id: "destination",
+          accessibleName: "Jaunt destination",
+          heading: "Destination",
+          address: lastLeg?.end_address || props.destination?.address,
+          position: routeEndpoints.destination,
+        }
+      : null,
+  };
+  const addedDetourFeatures = (props.detourList || []).map((detour, index) => ({
+    id: `detour-${detour.placeId || detour.id || index}`,
+    accessibleName: `${detour.name}, added stop`,
+    heading: detour.name,
+    category: detour.type,
+    rating: detour.rating,
+    addedTimeText: formatAddedTime(detour.addedTime),
+    position: { lat: detour.lat, lng: detour.lng },
+  }));
+  const visibleFeatureIds = [
+    ...(props.showRoute && endpointFeatures.start ? ["start"] : []),
+    ...(props.showRoute && endpointFeatures.destination ? ["destination"] : []),
+    ...addedDetourFeatures.map((feature) => feature.id),
+  ];
+  const visibleFeatureIdsKey = visibleFeatureIds.join("|");
+  const detailsFeatureId = hoveredFeatureId || selectedFeatureId;
+  const detailsFeatureIdRef = useRef(detailsFeatureId);
+  detailsFeatureIdRef.current = detailsFeatureId;
+
+  useEffect(() => {
+    if (
+      selectedFeatureId &&
+      !visibleFeatureIdsKey.split("|").includes(selectedFeatureId)
+    ) {
+      setSelectedFeatureId(null);
+    }
+  }, [selectedFeatureId, visibleFeatureIdsKey]);
+
+  useEffect(() => {
+    if (
+      hoveredFeatureId &&
+      !visibleFeatureIdsKey.split("|").includes(hoveredFeatureId)
+    ) {
+      setHoveredFeatureId(null);
+    }
+  }, [hoveredFeatureId, visibleFeatureIdsKey]);
+
+  const closeFeatureDetails = (featureId, detailsMode) => {
+    if (detailsFeatureIdRef.current !== featureId) return;
+    if (detailsMode === "selected" && selectedFeatureId === featureId) {
+      setSelectedFeatureId(null);
+    }
+    if (detailsMode === "hovered" && hoveredFeatureId === featureId) {
+      setHoveredFeatureId(null);
+    }
+  };
 
   const selectDetourOption = (placeId) => {
     props.setDetourHighlight?.(
@@ -269,141 +418,188 @@ function MapContainer(props) {
 
   return (
     <APIProvider apiKey={config.GOOGLE_API_KEY}>
-      <Map
-        ref={mapRef}
-        defaultBounds={CONTIGUOUS_US_BOUNDS}
-        minZoom={MIN_ZOOM}
-        restriction={{
-          latLngBounds: WORLD_BOUNDS,
-          strictBounds: true,
-        }}
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-        fullscreenControl={false}
-        mapId="DEMO_MAP_ID"
-        streetViewControl={false}
-      >
-        <MapResizeObserver />
+      <div className="jaunt-map" style={{ width: "100%", height: "100%" }}>
+        <Map
+          ref={mapRef}
+          defaultBounds={CONTIGUOUS_US_BOUNDS}
+          minZoom={MIN_ZOOM}
+          restriction={{
+            latLngBounds: WORLD_BOUNDS,
+            strictBounds: true,
+          }}
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+          fullscreenControl={false}
+          mapId="DEMO_MAP_ID"
+          onClick={() => {
+            setHoveredFeatureId(null);
+            setSelectedFeatureId(null);
+          }}
+          streetViewControl={false}
+        >
+          <MapResizeObserver />
 
-        {/* Map bounds adjustment - only fits bounds on new route */}
-        <MapBounds route={props.route} />
+          {/* Map bounds adjustment - only fits bounds on new route */}
+          <MapBounds route={props.route} />
 
-        {/* Route polyline */}
-        <RoutePolyline route={props.route} showRoute={props.showRoute} />
+          {/* Route polyline */}
+          <RoutePolyline route={props.route} showRoute={props.showRoute} />
 
-        {props.showRoute && (
-          <>
-            <RouteEndpointMarker
-              position={routeEndpoints.start}
-              title="Jaunt start"
-              type="origin"
-            />
-            <RouteEndpointMarker
-              position={routeEndpoints.destination}
-              title="Jaunt destination"
-              type="destination"
-            />
-          </>
-        )}
-
-        {/* Detour search point marker */}
-        {props.showDetourSearchPoint && detourPoint && (
-          <AdvancedMarker position={detourPoint}>
-            <Pin
-              scale={0.75}
-              background={jauntColors.map.searchArea}
-              borderColor={jauntColors.map.endpoint}
-              glyphColor={jauntColors.neutral.foregroundOnDark}
-            />
-          </AdvancedMarker>
-        )}
-
-        {/* Detour search circle */}
-        <DetourCircle
-          detourPoint={detourPoint}
-          detourSearchRadius={props.detourSearchRadius}
-          showDetourSearchPoint={props.showDetourSearchPoint}
-        />
-
-        {/* Detour options markers */}
-        {props.detourOptions?.length > 0 &&
-          getVisibleDetourOptions(props.detourOptions, props.detourList).map(
-            ({ option: detour, index }) => {
-              // Check if this detour should be highlighted
-              const highlight = props.detourHighlight?.some(
-                (detourHighlight) =>
-                  detourHighlight.id === detour.place_id &&
-                  detourHighlight.highlight
-              );
-              const hovered = props.hoveredDetourId === detour.place_id;
-
-              return (
-                <AdvancedMarker
-                  key={`detour-option-${detour.place_id || index}`}
-                  title={`${index + 1}. ${detour.name}`}
-                  onClick={() => selectDetourOption(detour.place_id)}
-                  onMouseEnter={() => props.onDetourHover?.(detour.place_id)}
-                  onMouseLeave={() => props.onDetourHover?.(null)}
-                  position={{
-                    lat: detour.geometry.location.lat,
-                    lng: detour.geometry.location.lng,
-                  }}
-                  zIndex={highlight ? 3 : hovered ? 2 : 1}
-                >
-                  <Pin
-                    scale={highlight ? 1 : 0.85}
-                    background={
-                      highlight
-                        ? jauntColors.map.selected
-                        : hovered
-                          ? jauntColors.brand.accent
-                          : jauntColors.map.result
-                    }
-                    glyphColor={
-                      highlight
-                        ? jauntColors.neutral.foregroundOnDark
-                        : jauntColors.map.endpoint
-                    }
-                    borderColor={jauntColors.map.endpoint}
-                    glyphText={`${index + 1}`}
-                  />
-                </AdvancedMarker>
-              );
-            }
+          {props.showRoute && (
+            <>
+              {endpointFeatures.start ? (
+                <SelectableMapMarker
+                  active={
+                    selectedFeatureId === "start" ||
+                    hoveredFeatureId === "start"
+                  }
+                  background={jauntColors.map.endpoint}
+                  feature={endpointFeatures.start}
+                  iconType="origin"
+                  onClose={closeFeatureDetails}
+                  onHover={setHoveredFeatureId}
+                  onSelect={setSelectedFeatureId}
+                  showDetails={
+                    detailsFeatureId === "start"
+                      ? selectedFeatureId === "start"
+                        ? "selected"
+                        : "hovered"
+                      : null
+                  }
+                  zIndex={0}
+                />
+              ) : null}
+              {endpointFeatures.destination ? (
+                <SelectableMapMarker
+                  active={
+                    selectedFeatureId === "destination" ||
+                    hoveredFeatureId === "destination"
+                  }
+                  background={jauntColors.map.endpoint}
+                  feature={endpointFeatures.destination}
+                  iconType="destination"
+                  onClose={closeFeatureDetails}
+                  onHover={setHoveredFeatureId}
+                  onSelect={setSelectedFeatureId}
+                  showDetails={
+                    detailsFeatureId === "destination"
+                      ? selectedFeatureId === "destination"
+                        ? "selected"
+                        : "hovered"
+                      : null
+                  }
+                  zIndex={0}
+                />
+              ) : null}
+            </>
           )}
 
-        {/* Detour list markers */}
-        {props.detourList?.length > 0 &&
-          props.detourList.map((detour, index) => (
-            <AdvancedMarker
-              key={`detour-${detour.placeId || detour.id || index}`}
-              title={`${detour.name}, added stop`}
-              position={{ lat: detour.lat, lng: detour.lng }}
-              zIndex={1}
-            >
+          {/* Detour search point marker */}
+          {props.showDetourSearchPoint && detourPoint && (
+            <AdvancedMarker position={detourPoint}>
               <Pin
-                scale={1.1}
-                background={jauntColors.map.stop}
-                borderColor={jauntColors.neutral.foregroundOnDark}
+                scale={0.75}
+                background={jauntColors.map.searchArea}
+                borderColor={jauntColors.map.endpoint}
                 glyphColor={jauntColors.neutral.foregroundOnDark}
-              >
-                {getDetourIconComponent(detour.type, "1.125rem")}
-              </Pin>
+              />
             </AdvancedMarker>
+          )}
+
+          {/* Detour search circle */}
+          <DetourCircle
+            detourPoint={detourPoint}
+            detourSearchRadius={props.detourSearchRadius}
+            showDetourSearchPoint={props.showDetourSearchPoint}
+          />
+
+          {/* Detour options markers */}
+          {props.detourOptions?.length > 0 &&
+            getVisibleDetourOptions(props.detourOptions, props.detourList).map(
+              ({ option: detour, index }) => {
+                // Check if this detour should be highlighted
+                const highlight = props.detourHighlight?.some(
+                  (detourHighlight) =>
+                    detourHighlight.id === detour.place_id &&
+                    detourHighlight.highlight
+                );
+                const hovered = props.hoveredDetourId === detour.place_id;
+
+                return (
+                  <AdvancedMarker
+                    key={`detour-option-${detour.place_id || index}`}
+                    title={`${index + 1}. ${detour.name}`}
+                    onClick={() => selectDetourOption(detour.place_id)}
+                    onMouseEnter={() => props.onDetourHover?.(detour.place_id)}
+                    onMouseLeave={() => props.onDetourHover?.(null)}
+                    position={{
+                      lat: detour.geometry.location.lat,
+                      lng: detour.geometry.location.lng,
+                    }}
+                    zIndex={highlight ? 3 : hovered ? 2 : 1}
+                  >
+                    <Pin
+                      scale={highlight ? 1 : 0.85}
+                      background={
+                        highlight
+                          ? jauntColors.map.selected
+                          : hovered
+                            ? jauntColors.brand.accent
+                            : jauntColors.map.result
+                      }
+                      glyphColor={
+                        highlight
+                          ? jauntColors.neutral.foregroundOnDark
+                          : jauntColors.map.endpoint
+                      }
+                      borderColor={jauntColors.map.endpoint}
+                      glyphText={`${index + 1}`}
+                    />
+                  </AdvancedMarker>
+                );
+              }
+            )}
+
+          {/* Detour list markers */}
+          {addedDetourFeatures.map((feature) => (
+            <SelectableMapMarker
+              key={feature.id}
+              active={
+                selectedFeatureId === feature.id ||
+                hoveredFeatureId === feature.id
+              }
+              background={jauntColors.map.stop}
+              feature={feature}
+              iconType={feature.category}
+              onClose={closeFeatureDetails}
+              onHover={setHoveredFeatureId}
+              onSelect={setSelectedFeatureId}
+              showDetails={
+                detailsFeatureId === feature.id
+                  ? selectedFeatureId === feature.id
+                    ? "selected"
+                    : "hovered"
+                  : null
+              }
+              zIndex={1}
+            />
           ))}
-      </Map>
+        </Map>
+      </div>
     </APIProvider>
   );
 }
 
 MapContainer.propTypes = {
   origin: PropTypes.shape({
+    address: PropTypes.string,
     lat: PropTypes.number,
     lng: PropTypes.number,
   }),
   destination: PropTypes.shape({
+    address: PropTypes.string,
     lat: PropTypes.number,
     lng: PropTypes.number,
   }),
@@ -435,13 +631,20 @@ DetourCircle.propTypes = {
   showDetourSearchPoint: PropTypes.bool,
 };
 
-RouteEndpointMarker.propTypes = {
-  position: PropTypes.shape({
-    lat: PropTypes.number.isRequired,
-    lng: PropTypes.number.isRequired,
-  }),
-  title: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(["origin", "destination"]).isRequired,
+MarkerDetails.propTypes = {
+  feature: PropTypes.object.isRequired,
+};
+
+SelectableMapMarker.propTypes = {
+  active: PropTypes.bool.isRequired,
+  background: PropTypes.string.isRequired,
+  feature: PropTypes.object.isRequired,
+  iconType: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onHover: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  showDetails: PropTypes.oneOf(["selected", "hovered"]),
+  zIndex: PropTypes.number.isRequired,
 };
 
 export default MapContainer;
