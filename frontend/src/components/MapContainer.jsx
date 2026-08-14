@@ -39,6 +39,16 @@ function normalizeCoordinates(location) {
     return null;
   }
 
+  const { north, south, east, west } = WORLD_BOUNDS;
+  if (
+    location.lat > north ||
+    location.lat < south ||
+    location.lng > east ||
+    location.lng < west
+  ) {
+    return null;
+  }
+
   return { lat: location.lat, lng: location.lng };
 }
 

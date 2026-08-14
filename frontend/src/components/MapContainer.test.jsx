@@ -315,6 +315,23 @@ describe("MapContainer", () => {
     ).not.toBeInTheDocument();
   });
 
+  test("hides endpoints whose coordinates fall outside the map bounds", () => {
+    render(
+      <MapContainer
+        {...createProps({
+          showRoute: true,
+          origin: { lat: 999, lng: 181 },
+          destination: { lat: -90, lng: -200 },
+        })}
+      />
+    );
+
+    expect(screen.queryByTestId("marker-Jaunt start")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("marker-Jaunt destination")
+    ).not.toBeInTheDocument();
+  });
+
   test("anchors added detours with category icons in stop-colored pins", () => {
     render(
       <MapContainer
