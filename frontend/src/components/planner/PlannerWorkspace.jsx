@@ -538,6 +538,8 @@ export default function PlannerWorkspace(props) {
           </Button>
         ) : null}
         <MapContainer
+          origin={props.currentTrip?.origin}
+          destination={props.currentTrip?.destination}
           showRoute={props.showRoute}
           showDetourSearchPoint={props.showDetourSearchPoint}
           detourSearchLocation={props.detourSearchLocation}

@@ -1,5 +1,9 @@
 import { getDetourIconComponent, getAvailableDetourTypes } from "./detourIcons";
-import { PersonWalkingRegular } from "@fluentui/react-icons";
+import {
+  LocationRegular,
+  NavigationRegular,
+  PersonWalkingRegular,
+} from "@fluentui/react-icons";
 
 describe("detourIcons", () => {
   describe("getAvailableDetourTypes", () => {
@@ -37,6 +41,11 @@ describe("detourIcons", () => {
       const coffeeIcon = getDetourIconComponent("coffee");
       expect(hikeIcon).toBeDefined();
       expect(coffeeIcon).toBeDefined();
+    });
+
+    it("uses the itinerary icons for route endpoints", () => {
+      expect(getDetourIconComponent("origin").type).toBe(NavigationRegular);
+      expect(getDetourIconComponent("destination").type).toBe(LocationRegular);
     });
 
     it("should return default icon for unknown types", () => {

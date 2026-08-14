@@ -535,6 +535,8 @@ export default function JauntDetailPage() {
         <div className={styles.map} aria-label="Saved route preview">
           {route ? (
             <MapContainer
+              origin={trip.origin}
+              destination={trip.destination}
               detourHighlight={[]}
               detourList={detours}
               detourOptions={[]}

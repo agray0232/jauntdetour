@@ -16,8 +16,6 @@ import {
   ArrowDownRegular,
   ArrowUpRegular,
   DeleteRegular,
-  LocationRegular,
-  NavigationRegular,
   SearchRegular,
 } from "@fluentui/react-icons";
 import { moveDetour, recalculateItinerary } from "./routeMutations";
@@ -88,9 +86,6 @@ const useStyles = makeStyles({
   },
   stopMarker: {
     backgroundColor: jauntColors.map.stop,
-  },
-  destinationIcon: {
-    fontSize: "1.25rem",
   },
   itemCopy: {
     display: "grid",
@@ -241,7 +236,7 @@ export default function JauntItinerary({
       <ol className={styles.list}>
         <li className={styles.item}>
           <span className={styles.marker} aria-hidden="true">
-            <NavigationRegular />
+            {getDetourIconComponent("origin", "1.25rem")}
           </span>
           <span className={styles.itemCopy}>
             <Text className={styles.itemTitle}>{origin}</Text>
@@ -318,10 +313,9 @@ export default function JauntItinerary({
 
         <li className={styles.item}>
           <span className={styles.marker} aria-hidden="true">
-            <LocationRegular
-              className={styles.destinationIcon}
-              data-testid="destination-marker-icon"
-            />
+            {getDetourIconComponent("destination", "1.25rem", {
+              "data-testid": "destination-marker-icon",
+            })}
           </span>
           <span className={styles.itemCopy}>
             <Text className={styles.itemTitle}>{destination}</Text>

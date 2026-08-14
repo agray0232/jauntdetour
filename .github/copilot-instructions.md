@@ -153,7 +153,14 @@ submitButton.enabled = isValidEmail(user.email);
 ## Pull Requests
 
 - When asked for a PR description, provide a summary of the change, what files were modified, how to test the
-  changes, and any other relevant information or assumtpions. Provide all of this in markdown to be copy and pasted.
+  changes, and any other relevant information or assumptions. Provide all of this in markdown to be copied and pasted.
+- Generate PR descriptions directly from conversation and session context plus local Git history and diffs.
+- Local read-only Git commands such as `git log`, `git show`, `git status`, and `git diff` are allowed for gathering
+  PR context.
+- Do not invoke the `pr-reference` skill, PR-generation subagents, PR-description generators, or other external
+  workflows. This repository-specific rule overrides generic skill metadata that recommends those tools for PR
+  descriptions.
+- Do not create PR tracking artifacts or planning files when the user only asks for a PR description.
 - Once a PR is active, the user will review the changes with you based on feedback from a Github Copilot agent.
   For each comment, do not assume the comment is correct, but investigate if the feedback is accurate and within
   scope of this PR. If it is, work with the user to make changes based on the feedback.

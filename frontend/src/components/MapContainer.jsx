@@ -34,6 +34,56 @@ const WORLD_BOUNDS = {
 
 const MIN_ZOOM = 4;
 
+function normalizeCoordinates(location) {
+  if (!Number.isFinite(location?.lat) || !Number.isFinite(location?.lng)) {
+    return null;
+  }
+
+  const { north, south, east, west } = WORLD_BOUNDS;
+  if (
+    location.lat > north ||
+    location.lat < south ||
+    location.lng > east ||
+    location.lng < west
+  ) {
+    return null;
+  }
+
+  return { lat: location.lat, lng: location.lng };
+}
+
+function getRouteEndpoints(route, origin, destination) {
+  const legs = Array.isArray(route?.legs) ? route.legs : [];
+  const firstLeg = legs[0];
+  const lastLeg = legs[legs.length - 1];
+
+  return {
+    start:
+      normalizeCoordinates(firstLeg?.start_location) ||
+      normalizeCoordinates(origin),
+    destination:
+      normalizeCoordinates(lastLeg?.end_location) ||
+      normalizeCoordinates(destination),
+  };
+}
+
+function RouteEndpointMarker({ position, title, type }) {
+  if (!position) return null;
+
+  return (
+    <AdvancedMarker position={position} title={title} zIndex={0}>
+      <Pin
+        scale={1.1}
+        background={jauntColors.map.endpoint}
+        borderColor={jauntColors.neutral.foregroundOnDark}
+        glyphColor={jauntColors.neutral.foregroundOnDark}
+      >
+        {getDetourIconComponent(type, "1.125rem")}
+      </Pin>
+    </AdvancedMarker>
+  );
+}
+
 // Custom hook for map bounds adjustment - only on route change
 function useMapBounds(map, route) {
   const mapsLibrary = useMapsLibrary("maps");
@@ -197,6 +247,11 @@ function DetourCircle({
 // Main MapContainer component - TEST CHANGE
 function MapContainer(props) {
   const mapRef = useRef(null);
+  const routeEndpoints = getRouteEndpoints(
+    props.route,
+    props.origin,
+    props.destination
+  );
 
   const detourPoint =
     props.showDetourSearchPoint && props.showRoute
@@ -237,6 +292,21 @@ function MapContainer(props) {
 
         {/* Route polyline */}
         <RoutePolyline route={props.route} showRoute={props.showRoute} />
+
+        {props.showRoute && (
+          <>
+            <RouteEndpointMarker
+              position={routeEndpoints.start}
+              title="Jaunt start"
+              type="origin"
+            />
+            <RouteEndpointMarker
+              position={routeEndpoints.destination}
+              title="Jaunt destination"
+              type="destination"
+            />
+          </>
+        )}
 
         {/* Detour search point marker */}
         {props.showDetourSearchPoint && detourPoint && (
@@ -311,23 +381,16 @@ function MapContainer(props) {
               key={`detour-${detour.placeId || detour.id || index}`}
               title={`${detour.name}, added stop`}
               position={{ lat: detour.lat, lng: detour.lng }}
+              zIndex={1}
             >
-              <span
-                style={{
-                  display: "grid",
-                  width: "2.25rem",
-                  height: "2.25rem",
-                  placeItems: "center",
-                  border: `2px solid ${jauntColors.map.endpoint}`,
-                  borderRadius: "999px",
-                  color: jauntColors.neutral.foregroundOnDark,
-                  backgroundColor: jauntColors.map.stop,
-                  boxShadow: "0 2px 8px #14282f33",
-                }}
-                aria-hidden="true"
+              <Pin
+                scale={1.1}
+                background={jauntColors.map.stop}
+                borderColor={jauntColors.neutral.foregroundOnDark}
+                glyphColor={jauntColors.neutral.foregroundOnDark}
               >
-                {getDetourIconComponent(detour.type, "1.375rem")}
-              </span>
+                {getDetourIconComponent(detour.type, "1.125rem")}
+              </Pin>
             </AdvancedMarker>
           ))}
       </Map>
@@ -336,6 +399,14 @@ function MapContainer(props) {
 }
 
 MapContainer.propTypes = {
+  origin: PropTypes.shape({
+    lat: PropTypes.number,
+    lng: PropTypes.number,
+  }),
+  destination: PropTypes.shape({
+    lat: PropTypes.number,
+    lng: PropTypes.number,
+  }),
   route: PropTypes.object,
   showRoute: PropTypes.bool,
   detourSearchLocation: PropTypes.number,
@@ -362,6 +433,15 @@ DetourCircle.propTypes = {
   detourPoint: PropTypes.object,
   detourSearchRadius: PropTypes.number,
   showDetourSearchPoint: PropTypes.bool,
+};
+
+RouteEndpointMarker.propTypes = {
+  position: PropTypes.shape({
+    lat: PropTypes.number.isRequired,
+    lng: PropTypes.number.isRequired,
+  }),
+  title: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["origin", "destination"]).isRequired,
 };
 
 export default MapContainer;
