@@ -541,7 +541,9 @@ export default function PlannerWorkspace(props) {
           origin={props.currentTrip?.origin}
           destination={props.currentTrip?.destination}
           showRoute={props.showRoute}
-          showDetourSearchPoint={props.showDetourSearchPoint}
+          showDetourSearchPoint={
+            selectedTask === "discover" && props.showDetourSearchPoint
+          }
           detourSearchLocation={props.detourSearchLocation}
           detourSearchRadius={props.detourSearchRadius}
           detourOptions={props.detourOptions}

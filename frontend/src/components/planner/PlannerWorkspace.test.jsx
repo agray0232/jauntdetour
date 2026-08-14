@@ -214,6 +214,26 @@ describe("PlannerWorkspace", () => {
     expect(screen.getByText("Not saved")).toBeVisible();
   });
 
+  it("shows the detour search area only while Discover is active", () => {
+    renderWorkspace(
+      createProps({
+        showDetourButton: true,
+        showDetourSearchPoint: true,
+      })
+    );
+
+    expect(mockMapProps.mock.lastCall[0].showDetourSearchPoint).toBe(false);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Discover" }));
+    expect(mockMapProps.mock.lastCall[0].showDetourSearchPoint).toBe(true);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Export" }));
+    expect(mockMapProps.mock.lastCall[0].showDetourSearchPoint).toBe(false);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Build" }));
+    expect(mockMapProps.mock.lastCall[0].showDetourSearchPoint).toBe(false);
+  });
+
   it("synchronizes detour hover and clears it when results change", () => {
     const props = createProps({
       detourOptions: [{ place_id: "place-1" }],
