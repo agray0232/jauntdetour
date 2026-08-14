@@ -252,9 +252,20 @@ describe("PlannerWorkspace", () => {
   });
 
   it("shows a resumed saved Jaunt name and status in the panel header", () => {
+    const origin = { address: "Atlanta, GA", lat: 33.749, lng: -84.388 };
+    const destination = {
+      address: "Charlotte, NC",
+      lat: 35.2271,
+      lng: -80.8431,
+    };
     renderWorkspace(
       createProps({
-        currentTrip: { tripId: "trip-1", tripName: "Saved weekend" },
+        currentTrip: {
+          tripId: "trip-1",
+          tripName: "Saved weekend",
+          origin,
+          destination,
+        },
         tripName: "Saved weekend",
         showDetourButton: true,
         tripSummary: { distance: 245 },
@@ -265,6 +276,9 @@ describe("PlannerWorkspace", () => {
       "Saved weekend"
     );
     expect(screen.getByText("Loaded")).toBeVisible();
+    expect(mockMapProps).toHaveBeenCalledWith(
+      expect.objectContaining({ origin, destination })
+    );
   });
 
   it("edits the Jaunt name once in the panel header", () => {

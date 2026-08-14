@@ -147,6 +147,8 @@ test("mounts the current planner at its stable route", async ({ page }) => {
     "Atlanta, GA"
   );
   await expect(page.getByText("Not saved")).toBeVisible();
+  await expect(page.getByTitle("Jaunt start")).toHaveCount(1);
+  await expect(page.getByTitle("Jaunt destination")).toHaveCount(1);
   const jauntName = page.getByRole("textbox", { name: "Jaunt name" });
   await expect(jauntName).toHaveCount(1);
   await expect(jauntName).toHaveAttribute(

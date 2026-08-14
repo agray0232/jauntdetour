@@ -15,10 +15,12 @@ jest.mock("@vis.gl/react-google-maps", () => {
       onClick,
       onMouseEnter,
       onMouseLeave,
+      position,
       title,
     }) => (
       <div
         data-testid={title ? `marker-${title}` : undefined}
+        data-position={position ? `${position.lat},${position.lng}` : undefined}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -130,6 +132,217 @@ describe("MapContainer", () => {
 
     delete window.google;
     jest.useRealTimers();
+  });
+
+  test("shows itinerary-consistent endpoints from a live multi-leg route", () => {
+    render(
+      <MapContainer
+        {...createProps({
+          showRoute: true,
+          route: {
+            legs: [
+              {
+                start_location: { lat: 0, lng: -84.388 },
+                end_location: { lat: 34.9, lng: -82.4 },
+              },
+              {
+                start_location: { lat: 34.9, lng: -82.4 },
+                end_location: { lat: 35.2271, lng: 0 },
+              },
+            ],
+          },
+        })}
+      />
+    );
+
+    expect(screen.getByTestId("marker-Jaunt start")).toHaveAttribute(
+      "data-position",
+      "0,-84.388"
+    );
+    expect(screen.getByTestId("marker-Jaunt destination")).toHaveAttribute(
+      "data-position",
+      "35.2271,0"
+    );
+    expect(mockPinProps).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        background: "#14282f",
+        borderColor: "#ffffff",
+        glyphColor: "#ffffff",
+        scale: 1.1,
+      })
+    );
+    expect(mockPinProps).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        background: "#14282f",
+        borderColor: "#ffffff",
+        glyphColor: "#ffffff",
+        scale: 1.1,
+      })
+    );
+  });
+
+  test("falls back to persisted endpoints when saved routes have no legs", () => {
+    render(
+      <MapContainer
+        {...createProps({
+          showRoute: true,
+          route: { overview_polyline: { complete_overview: [] } },
+          origin: { lat: 33.749, lng: -84.388 },
+          destination: { lat: 35.2271, lng: -80.8431 },
+        })}
+      />
+    );
+
+    expect(screen.getByTestId("marker-Jaunt start")).toHaveAttribute(
+      "data-position",
+      "33.749,-84.388"
+    );
+    expect(screen.getByTestId("marker-Jaunt destination")).toHaveAttribute(
+      "data-position",
+      "35.2271,-80.8431"
+    );
+  });
+
+  test("prefers live endpoints and updates them after route recalculation", () => {
+    const fallbackProps = {
+      origin: { lat: 1, lng: 2 },
+      destination: { lat: 3, lng: 4 },
+    };
+    const { rerender } = render(
+      <MapContainer
+        {...createProps({
+          ...fallbackProps,
+          showRoute: true,
+          route: {
+            legs: [
+              {
+                start_location: { lat: 10, lng: 20 },
+                end_location: { lat: 30, lng: 40 },
+              },
+            ],
+          },
+        })}
+      />
+    );
+
+    expect(screen.getByTestId("marker-Jaunt start")).toHaveAttribute(
+      "data-position",
+      "10,20"
+    );
+
+    rerender(
+      <MapContainer
+        {...createProps({
+          ...fallbackProps,
+          showRoute: true,
+          route: {
+            legs: [
+              {
+                start_location: { lat: 50, lng: 60 },
+                end_location: { lat: 70, lng: 80 },
+              },
+            ],
+          },
+        })}
+      />
+    );
+
+    expect(screen.getByTestId("marker-Jaunt start")).toHaveAttribute(
+      "data-position",
+      "50,60"
+    );
+    expect(screen.getByTestId("marker-Jaunt destination")).toHaveAttribute(
+      "data-position",
+      "70,80"
+    );
+  });
+
+  test("uses a valid persisted endpoint when a route leg endpoint is invalid", () => {
+    render(
+      <MapContainer
+        {...createProps({
+          showRoute: true,
+          route: {
+            legs: [
+              {
+                start_location: { lat: null, lng: -84.388 },
+                end_location: { lat: 35.2271, lng: -80.8431 },
+              },
+            ],
+          },
+          origin: { lat: 33.749, lng: -84.388 },
+        })}
+      />
+    );
+
+    expect(screen.getByTestId("marker-Jaunt start")).toHaveAttribute(
+      "data-position",
+      "33.749,-84.388"
+    );
+  });
+
+  test("hides endpoints with the route and ignores unusable coordinates", () => {
+    const { rerender } = render(
+      <MapContainer
+        {...createProps({
+          showRoute: false,
+          origin: { lat: 33.749, lng: -84.388 },
+          destination: { lat: 35.2271, lng: -80.8431 },
+        })}
+      />
+    );
+
+    expect(screen.queryByTestId("marker-Jaunt start")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("marker-Jaunt destination")
+    ).not.toBeInTheDocument();
+
+    rerender(
+      <MapContainer
+        {...createProps({
+          showRoute: true,
+          origin: { lat: Number.NaN, lng: -84.388 },
+          destination: { lat: 35.2271 },
+        })}
+      />
+    );
+
+    expect(screen.queryByTestId("marker-Jaunt start")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("marker-Jaunt destination")
+    ).not.toBeInTheDocument();
+  });
+
+  test("anchors added detours with category icons in stop-colored pins", () => {
+    render(
+      <MapContainer
+        {...createProps({
+          detourList: [
+            {
+              name: "Paris Mountain",
+              placeId: "place-1",
+              type: "Hike",
+              lat: 34.9,
+              lng: -82.4,
+            },
+          ],
+        })}
+      />
+    );
+
+    expect(
+      screen.getByTestId("marker-Paris Mountain, added stop")
+    ).toHaveAttribute("data-position", "34.9,-82.4");
+    expect(mockPinProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        background: "#b84a18",
+        borderColor: "#ffffff",
+        glyphColor: "#ffffff",
+        scale: 1.1,
+      })
+    );
   });
 
   test("previews a detour marker on hover without selecting it", () => {
