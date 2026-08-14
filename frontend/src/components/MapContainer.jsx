@@ -139,6 +139,11 @@ function SelectableMapMarker({
       {showDetails ? (
         <InfoWindow
           ariaLabel={`${feature.heading} details`}
+          className={
+            showDetails === "hovered"
+              ? "jaunt-marker-details--hovered"
+              : "jaunt-marker-details--selected"
+          }
           disableAutoPan
           headerContent={
             <Text

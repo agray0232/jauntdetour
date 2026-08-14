@@ -155,10 +155,16 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(destinationMarker).toHaveCount(1);
   await startMarker.hover();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+  await expect(
+    page.getByRole("button", { name: "Close", exact: true })
+  ).toHaveCount(0);
   await page.getByRole("region", { name: "Route summary" }).hover();
   await expect(page.getByLabel("Start details")).toHaveCount(0);
   await startMarker.click();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+  await expect(
+    page.getByRole("button", { name: "Close", exact: true })
+  ).toHaveCount(1);
   await destinationMarker.focus();
   await page.keyboard.press("Enter");
   await expect(page.getByLabel("Start details")).toHaveCount(0);
