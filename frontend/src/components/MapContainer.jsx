@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { Text } from "@fluentui/react-components";
+import {
+  Button,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Text,
+} from "@fluentui/react-components";
+import { DeleteRegular, MoreHorizontalRegular } from "@fluentui/react-icons";
 //import { Map, Circle , Polyline, Marker, GoogleApiWrapper } from 'google-maps-react';
 import {
   AdvancedMarker,
@@ -36,6 +45,7 @@ const WORLD_BOUNDS = {
 
 const MIN_ZOOM = 4;
 const MARKER_DETAILS_OFFSET = [0, -46];
+const MARKER_HOVER_DISMISS_DELAY = 400;
 
 function normalizeCoordinates(location) {
   if (!Number.isFinite(location?.lat) || !Number.isFinite(location?.lng)) {
@@ -107,24 +117,154 @@ function SelectableMapMarker({
   iconType,
   onClose,
   onHover,
+  onRemoveDetour,
   onSelect,
+  pending,
   showDetails,
   zIndex,
 }) {
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
+  const [actionMenuRequested, setActionMenuRequested] = useState(false);
+  const detailsContentRef = useRef(null);
+  const hoverDismissTimeoutRef = useRef(null);
+  const infoWindowHoveredRef = useRef(false);
+
+  const cancelHoverDismissal = () => {
+    window.clearTimeout(hoverDismissTimeoutRef.current);
+    hoverDismissTimeoutRef.current = null;
+  };
+
+  const beginHover = () => {
+    cancelHoverDismissal();
+    onHover(feature.id);
+  };
+
+  const scheduleHoverDismissal = () => {
+    cancelHoverDismissal();
+    hoverDismissTimeoutRef.current = window.setTimeout(() => {
+      onHover(null);
+    }, MARKER_HOVER_DISMISS_DELAY);
+  };
+
+  const enterInfoWindow = () => {
+    infoWindowHoveredRef.current = true;
+    cancelHoverDismissal();
+  };
+
+  const leaveInfoWindow = (event) => {
+    const infoWindowElement =
+      detailsContentRef.current?.closest(".gm-style-iw");
+    const bounds = infoWindowElement?.getBoundingClientRect();
+    if (
+      bounds?.width > 0 &&
+      bounds?.height > 0 &&
+      event.clientX >= bounds.left &&
+      event.clientX <= bounds.right &&
+      event.clientY >= bounds.top &&
+      event.clientY <= bounds.bottom
+    ) {
+      enterInfoWindow();
+      return;
+    }
+    infoWindowHoveredRef.current = false;
+    scheduleHoverDismissal();
+  };
+
+  useEffect(() => {
+    if (showDetails === "selected" && actionMenuRequested) {
+      setActionMenuOpen(true);
+      setActionMenuRequested(false);
+    } else if (showDetails !== "selected") {
+      setActionMenuOpen(false);
+    }
+  }, [actionMenuRequested, showDetails]);
+
+  useEffect(
+    () => () => window.clearTimeout(hoverDismissTimeoutRef.current),
+    []
+  );
+
+  useEffect(() => {
+    if (!showDetails) return undefined;
+    let infoWindowElement = null;
+    const handleMouseMove = (event) => {
+      const bounds = infoWindowElement?.getBoundingClientRect();
+      const isInsideInfoWindow =
+        bounds?.width > 0 &&
+        bounds?.height > 0 &&
+        event.clientX >= bounds.left &&
+        event.clientX <= bounds.right &&
+        event.clientY >= bounds.top &&
+        event.clientY <= bounds.bottom;
+      if (isInsideInfoWindow) {
+        enterInfoWindow();
+      } else if (infoWindowHoveredRef.current) {
+        infoWindowHoveredRef.current = false;
+        scheduleHoverDismissal();
+      }
+    };
+    const attachInfoWindowListeners = () => {
+      infoWindowElement =
+        detailsContentRef.current?.closest(".gm-style-iw") || null;
+      if (!infoWindowElement) return false;
+      infoWindowElement.addEventListener("mouseenter", enterInfoWindow);
+      infoWindowElement.addEventListener("mouseleave", leaveInfoWindow);
+      document.addEventListener("mousemove", handleMouseMove);
+      return true;
+    };
+    const observer = new MutationObserver(() => {
+      if (attachInfoWindowListeners()) {
+        observer.disconnect();
+      }
+    });
+
+    if (!attachInfoWindowListeners()) {
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+    return () => {
+      observer.disconnect();
+      infoWindowElement?.removeEventListener("mouseenter", enterInfoWindow);
+      infoWindowElement?.removeEventListener("mouseleave", leaveInfoWindow);
+      document.removeEventListener("mousemove", handleMouseMove);
+    };
+  });
+
+  const handleMenuOpenChange = (event, data) => {
+    if (data.open && showDetails !== "selected") {
+      cancelHoverDismissal();
+      onSelect(feature.id);
+      setActionMenuRequested(true);
+      return;
+    }
+    setActionMenuOpen(data.open);
+  };
+
+  const handleClose = () => {
+    cancelHoverDismissal();
+    if (showDetails === "hovered") {
+      onHover(null);
+    }
+    onClose(feature.id, showDetails);
+  };
+
   return (
     <>
       <AdvancedMarker
         position={feature.position}
         title={feature.accessibleName}
         onClick={() => onSelect(feature.id)}
-        onMouseEnter={() => onHover(feature.id)}
-        onMouseLeave={() => onHover(null)}
+        onMouseEnter={beginHover}
+        onMouseLeave={scheduleHoverDismissal}
         zIndex={active ? zIndex + 10 : zIndex}
       >
         <Pin
           scale={active ? 1.25 : 1.1}
           background={background}
-          borderColor={jauntColors.neutral.foregroundOnDark}
+          borderColor={
+            showDetails === "selected"
+              ? jauntColors.brand.primary
+              : jauntColors.neutral.foregroundOnDark
+          }
           glyphColor={jauntColors.neutral.foregroundOnDark}
         >
           {getDetourIconComponent(iconType, "1.125rem")}
@@ -140,20 +280,69 @@ function SelectableMapMarker({
           }
           disableAutoPan
           headerContent={
-            <Text
-              style={{ display: "block", transform: "translateY(-0.3125rem)" }}
-              weight="semibold"
+            <div
+              data-testid={`marker-details-header-${feature.id}`}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "0.25rem",
+                width: "100%",
+                transform: "translateY(-0.3125rem)",
+              }}
+              onMouseEnter={enterInfoWindow}
+              onMouseLeave={leaveInfoWindow}
             >
-              {feature.heading}
-            </Text>
+              <Text weight="semibold">{feature.heading}</Text>
+              {feature.detourIndex != null ? (
+                onRemoveDetour ? (
+                  <Menu
+                    open={actionMenuOpen}
+                    onOpenChange={handleMenuOpenChange}
+                  >
+                    <MenuTrigger disableButtonEnhancement>
+                      <Button
+                        appearance="transparent"
+                        aria-label={`Actions for ${feature.heading}`}
+                        disabled={pending}
+                        icon={<MoreHorizontalRegular />}
+                        size="small"
+                      />
+                    </MenuTrigger>
+                    <MenuPopover>
+                      <MenuList>
+                        <MenuItem
+                          icon={<DeleteRegular />}
+                          onClick={() => onRemoveDetour(feature.detourIndex)}
+                        >
+                          Remove detour
+                        </MenuItem>
+                      </MenuList>
+                    </MenuPopover>
+                  </Menu>
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    style={{ display: "block", width: "2rem" }}
+                  />
+                )
+              ) : null}
+            </div>
           }
           maxWidth={280}
-          onClose={() => onClose(feature.id, showDetails)}
+          onClose={handleClose}
           pixelOffset={MARKER_DETAILS_OFFSET}
           position={feature.position}
           shouldFocus={false}
         >
-          <MarkerDetails feature={feature} />
+          <div
+            data-testid={`marker-details-body-${feature.id}`}
+            ref={detailsContentRef}
+            onMouseEnter={enterInfoWindow}
+            onMouseLeave={leaveInfoWindow}
+          >
+            <MarkerDetails feature={feature} />
+          </div>
         </InfoWindow>
       ) : null}
     </>
@@ -370,6 +559,7 @@ function MapContainer(props) {
     category: detour.type,
     rating: detour.rating,
     addedTimeText: formatAddedTime(detour.addedTime),
+    detourIndex: index,
     position: { lat: detour.lat, lng: detour.lng },
   }));
   const visibleFeatureIds = [
@@ -597,7 +787,11 @@ function MapContainer(props) {
               iconType={feature.category}
               onClose={closeFeatureDetails}
               onHover={setHoveredFeatureId}
+              onRemoveDetour={props.onRemoveDetour}
               onSelect={setSelectedFeatureId}
+              pending={
+                props.detourMutationPending != null || props.detourActionsBusy
+              }
               showDetails={
                 selectedFeatureId === feature.id
                   ? "selected"
@@ -635,9 +829,12 @@ MapContainer.propTypes = {
   detourHighlight: PropTypes.array,
   hoveredDetourId: PropTypes.string,
   mapTypeControl: PropTypes.bool,
+  onRemoveDetour: PropTypes.func,
   detourList: PropTypes.array,
   onDetourHover: PropTypes.func,
   setDetourHighlight: PropTypes.func,
+  detourMutationPending: PropTypes.object,
+  detourActionsBusy: PropTypes.bool,
   zoomControl: PropTypes.bool,
 };
 
@@ -667,7 +864,9 @@ SelectableMapMarker.propTypes = {
   iconType: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   onHover: PropTypes.func.isRequired,
+  onRemoveDetour: PropTypes.func,
   onSelect: PropTypes.func.isRequired,
+  pending: PropTypes.bool,
   showDetails: PropTypes.oneOf(["selected", "hovered"]),
   zIndex: PropTypes.number.isRequired,
 };

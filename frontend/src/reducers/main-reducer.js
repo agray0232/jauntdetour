@@ -123,14 +123,6 @@ const mainReducer = (state = initialState, action) => {
         ...state,
         detourList: [...state.detourList, action.data.detour],
       };
-    case "REMOVE_DETOUR":
-      var newDetourList = state.detourList.filter(function (detour, index) {
-        return index !== action.data.index;
-      });
-      return {
-        ...state,
-        detourList: newDetourList,
-      };
     case "SET_DETOUR_LIST":
       return {
         ...state,

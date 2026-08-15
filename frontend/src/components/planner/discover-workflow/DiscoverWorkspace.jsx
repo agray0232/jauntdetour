@@ -15,7 +15,6 @@ import {
 import {
   BuildingBankRegular,
   BuildingRegular,
-  DismissRegular,
   DrinkBeerRegular,
   DrinkCoffeeRegular,
   FoodRegular,
@@ -374,8 +373,12 @@ export default function DiscoverWorkspace(props) {
   };
 
   const addResult = async (result) => {
+    if (props.mutationPending) {
+      return;
+    }
     setAddingId(result.place_id);
     setAddErrorId(null);
+    props.onAddingChange?.(true);
     trackEvent("detour_add_started", {
       category: result.type,
       feature: "detour",
@@ -416,6 +419,7 @@ export default function DiscoverWorkspace(props) {
       props.setDetourHighlight([]);
       setStatus("idle");
       setAddingId(null);
+      props.onAddingChange?.(false);
       props.onAdded(result.name, addedTime);
       trackEvent("detour_added", {
         category: result.type,
@@ -424,6 +428,7 @@ export default function DiscoverWorkspace(props) {
       });
     } catch {
       setAddingId(null);
+      props.onAddingChange?.(false);
       setAddErrorId(result.place_id);
       trackEvent("detour_add_failed", {
         category: result.type,
@@ -442,20 +447,6 @@ export default function DiscoverWorkspace(props) {
 
   return (
     <section className={styles.root} aria-labelledby="discover-title">
-      {props.feedback ? (
-        <MessageBar intent="success">
-          <MessageBarBody>{props.feedback}</MessageBarBody>
-          <MessageBarActions>
-            <Button
-              appearance="transparent"
-              aria-label="Dismiss added stop message"
-              icon={<DismissRegular />}
-              onClick={props.onDismissFeedback}
-            />
-          </MessageBarActions>
-        </MessageBar>
-      ) : null}
-
       <div className={styles.heading}>
         <Text className={styles.eyebrow}>Along this route</Text>
         <h3 className={styles.title} id="discover-title">
@@ -670,7 +661,7 @@ export default function DiscoverWorkspace(props) {
                     <Button
                       className={styles.resultAction}
                       appearance="primary"
-                      disabled={addingId != null}
+                      disabled={addingId != null || props.mutationPending}
                       icon={adding ? <Spinner size="tiny" /> : null}
                       onClick={() => addResult(result)}
                     >
@@ -696,11 +687,11 @@ DiscoverWorkspace.propTypes = {
   detourSearchLocation: PropTypes.number.isRequired,
   detourSearchRadius: PropTypes.number.isRequired,
   detourType: PropTypes.string.isRequired,
-  feedback: PropTypes.string,
   hoveredDetourId: PropTypes.string,
   onAdded: PropTypes.func.isRequired,
+  onAddingChange: PropTypes.func,
+  mutationPending: PropTypes.bool,
   onDetourHover: PropTypes.func.isRequired,
-  onDismissFeedback: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   route: PropTypes.object.isRequired,
   setRoute: PropTypes.func.isRequired,

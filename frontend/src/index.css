@@ -24,10 +24,16 @@ code {
   display: none;
 }
 
-/* Keep preview and selected card geometry identical without a preview action. */
-.jaunt-map
-  .gm-style-iw:has(.jaunt-marker-details--hovered)
-  .gm-ui-hover-effect {
-  visibility: hidden;
+.jaunt-map .gm-style-iw:has(.jaunt-marker-details--selected) {
+  position: absolute;
+}
+
+.jaunt-map .gm-style-iw:has(.jaunt-marker-details--selected)::after {
+  position: absolute;
+  z-index: 1;
+  border: 2px solid var(--colorBrandStroke1);
+  border-radius: 8px;
   pointer-events: none;
+  content: "";
+  inset: 0;
 }

@@ -1,11 +1,14 @@
-import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import React, { useState } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import PlannerWorkspace from "./PlannerWorkspace";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
+import RouteRequester from "../../scripts/RouteRequester";
 
 const mockDiscoverProps = jest.fn();
 const mockMapProps = jest.fn();
+
+jest.mock("../../scripts/RouteRequester");
 
 jest.mock("./build-workflow/RouteForm", () => {
   const PropTypes = require("prop-types");
@@ -63,35 +66,23 @@ jest.mock("./discover-workflow/DiscoverWorkspace", () => {
 
   function MockDiscoverWorkspace(props) {
     mockDiscoverProps(props);
-    const {
-      feedback,
-      hoveredDetourId,
-      onAdded,
-      onDetourHover,
-      onDismissFeedback,
-    } = props;
+    const { hoveredDetourId, onAdded, onDetourHover } = props;
     return (
       <div>
         Discover workspace instance
         <span data-testid="discover-hovered">{hoveredDetourId || "none"}</span>
         <button onClick={() => onDetourHover("place-1")}>Hover result</button>
-        {feedback ? <span>{feedback}</span> : null}
         <button onClick={() => onAdded("Paris Mountain", 18)}>
           Complete add
         </button>
-        {feedback ? (
-          <button onClick={onDismissFeedback}>Dismiss feedback</button>
-        ) : null}
       </div>
     );
   }
 
   MockDiscoverWorkspace.propTypes = {
-    feedback: PropTypes.string,
     hoveredDetourId: PropTypes.string,
     onAdded: PropTypes.func.isRequired,
     onDetourHover: PropTypes.func.isRequired,
-    onDismissFeedback: PropTypes.func.isRequired,
   };
 
   return MockDiscoverWorkspace;
@@ -113,9 +104,15 @@ jest.mock(
       return (
         <div>
           Map instance
+          <span data-testid="map-detour-count">{props.detourList.length}</span>
           <span data-testid="map-hovered">
             {props.hoveredDetourId || "none"}
           </span>
+          {props.onRemoveDetour ? (
+            <button onClick={() => props.onRemoveDetour(0)}>
+              Remove map detour
+            </button>
+          ) : null}
         </div>
       );
     }
@@ -172,6 +169,7 @@ describe("PlannerWorkspace", () => {
   beforeEach(() => {
     mockDiscoverProps.mockClear();
     mockMapProps.mockClear();
+    RouteRequester.mockReset();
   });
 
   it("shows only route entry before a route exists", () => {
@@ -232,6 +230,228 @@ describe("PlannerWorkspace", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: "Build" }));
     expect(mockMapProps.mock.lastCall[0].showDetourSearchPoint).toBe(false);
+  });
+
+  it("removes a map detour and restores it from the Undo toast", async () => {
+    const detour = {
+      name: "Paris Mountain",
+      placeId: "place-1",
+      type: "Hike",
+    };
+    const getRoute = jest
+      .fn()
+      .mockResolvedValueOnce({ routes: [{ summary: { distance: 180 } }] })
+      .mockResolvedValueOnce({ routes: [{ summary: { distance: 205 } }] });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+
+    function MutationHarness() {
+      const [detourList, setDetourList] = useState([detour]);
+      return (
+        <PlannerWorkspace
+          {...createProps({
+            destination: "Charlotte",
+            detourList,
+            origin: "Atlanta",
+            setDetourList,
+            showDetourButton: true,
+            showRoute: true,
+            tripSummary: { distance: 205 },
+          })}
+        />
+      );
+    }
+
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <MutationHarness />
+      </FluentProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove map detour" }));
+
+    expect(
+      await screen.findByText("Paris Mountain removed from this Jaunt")
+    ).toBeVisible();
+    expect(screen.getByTestId("map-detour-count")).toHaveTextContent("0");
+    expect(screen.getByRole("button", { name: "Undo" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Undo" })).toHaveStyle({
+      minWidth: "auto",
+      paddingLeft: 0,
+      paddingRight: 0,
+    });
+    expect(
+      screen.getByRole("button", { name: "Dismiss removal notification" })
+    ).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("map-detour-count")).toHaveTextContent("1")
+    );
+    expect(getRoute).toHaveBeenLastCalledWith(
+      "Atlanta",
+      "Charlotte",
+      "Address",
+      { waypoints: ["place-1"] }
+    );
+  });
+
+  it("retries a failed map removal from the error toast", async () => {
+    const detour = {
+      name: "Paris Mountain",
+      placeId: "place-1",
+      type: "Hike",
+    };
+    const getRoute = jest
+      .fn()
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ routes: [{ summary: { distance: 180 } }] });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+
+    function MutationHarness() {
+      const [detourList, setDetourList] = useState([detour]);
+      return (
+        <PlannerWorkspace
+          {...createProps({
+            destination: "Charlotte",
+            detourList,
+            origin: "Atlanta",
+            setDetourList,
+            showDetourButton: true,
+            showRoute: true,
+            tripSummary: { distance: 205 },
+          })}
+        />
+      );
+    }
+
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <MutationHarness />
+      </FluentProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove map detour" }));
+
+    expect(
+      await screen.findByText("Could not remove the detour.")
+    ).toBeVisible();
+    expect(screen.getByTestId("map-detour-count")).toHaveTextContent("1");
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+
+    expect(
+      await screen.findByText("Paris Mountain removed from this Jaunt")
+    ).toBeVisible();
+    await waitFor(() =>
+      expect(screen.getByTestId("map-detour-count")).toHaveTextContent("0")
+    );
+    expect(getRoute).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries a failed Undo restore from the error toast", async () => {
+    const detour = {
+      name: "Paris Mountain",
+      placeId: "place-1",
+      type: "Hike",
+    };
+    const getRoute = jest
+      .fn()
+      .mockResolvedValueOnce({ routes: [{ summary: { distance: 180 } }] })
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ routes: [{ summary: { distance: 205 } }] });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+
+    function MutationHarness() {
+      const [detourList, setDetourList] = useState([detour]);
+      return (
+        <PlannerWorkspace
+          {...createProps({
+            destination: "Charlotte",
+            detourList,
+            origin: "Atlanta",
+            setDetourList,
+            showDetourButton: true,
+            showRoute: true,
+            tripSummary: { distance: 205 },
+          })}
+        />
+      );
+    }
+
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <MutationHarness />
+      </FluentProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove map detour" }));
+    await screen.findByText("Paris Mountain removed from this Jaunt");
+    await waitFor(() =>
+      expect(screen.getByTestId("map-detour-count")).toHaveTextContent("0")
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+
+    expect(
+      await screen.findByText("Could not restore the detour.")
+    ).toBeVisible();
+    expect(screen.getByTestId("map-detour-count")).toHaveTextContent("0");
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("map-detour-count")).toHaveTextContent("1")
+    );
+    expect(getRoute).toHaveBeenCalledTimes(3);
+  });
+
+  it("allows the removal toast to be dismissed early", async () => {
+    RouteRequester.mockImplementation(() => ({
+      getRoute: jest.fn().mockResolvedValue({
+        routes: [{ summary: { distance: 180 } }],
+      }),
+    }));
+    const detour = {
+      name: "Paris Mountain",
+      placeId: "place-1",
+      type: "Hike",
+    };
+
+    function MutationHarness() {
+      const [detourList, setDetourList] = useState([detour]);
+      return (
+        <PlannerWorkspace
+          {...createProps({
+            destination: "Charlotte",
+            detourList,
+            origin: "Atlanta",
+            setDetourList,
+            showDetourButton: true,
+            showRoute: true,
+            tripSummary: { distance: 205 },
+          })}
+        />
+      );
+    }
+
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <MutationHarness />
+      </FluentProvider>
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Remove map detour" }));
+    await screen.findByText("Paris Mountain removed from this Jaunt");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Dismiss removal notification" })
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText("Paris Mountain removed from this Jaunt")
+      ).not.toBeInTheDocument()
+    );
   });
 
   it("synchronizes detour hover and clears it when results change", () => {
@@ -462,7 +682,7 @@ describe("PlannerWorkspace", () => {
     expect(props.clearAll).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps Discover active and dismisses add feedback manually", () => {
+  it("keeps Discover active and dismisses the add toast manually", async () => {
     renderWorkspace(
       createProps({
         showDetourButton: true,
@@ -477,34 +697,46 @@ describe("PlannerWorkspace", () => {
       "aria-selected",
       "true"
     );
-    expect(
-      screen.getByText("Paris Mountain added. The route is 18 minutes longer.")
-    ).toBeVisible();
+    const dismissButton = screen.getByRole("button", {
+      name: "Dismiss added detour notification",
+    });
+    expect(dismissButton).toBeVisible();
 
-    fireEvent.click(screen.getByRole("button", { name: "Dismiss feedback" }));
-    expect(screen.queryByText(/Paris Mountain added/)).not.toBeInTheDocument();
+    fireEvent.click(dismissButton);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", {
+          name: "Dismiss added detour notification",
+        })
+      ).not.toBeInTheDocument()
+    );
   });
 
-  it("clears add feedback automatically after ten seconds", () => {
-    jest.useFakeTimers();
-    try {
-      renderWorkspace(
-        createProps({
-          showDetourButton: true,
-          showDetourForm: true,
-          tripSummary: { distance: 245 },
-        })
-      );
-      fireEvent.click(screen.getByRole("button", { name: "Complete add" }));
+  it("delegates the add toast lifetime to Fluent without an early forced dismiss", async () => {
+    renderWorkspace(
+      createProps({
+        showDetourButton: true,
+        showDetourForm: true,
+        tripSummary: { distance: 245 },
+      })
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Complete add" }));
 
-      act(() => jest.advanceTimersByTime(10000));
+    expect(
+      screen.getByRole("button", {
+        name: "Dismiss added detour notification",
+      })
+    ).toBeVisible();
 
-      expect(
-        screen.queryByText(/Paris Mountain added/)
-      ).not.toBeInTheDocument();
-    } finally {
-      jest.useRealTimers();
-    }
+    // The previous implementation force-dismissed via a native 5s timer. Fluent
+    // now owns the timeout (unverifiable in jsdom), so the toast must remain
+    // until Fluent dismisses it rather than being torn down by our own timer.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(
+      screen.getByRole("button", {
+        name: "Dismiss added detour notification",
+      })
+    ).toBeVisible();
   });
 
   it("keeps the map mounted while compact tools are hidden", () => {

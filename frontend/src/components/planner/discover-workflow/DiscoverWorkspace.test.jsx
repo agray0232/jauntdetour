@@ -40,10 +40,8 @@ function createProps(overrides = {}) {
     setRoute: jest.fn(),
     setTripSummary: jest.fn(),
     addDetour: jest.fn(),
-    feedback: "",
     onAdded: jest.fn(),
     onDetourHover: jest.fn(),
-    onDismissFeedback: jest.fn(),
     ...overrides,
   };
 }
@@ -114,19 +112,6 @@ describe("DiscoverWorkspace", () => {
       screen.getByRole("slider", { name: "Where along the route?" })
     ).toHaveValue("63.4");
     expect(screen.getByText("Later in the drive · 63%")).toBeVisible();
-  });
-
-  it("shows dismissible add feedback at the top", () => {
-    const props = createProps({
-      feedback: "Paris Mountain added. The route is 18 minutes longer.",
-    });
-    renderWorkspace(props);
-
-    expect(screen.getByText(/Paris Mountain added/)).toBeVisible();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Dismiss added stop message" })
-    );
-    expect(props.onDismissFeedback).toHaveBeenCalledTimes(1);
   });
 
   it("restores persisted results and clears them when criteria changes", () => {
@@ -282,6 +267,63 @@ describe("DiscoverWorkspace", () => {
     expect(props.setDetourOptions).toHaveBeenLastCalledWith([]);
     expect(props.setDetourHighlight).toHaveBeenLastCalledWith([]);
     expect(props.onAdded).toHaveBeenCalledWith("Paris Mountain", 18);
+  });
+
+  it("disables Add and stays inert while a shared mutation is pending", () => {
+    const result = {
+      id: "one",
+      name: "Paris Mountain",
+      place_id: "place-1",
+      rating: 4.7,
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const getRoute = jest.fn();
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const props = createProps({
+      detourOptions: [result],
+      detourHighlight: [{ id: "place-1", highlight: true }],
+      mutationPending: true,
+      onAddingChange: jest.fn(),
+    });
+    renderWorkspace(props);
+
+    const addButton = screen.getByRole("button", { name: "Add" });
+    expect(addButton).toBeDisabled();
+
+    fireEvent.click(addButton);
+
+    expect(getRoute).not.toHaveBeenCalled();
+    expect(props.addDetour).not.toHaveBeenCalled();
+    expect(props.onAddingChange).not.toHaveBeenCalled();
+  });
+
+  it("signals adding state to coordinate with other mutations", async () => {
+    const result = {
+      id: "one",
+      name: "Paris Mountain",
+      place_id: "place-1",
+      rating: 4.7,
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const getRoute = jest.fn().mockResolvedValue({
+      routes: [{ summary: { distance: 258, time: { hours: 4, min: 5 } } }],
+    });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const onAddingChange = jest.fn();
+    const props = createProps({
+      detourOptions: [result],
+      detourHighlight: [{ id: "place-1", highlight: true }],
+      onAddingChange,
+    });
+    renderWorkspace(props);
+
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+
+    expect(onAddingChange).toHaveBeenCalledWith(true);
+    await waitFor(() => expect(props.addDetour).toHaveBeenCalledTimes(1));
+    expect(onAddingChange).toHaveBeenLastCalledWith(false);
   });
 
   it("previews a result on hover without selecting it or showing Add", () => {
