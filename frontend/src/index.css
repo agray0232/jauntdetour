@@ -23,3 +23,17 @@ code {
 .jaunt-map .gm-style-iw-tc {
   display: none;
 }
+
+.jaunt-map .gm-style-iw:has(.jaunt-marker-details--selected) {
+  position: absolute;
+}
+
+.jaunt-map .gm-style-iw:has(.jaunt-marker-details--selected)::after {
+  position: absolute;
+  z-index: 1;
+  border: 2px solid #12664f;
+  border-radius: 8px;
+  pointer-events: none;
+  content: "";
+  inset: 0;
+}

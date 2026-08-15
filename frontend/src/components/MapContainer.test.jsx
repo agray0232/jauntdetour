@@ -261,6 +261,12 @@ describe("MapContainer", () => {
     expect(
       mockPinProps.mock.calls.some(([pinProps]) => pinProps.scale === 1.25)
     ).toBe(true);
+    expect(
+      mockPinProps.mock.calls.some(
+        ([pinProps]) =>
+          pinProps.borderColor === "#ffffff" && pinProps.scale === 1.25
+      )
+    ).toBe(true);
     fireEvent.mouseLeave(startMarker);
     act(() => jest.advanceTimersByTime(450));
     expect(
@@ -270,6 +276,12 @@ describe("MapContainer", () => {
     fireEvent.click(startMarker);
     expect(
       mockPinProps.mock.calls.some(([pinProps]) => pinProps.scale === 1.25)
+    ).toBe(true);
+    expect(
+      mockPinProps.mock.calls.some(
+        ([pinProps]) =>
+          pinProps.borderColor === "#12664f" && pinProps.scale === 1.25
+      )
     ).toBe(true);
     expect(
       screen.getByRole("dialog", { name: "Start details" })

@@ -152,7 +152,21 @@ function SelectableMapMarker({
     cancelHoverDismissal();
   };
 
-  const leaveInfoWindow = () => {
+  const leaveInfoWindow = (event) => {
+    const infoWindowElement =
+      detailsContentRef.current?.closest(".gm-style-iw");
+    const bounds = infoWindowElement?.getBoundingClientRect();
+    if (
+      bounds?.width > 0 &&
+      bounds?.height > 0 &&
+      event.clientX >= bounds.left &&
+      event.clientX <= bounds.right &&
+      event.clientY >= bounds.top &&
+      event.clientY <= bounds.bottom
+    ) {
+      enterInfoWindow();
+      return;
+    }
     infoWindowHoveredRef.current = false;
     scheduleHoverDismissal();
   };
@@ -173,15 +187,43 @@ function SelectableMapMarker({
 
   useEffect(() => {
     if (!showDetails) return undefined;
-    const infoWindowElement =
-      detailsContentRef.current?.closest(".gm-style-iw");
-    if (!infoWindowElement) return undefined;
+    let infoWindowElement = null;
+    const handleMouseMove = (event) => {
+      const bounds = infoWindowElement?.getBoundingClientRect();
+      if (
+        bounds?.width > 0 &&
+        bounds?.height > 0 &&
+        event.clientX >= bounds.left &&
+        event.clientX <= bounds.right &&
+        event.clientY >= bounds.top &&
+        event.clientY <= bounds.bottom
+      ) {
+        enterInfoWindow();
+      }
+    };
+    const attachInfoWindowListeners = () => {
+      infoWindowElement =
+        detailsContentRef.current?.closest(".gm-style-iw") || null;
+      if (!infoWindowElement) return false;
+      infoWindowElement.addEventListener("mouseenter", enterInfoWindow);
+      infoWindowElement.addEventListener("mouseleave", leaveInfoWindow);
+      document.addEventListener("mousemove", handleMouseMove);
+      return true;
+    };
+    const observer = new MutationObserver(() => {
+      if (attachInfoWindowListeners()) {
+        observer.disconnect();
+      }
+    });
 
-    infoWindowElement.addEventListener("mouseenter", enterInfoWindow);
-    infoWindowElement.addEventListener("mouseleave", leaveInfoWindow);
+    if (!attachInfoWindowListeners()) {
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
     return () => {
-      infoWindowElement.removeEventListener("mouseenter", enterInfoWindow);
-      infoWindowElement.removeEventListener("mouseleave", leaveInfoWindow);
+      observer.disconnect();
+      infoWindowElement?.removeEventListener("mouseenter", enterInfoWindow);
+      infoWindowElement?.removeEventListener("mouseleave", leaveInfoWindow);
+      document.removeEventListener("mousemove", handleMouseMove);
     };
   });
 
@@ -216,7 +258,11 @@ function SelectableMapMarker({
         <Pin
           scale={active ? 1.25 : 1.1}
           background={background}
-          borderColor={jauntColors.neutral.foregroundOnDark}
+          borderColor={
+            showDetails === "selected"
+              ? jauntColors.brand.primary
+              : jauntColors.neutral.foregroundOnDark
+          }
           glyphColor={jauntColors.neutral.foregroundOnDark}
         >
           {getDetourIconComponent(iconType, "1.125rem")}
