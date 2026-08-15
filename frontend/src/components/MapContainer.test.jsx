@@ -37,9 +37,7 @@ jest.mock("@vis.gl/react-google-maps", () => {
       >
         <header>{headerContent}</header>
         {children}
-        {className === "jaunt-marker-details--hovered" ? null : (
-          <button onClick={onClose}>Close details</button>
-        )}
+        <button onClick={onClose}>Close details</button>
       </section>
     );
   }
@@ -192,6 +190,7 @@ describe("MapContainer", () => {
   });
 
   test("shows itinerary-consistent endpoints from a live multi-leg route", () => {
+    jest.useFakeTimers();
     render(
       <MapContainer
         {...createProps({
@@ -257,12 +256,13 @@ describe("MapContainer", () => {
       })
     );
     expect(
-      screen.queryByRole("button", { name: "Close details" })
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: "Close details" })
+    ).toBeInTheDocument();
     expect(
       mockPinProps.mock.calls.some(([pinProps]) => pinProps.scale === 1.25)
     ).toBe(true);
     fireEvent.mouseLeave(startMarker);
+    act(() => jest.advanceTimersByTime(450));
     expect(
       screen.queryByRole("dialog", { name: "Start details" })
     ).not.toBeInTheDocument();
@@ -292,6 +292,7 @@ describe("MapContainer", () => {
     ).toBeInTheDocument();
     expect(screen.getAllByRole("dialog")).toHaveLength(2);
     fireEvent.mouseLeave(destinationMarker);
+    act(() => jest.advanceTimersByTime(450));
     expect(
       screen.getByRole("dialog", { name: "Start details" })
     ).toBeInTheDocument();
@@ -318,6 +319,7 @@ describe("MapContainer", () => {
     expect(
       screen.queryByRole("dialog", { name: "Destination details" })
     ).not.toBeInTheDocument();
+    jest.useRealTimers();
   });
 
   test("falls back to persisted endpoints when saved routes have no legs", () => {
@@ -470,6 +472,7 @@ describe("MapContainer", () => {
   });
 
   test("anchors added detours with category icons in stop-colored pins", () => {
+    jest.useFakeTimers();
     const props = createProps({
       detourList: [
         {
@@ -511,6 +514,7 @@ describe("MapContainer", () => {
       })
     );
     fireEvent.mouseLeave(detourMarker);
+    act(() => jest.advanceTimersByTime(450));
     expect(
       screen.queryByRole("dialog", { name: "Paris Mountain details" })
     ).not.toBeInTheDocument();
@@ -536,9 +540,10 @@ describe("MapContainer", () => {
     expect(
       screen.queryByRole("dialog", { name: "Paris Mountain details" })
     ).not.toBeInTheDocument();
+    jest.useRealTimers();
   });
 
-  test("shows detour actions only for selected added stops", () => {
+  test("shows detour actions and close controls on hover and selection", () => {
     const props = createProps({
       detourList: [
         {
@@ -557,8 +562,11 @@ describe("MapContainer", () => {
 
     fireEvent.mouseEnter(marker);
     expect(
-      screen.queryByRole("button", { name: "Actions for Paris Mountain" })
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: "Actions for Paris Mountain" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Close details" })
+    ).toBeInTheDocument();
 
     fireEvent.mouseLeave(marker);
     fireEvent.click(marker);
@@ -567,7 +575,48 @@ describe("MapContainer", () => {
     ).toBeInTheDocument();
   });
 
-  test("opens the selected detour action menu on right click", () => {
+  test("keeps a hover preview open while moving from marker to card", () => {
+    jest.useFakeTimers();
+    const props = createProps({
+      detourList: [
+        {
+          name: "Paris Mountain",
+          placeId: "place-1",
+          type: "Hike",
+          lat: 34.9,
+          lng: -82.4,
+        },
+      ],
+    });
+    render(<MapContainer {...props} />);
+    const marker = screen.getByRole("button", {
+      name: "Paris Mountain, added stop",
+    });
+
+    fireEvent.mouseEnter(marker);
+    fireEvent.mouseLeave(marker);
+    act(() => jest.advanceTimersByTime(100));
+    fireEvent.mouseEnter(
+      screen.getByTestId("marker-details-header-detour-place-1")
+    );
+    act(() => jest.advanceTimersByTime(450));
+
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toBeInTheDocument();
+
+    fireEvent.mouseLeave(
+      screen.getByTestId("marker-details-header-detour-place-1")
+    );
+    act(() => jest.advanceTimersByTime(450));
+
+    expect(
+      screen.queryByRole("dialog", { name: "Paris Mountain details" })
+    ).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  test("promotes a hover preview when its actions menu opens", () => {
     const props = createProps({
       detourList: [
         {
@@ -581,8 +630,11 @@ describe("MapContainer", () => {
     });
     render(<MapContainer {...props} />);
 
-    fireEvent.contextMenu(
-      screen.getAllByTestId("marker-context-detour-place-1")[0]
+    fireEvent.mouseEnter(
+      screen.getByRole("button", { name: "Paris Mountain, added stop" })
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Actions for Paris Mountain" })
     );
 
     expect(
@@ -591,6 +643,40 @@ describe("MapContainer", () => {
     expect(
       screen.getByRole("menuitem", { name: "Remove detour" })
     ).toBeVisible();
+    expect(mockInfoWindowProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        className: "jaunt-marker-details--selected",
+      })
+    );
+  });
+
+  test("closes a hover preview until the marker is entered again", () => {
+    const props = createProps({
+      detourList: [
+        {
+          name: "Paris Mountain",
+          placeId: "place-1",
+          type: "Hike",
+          lat: 34.9,
+          lng: -82.4,
+        },
+      ],
+    });
+    render(<MapContainer {...props} />);
+    const marker = screen.getByRole("button", {
+      name: "Paris Mountain, added stop",
+    });
+
+    fireEvent.mouseEnter(marker);
+    fireEvent.click(screen.getByRole("button", { name: "Close details" }));
+    expect(
+      screen.queryByRole("dialog", { name: "Paris Mountain details" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(marker);
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toBeInTheDocument();
   });
 
   test("disables detour actions while a route mutation is pending", () => {

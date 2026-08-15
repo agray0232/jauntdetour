@@ -23,11 +23,3 @@ code {
 .jaunt-map .gm-style-iw-tc {
   display: none;
 }
-
-/* Keep preview and selected card geometry identical without a preview action. */
-.jaunt-map
-  .gm-style-iw:has(.jaunt-marker-details--hovered)
-  .gm-ui-hover-effect {
-  visibility: hidden;
-  pointer-events: none;
-}

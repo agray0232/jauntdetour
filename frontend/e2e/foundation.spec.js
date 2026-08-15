@@ -227,14 +227,19 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
     "Adds 18 min"
   );
-  await page.getByTitle("Paris Mountain, added stop").click();
+  await page.getByTitle("Paris Mountain, added stop").hover();
   const detourDetails = page.getByLabel("Paris Mountain details");
   await expect(detourDetails).toContainText("Hike");
   await expect(detourDetails).toContainText("4.7 rating");
   await expect(detourDetails).toContainText("+ 18 min");
-  await page
-    .getByRole("button", { name: "Actions for Paris Mountain" })
-    .click();
+  const detourActions = page.getByRole("button", {
+    name: "Actions for Paris Mountain",
+  });
+  await expect(detourActions).toBeVisible();
+  await expect(page.getByRole("button", { name: "Close" })).toHaveCount(1);
+  await detourActions.hover();
+  await expect(detourDetails).toBeVisible();
+  await detourActions.click();
   await page.getByRole("menuitem", { name: "Remove detour" }).click();
   await expect(
     page.getByText("Paris Mountain removed from this Jaunt")

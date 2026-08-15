@@ -17,7 +17,6 @@ import {
   InfoWindow,
   Map,
   Pin,
-  useAdvancedMarkerRef,
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
@@ -46,6 +45,7 @@ const WORLD_BOUNDS = {
 
 const MIN_ZOOM = 4;
 const MARKER_DETAILS_OFFSET = [0, -46];
+const MARKER_HOVER_DISMISS_DELAY = 400;
 
 function normalizeCoordinates(location) {
   if (!Number.isFinite(location?.lat) || !Number.isFinite(location?.lng)) {
@@ -124,60 +124,103 @@ function SelectableMapMarker({
   zIndex,
 }) {
   const [actionMenuOpen, setActionMenuOpen] = useState(false);
-  const [contextMenuRequested, setContextMenuRequested] = useState(false);
-  const [markerRef, marker] = useAdvancedMarkerRef();
+  const [actionMenuRequested, setActionMenuRequested] = useState(false);
+  const detailsContentRef = useRef(null);
+  const hoverDismissTimeoutRef = useRef(null);
+  const infoWindowHoveredRef = useRef(false);
 
-  useEffect(() => {
-    if (showDetails === "selected" && contextMenuRequested) {
-      setActionMenuOpen(true);
-      setContextMenuRequested(false);
-    } else if (showDetails !== "selected") {
-      setActionMenuOpen(false);
-    }
-  }, [contextMenuRequested, showDetails]);
+  const cancelHoverDismissal = () => {
+    window.clearTimeout(hoverDismissTimeoutRef.current);
+    hoverDismissTimeoutRef.current = null;
+  };
 
-  const openContextMenu = (event) => {
-    if (feature.detourIndex == null || !onRemoveDetour) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if (pending) return;
-    onSelect(feature.id);
-    setContextMenuRequested(true);
+  const beginHover = () => {
+    cancelHoverDismissal();
+    onHover(feature.id);
+  };
+
+  const scheduleHoverDismissal = () => {
+    cancelHoverDismissal();
+    if (infoWindowHoveredRef.current) return;
+    hoverDismissTimeoutRef.current = window.setTimeout(() => {
+      onHover(null);
+    }, MARKER_HOVER_DISMISS_DELAY);
+  };
+
+  const enterInfoWindow = () => {
+    infoWindowHoveredRef.current = true;
+    cancelHoverDismissal();
+  };
+
+  const leaveInfoWindow = () => {
+    infoWindowHoveredRef.current = false;
+    scheduleHoverDismissal();
   };
 
   useEffect(() => {
-    if (!marker || feature.detourIndex == null || !onRemoveDetour) {
-      return undefined;
+    if (showDetails === "selected" && actionMenuRequested) {
+      setActionMenuOpen(true);
+      setActionMenuRequested(false);
+    } else if (showDetails !== "selected") {
+      setActionMenuOpen(false);
     }
-    marker.addEventListener("contextmenu", openContextMenu);
-    return () => marker.removeEventListener("contextmenu", openContextMenu);
+  }, [actionMenuRequested, showDetails]);
+
+  useEffect(
+    () => () => window.clearTimeout(hoverDismissTimeoutRef.current),
+    []
+  );
+
+  useEffect(() => {
+    if (!showDetails) return undefined;
+    const infoWindowElement =
+      detailsContentRef.current?.closest(".gm-style-iw");
+    if (!infoWindowElement) return undefined;
+
+    infoWindowElement.addEventListener("mouseenter", enterInfoWindow);
+    infoWindowElement.addEventListener("mouseleave", leaveInfoWindow);
+    return () => {
+      infoWindowElement.removeEventListener("mouseenter", enterInfoWindow);
+      infoWindowElement.removeEventListener("mouseleave", leaveInfoWindow);
+    };
   });
+
+  const handleMenuOpenChange = (event, data) => {
+    if (data.open && showDetails !== "selected") {
+      cancelHoverDismissal();
+      onSelect(feature.id);
+      setActionMenuRequested(true);
+      return;
+    }
+    setActionMenuOpen(data.open);
+  };
+
+  const handleClose = () => {
+    cancelHoverDismissal();
+    if (showDetails === "hovered") {
+      onHover(null);
+    }
+    onClose(feature.id, showDetails);
+  };
 
   return (
     <>
       <AdvancedMarker
-        ref={markerRef}
         position={feature.position}
         title={feature.accessibleName}
         onClick={() => onSelect(feature.id)}
-        onMouseEnter={() => onHover(feature.id)}
-        onMouseLeave={() => onHover(null)}
+        onMouseEnter={beginHover}
+        onMouseLeave={scheduleHoverDismissal}
         zIndex={active ? zIndex + 10 : zIndex}
       >
-        <span
-          data-testid={`marker-context-${feature.id}`}
-          onContextMenu={openContextMenu}
-          style={{ display: "contents" }}
+        <Pin
+          scale={active ? 1.25 : 1.1}
+          background={background}
+          borderColor={jauntColors.neutral.foregroundOnDark}
+          glyphColor={jauntColors.neutral.foregroundOnDark}
         >
-          <Pin
-            scale={active ? 1.25 : 1.1}
-            background={background}
-            borderColor={jauntColors.neutral.foregroundOnDark}
-            glyphColor={jauntColors.neutral.foregroundOnDark}
-          >
-            {getDetourIconComponent(iconType, "1.125rem")}
-          </Pin>
-        </span>
+          {getDetourIconComponent(iconType, "1.125rem")}
+        </Pin>
       </AdvancedMarker>
       {showDetails ? (
         <InfoWindow
@@ -190,6 +233,7 @@ function SelectableMapMarker({
           disableAutoPan
           headerContent={
             <div
+              data-testid={`marker-details-header-${feature.id}`}
               style={{
                 display: "flex",
                 alignItems: "flex-start",
@@ -198,13 +242,15 @@ function SelectableMapMarker({
                 width: "100%",
                 transform: "translateY(-0.3125rem)",
               }}
+              onMouseEnter={enterInfoWindow}
+              onMouseLeave={leaveInfoWindow}
             >
               <Text weight="semibold">{feature.heading}</Text>
               {feature.detourIndex != null ? (
-                showDetails === "selected" && onRemoveDetour ? (
+                onRemoveDetour ? (
                   <Menu
                     open={actionMenuOpen}
-                    onOpenChange={(event, data) => setActionMenuOpen(data.open)}
+                    onOpenChange={handleMenuOpenChange}
                   >
                     <MenuTrigger disableButtonEnhancement>
                       <Button
@@ -236,12 +282,19 @@ function SelectableMapMarker({
             </div>
           }
           maxWidth={280}
-          onClose={() => onClose(feature.id, showDetails)}
+          onClose={handleClose}
           pixelOffset={MARKER_DETAILS_OFFSET}
           position={feature.position}
           shouldFocus={false}
         >
-          <MarkerDetails feature={feature} />
+          <div
+            data-testid={`marker-details-body-${feature.id}`}
+            ref={detailsContentRef}
+            onMouseEnter={enterInfoWindow}
+            onMouseLeave={leaveInfoWindow}
+          >
+            <MarkerDetails feature={feature} />
+          </div>
         </InfoWindow>
       ) : null}
     </>
