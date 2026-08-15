@@ -59,6 +59,20 @@ describe("JauntItinerary", () => {
     trackEvent.mockReset();
   });
 
+  it("disables itinerary actions while another mutation is in flight", () => {
+    renderItinerary(createProps({ actionsBusy: true }));
+
+    expect(
+      screen.getByRole("button", { name: "Move Falls Park earlier" })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Move Paris Mountain later" })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Remove Paris Mountain" })
+    ).toBeDisabled();
+  });
+
   it("renders a complete non-map route sequence", () => {
     renderItinerary(createProps());
 

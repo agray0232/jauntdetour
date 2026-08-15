@@ -373,8 +373,12 @@ export default function DiscoverWorkspace(props) {
   };
 
   const addResult = async (result) => {
+    if (props.mutationPending) {
+      return;
+    }
     setAddingId(result.place_id);
     setAddErrorId(null);
+    props.onAddingChange?.(true);
     trackEvent("detour_add_started", {
       category: result.type,
       feature: "detour",
@@ -415,6 +419,7 @@ export default function DiscoverWorkspace(props) {
       props.setDetourHighlight([]);
       setStatus("idle");
       setAddingId(null);
+      props.onAddingChange?.(false);
       props.onAdded(result.name, addedTime);
       trackEvent("detour_added", {
         category: result.type,
@@ -423,6 +428,7 @@ export default function DiscoverWorkspace(props) {
       });
     } catch {
       setAddingId(null);
+      props.onAddingChange?.(false);
       setAddErrorId(result.place_id);
       trackEvent("detour_add_failed", {
         category: result.type,
@@ -655,7 +661,7 @@ export default function DiscoverWorkspace(props) {
                     <Button
                       className={styles.resultAction}
                       appearance="primary"
-                      disabled={addingId != null}
+                      disabled={addingId != null || props.mutationPending}
                       icon={adding ? <Spinner size="tiny" /> : null}
                       onClick={() => addResult(result)}
                     >
@@ -683,6 +689,8 @@ DiscoverWorkspace.propTypes = {
   detourType: PropTypes.string.isRequired,
   hoveredDetourId: PropTypes.string,
   onAdded: PropTypes.func.isRequired,
+  onAddingChange: PropTypes.func,
+  mutationPending: PropTypes.bool,
   onDetourHover: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   route: PropTypes.object.isRequired,

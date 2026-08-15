@@ -36,6 +36,7 @@ export default function BuildRouteDetails(props) {
         failedMutation={props.failedMutation}
         onDiscover={props.onDiscover}
         pending={props.pending}
+        actionsBusy={props.actionsBusy}
         retryMutation={props.retryMutation}
         runMutation={props.runMutation}
       />
@@ -60,6 +61,7 @@ BuildRouteDetails.propTypes = {
   onSaveStateChange: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   pending: PropTypes.object,
+  actionsBusy: PropTypes.bool,
   retryMutation: PropTypes.func.isRequired,
   runMutation: PropTypes.func.isRequired,
   tripSummary: PropTypes.object,

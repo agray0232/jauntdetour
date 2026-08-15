@@ -789,7 +789,9 @@ function MapContainer(props) {
               onHover={setHoveredFeatureId}
               onRemoveDetour={props.onRemoveDetour}
               onSelect={setSelectedFeatureId}
-              pending={props.detourMutationPending != null}
+              pending={
+                props.detourMutationPending != null || props.detourActionsBusy
+              }
               showDetails={
                 selectedFeatureId === feature.id
                   ? "selected"
@@ -832,6 +834,7 @@ MapContainer.propTypes = {
   onDetourHover: PropTypes.func,
   setDetourHighlight: PropTypes.func,
   detourMutationPending: PropTypes.object,
+  detourActionsBusy: PropTypes.bool,
   zoomControl: PropTypes.bool,
 };
 

@@ -116,10 +116,12 @@ export default function useDetourMutations(options) {
     clearUndoRemoval: () => updateUndoRemoval(null),
     failedMutation,
     pending,
-    retryMutation: () =>
-      failedMutation
-        ? runMutation(failedMutation)
-        : Promise.resolve({ status: "unchanged" }),
+    retryMutation: (mutation) => {
+      const target = mutation || failedMutation;
+      return target
+        ? runMutation(target)
+        : Promise.resolve({ status: "unchanged" });
+    },
     runMutation,
     undoLastRemoval: () =>
       undoRemovalRef.current

@@ -245,11 +245,10 @@ export default function PlannerWorkspace(props) {
   const [editingRoute, setEditingRoute] = useState(!props.showDetourButton);
   const [saveOperation, setSaveOperation] = useState("idle");
   const [hoveredDetourId, setHoveredDetourId] = useState(null);
+  const [discoverAdding, setDiscoverAdding] = useState(false);
   const previousSuggestedNameRef = useRef("");
   const previousTripNameRef = useRef(props.tripName);
   const tripNameRef = useRef(props.tripName);
-  const addedToastTimeoutRef = useRef(null);
-  const removalToastTimeoutRef = useRef(null);
   const toasterId = useId("detour-mutation-toaster");
   const mutationErrorToastId = useId("detour-mutation-error-toast");
   const addedDetourToastId = useId("detour-added-toast");
@@ -264,22 +263,19 @@ export default function PlannerWorkspace(props) {
     setTripSummary: props.setTripSummary,
   });
 
+  const mutationInFlight = detourMutations.pending != null;
+  const anyMutationBusy = mutationInFlight || discoverAdding;
+
   const dismissRemovalToast = () => {
-    window.clearTimeout(removalToastTimeoutRef.current);
-    removalToastTimeoutRef.current = null;
     detourMutations.clearUndoRemoval();
     dismissToast(removalToastId);
   };
 
   const dismissAddedDetourToast = () => {
-    window.clearTimeout(addedToastTimeoutRef.current);
-    addedToastTimeoutRef.current = null;
     dismissToast(addedDetourToastId);
   };
 
   const undoRemoval = async () => {
-    window.clearTimeout(removalToastTimeoutRef.current);
-    removalToastTimeoutRef.current = null;
     const undoPromise = detourMutations.undoLastRemoval();
     dismissToast(removalToastId);
     const result = await undoPromise;
@@ -299,7 +295,7 @@ export default function PlannerWorkspace(props) {
         <ToastFooter>
           <Button
             appearance="transparent"
-            onClick={retryPlannerMutation}
+            onClick={() => retryPlannerMutation(mutation)}
             style={{ minWidth: "auto", paddingLeft: 0, paddingRight: 0 }}
           >
             Retry
@@ -314,7 +310,6 @@ export default function PlannerWorkspace(props) {
   };
 
   const showRemovalToast = (detourName) => {
-    window.clearTimeout(removalToastTimeoutRef.current);
     dispatchToast(
       <Toast>
         <ToastTitle
@@ -355,14 +350,9 @@ export default function PlannerWorkspace(props) {
         toastId: removalToastId,
       }
     );
-    removalToastTimeoutRef.current = window.setTimeout(
-      dismissRemovalToast,
-      PLANNER_TOAST_TIMEOUT
-    );
   };
 
   const showAddedDetourToast = (name, addedTime) => {
-    window.clearTimeout(addedToastTimeoutRef.current);
     dispatchToast(
       <Toast>
         <ToastTitle
@@ -389,19 +379,7 @@ export default function PlannerWorkspace(props) {
         toastId: addedDetourToastId,
       }
     );
-    addedToastTimeoutRef.current = window.setTimeout(
-      dismissAddedDetourToast,
-      PLANNER_TOAST_TIMEOUT
-    );
   };
-
-  useEffect(
-    () => () => {
-      window.clearTimeout(addedToastTimeoutRef.current);
-      window.clearTimeout(removalToastTimeoutRef.current);
-    },
-    []
-  );
 
   const runPlannerMutation = async (mutation) => {
     const detourName =
@@ -417,13 +395,13 @@ export default function PlannerWorkspace(props) {
     return result;
   };
 
-  const retryPlannerMutation = async () => {
-    const failedMutation = detourMutations.failedMutation;
+  const retryPlannerMutation = async (mutation) => {
+    const failedMutation = mutation || detourMutations.failedMutation;
     const detourName =
       failedMutation?.kind === "remove"
         ? props.detourList[failedMutation.index]?.name
         : null;
-    const result = await detourMutations.retryMutation();
+    const result = await detourMutations.retryMutation(failedMutation);
     if (result.status === "success" && detourName) {
       showRemovalToast(detourName);
     } else if (
@@ -640,6 +618,7 @@ export default function PlannerWorkspace(props) {
                 detourList={props.detourList}
                 failedMutation={detourMutations.failedMutation}
                 pending={detourMutations.pending}
+                actionsBusy={anyMutationBusy}
                 retryMutation={retryPlannerMutation}
                 runMutation={runPlannerMutation}
                 onClear={props.clearAll}
@@ -667,6 +646,8 @@ export default function PlannerWorkspace(props) {
                 hoveredDetourId={hoveredDetourId}
                 onDetourHover={setHoveredDetourId}
                 addDetour={props.addDetour}
+                mutationPending={mutationInFlight}
+                onAddingChange={setDiscoverAdding}
                 setRoute={props.setRoute}
                 setTripSummary={props.setTripSummary}
                 setDetourSearchLocation={props.setDetourSearchLocation}
@@ -734,6 +715,7 @@ export default function PlannerWorkspace(props) {
           onDetourHover={setHoveredDetourId}
           detourList={props.detourList}
           detourMutationPending={detourMutations.pending}
+          detourActionsBusy={anyMutationBusy}
           onRemoveDetour={(index) =>
             runPlannerMutation({ kind: "remove", index, source: "map" })
           }

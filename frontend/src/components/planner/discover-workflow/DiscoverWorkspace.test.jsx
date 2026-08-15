@@ -269,6 +269,63 @@ describe("DiscoverWorkspace", () => {
     expect(props.onAdded).toHaveBeenCalledWith("Paris Mountain", 18);
   });
 
+  it("disables Add and stays inert while a shared mutation is pending", () => {
+    const result = {
+      id: "one",
+      name: "Paris Mountain",
+      place_id: "place-1",
+      rating: 4.7,
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const getRoute = jest.fn();
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const props = createProps({
+      detourOptions: [result],
+      detourHighlight: [{ id: "place-1", highlight: true }],
+      mutationPending: true,
+      onAddingChange: jest.fn(),
+    });
+    renderWorkspace(props);
+
+    const addButton = screen.getByRole("button", { name: "Add" });
+    expect(addButton).toBeDisabled();
+
+    fireEvent.click(addButton);
+
+    expect(getRoute).not.toHaveBeenCalled();
+    expect(props.addDetour).not.toHaveBeenCalled();
+    expect(props.onAddingChange).not.toHaveBeenCalled();
+  });
+
+  it("signals adding state to coordinate with other mutations", async () => {
+    const result = {
+      id: "one",
+      name: "Paris Mountain",
+      place_id: "place-1",
+      rating: 4.7,
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const getRoute = jest.fn().mockResolvedValue({
+      routes: [{ summary: { distance: 258, time: { hours: 4, min: 5 } } }],
+    });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const onAddingChange = jest.fn();
+    const props = createProps({
+      detourOptions: [result],
+      detourHighlight: [{ id: "place-1", highlight: true }],
+      onAddingChange,
+    });
+    renderWorkspace(props);
+
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+
+    expect(onAddingChange).toHaveBeenCalledWith(true);
+    await waitFor(() => expect(props.addDetour).toHaveBeenCalledTimes(1));
+    expect(onAddingChange).toHaveBeenLastCalledWith(false);
+  });
+
   it("previews a result on hover without selecting it or showing Add", () => {
     const result = {
       name: "Paris Mountain",

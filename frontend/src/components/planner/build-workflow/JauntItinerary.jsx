@@ -131,6 +131,7 @@ export default function JauntItinerary({
   onDiscover,
   origin,
   pending,
+  actionsBusy,
   retryMutation,
   runMutation,
 }) {
@@ -177,7 +178,7 @@ export default function JauntItinerary({
             The route could not be recalculated. Your itinerary was not changed.
           </MessageBarBody>
           <MessageBarActions>
-            <Button onClick={retryMutation}>Retry</Button>
+            <Button onClick={() => retryMutation()}>Retry</Button>
           </MessageBarActions>
         </MessageBar>
       ) : null}
@@ -226,7 +227,7 @@ export default function JauntItinerary({
                     appearance="subtle"
                     aria-label={`Move ${detour.name} earlier`}
                     icon={<ArrowUpRegular />}
-                    disabled={pending != null || index === 0}
+                    disabled={pending != null || actionsBusy || index === 0}
                     onClick={() =>
                       runItineraryMutation({
                         kind: "move",
@@ -242,7 +243,9 @@ export default function JauntItinerary({
                     aria-label={`Move ${detour.name} later`}
                     icon={<ArrowDownRegular />}
                     disabled={
-                      pending != null || index === detourList.length - 1
+                      pending != null ||
+                      actionsBusy ||
+                      index === detourList.length - 1
                     }
                     onClick={() =>
                       runItineraryMutation({
@@ -265,7 +268,7 @@ export default function JauntItinerary({
                     icon={
                       itemPending ? <Spinner size="tiny" /> : <DeleteRegular />
                     }
-                    disabled={pending != null}
+                    disabled={pending != null || actionsBusy}
                     onClick={() =>
                       runItineraryMutation({ kind: "remove", index })
                     }
@@ -308,6 +311,7 @@ JauntItinerary.propTypes = {
   onDiscover: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   pending: PropTypes.object,
+  actionsBusy: PropTypes.bool,
   retryMutation: PropTypes.func.isRequired,
   runMutation: PropTypes.func.isRequired,
 };
