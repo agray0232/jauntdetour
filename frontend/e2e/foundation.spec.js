@@ -157,8 +157,11 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
   await expect(
     page.getByRole("button", { name: "Close", exact: true })
-  ).toHaveCount(0);
-  await page.getByRole("region", { name: "Route summary" }).hover();
+  ).toHaveCount(1);
+  await page
+    .getByLabel("Start details")
+    .getByRole("button", { name: "Close", exact: true })
+    .click();
   await expect(page.getByLabel("Start details")).toHaveCount(0);
   await startMarker.click();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
@@ -173,8 +176,11 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(page.getByRole("dialog")).toHaveCount(2);
   await expect(
     page.getByRole("button", { name: "Close", exact: true })
-  ).toHaveCount(1);
-  await page.getByRole("region", { name: "Route summary" }).hover();
+  ).toHaveCount(2);
+  await page
+    .getByLabel("Destination details")
+    .getByRole("button", { name: "Close", exact: true })
+    .click();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
   await expect(page.getByLabel("Destination details")).toHaveCount(0);
   await destinationMarker.focus();
@@ -216,17 +222,37 @@ test("mounts the current planner at its stable route", async ({ page }) => {
     "aria-selected",
     "true"
   );
-  await expect(page.getByText(/Paris Mountain added/)).toBeVisible();
+  const dismissAddedDetourToast = page.getByRole("button", {
+    name: "Dismiss added detour notification",
+  });
+  await expect(dismissAddedDetourToast).toBeVisible();
   await expect(page.getByText(/set what you want/i)).toBeVisible();
   await expect(page.getByRole("heading", { name: /places?$/ })).toHaveCount(0);
-  await page
-    .getByRole("button", { name: "Dismiss added detour notification" })
-    .click();
-  await expect(page.getByText(/Paris Mountain added/)).toHaveCount(0);
+  await dismissAddedDetourToast.click();
+  await expect(dismissAddedDetourToast).toHaveCount(0);
   await page.getByRole("tab", { name: "Build" }).click();
   await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
     "Adds 18 min"
   );
+  const viewport = page.viewportSize();
+  const showMap = page.getByRole("button", { name: "Show map" });
+  const usesCompactMap =
+    viewport && viewport.width <= 780 && viewport.height > 500;
+  if (usesCompactMap) {
+    await expect(showMap).toBeVisible();
+    await showMap.click();
+    await expect(
+      page.getByRole("button", { name: "Back to tools" })
+    ).toBeVisible();
+    await expect(
+      page.locator('[aria-label="Jaunt planning tools"]')
+    ).toBeHidden();
+    await expect(
+      page.getByRole("region", { name: "Jaunt route map" })
+    ).toBeVisible();
+  } else {
+    await expect(showMap).toBeHidden();
+  }
   await page.getByTitle("Paris Mountain, added stop").hover();
   const detourDetails = page.getByLabel("Paris Mountain details");
   await expect(detourDetails).toContainText("Hike");
@@ -237,7 +263,6 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   });
   await expect(detourActions).toBeVisible();
   await expect(page.getByRole("button", { name: "Close" })).toHaveCount(1);
-  await detourActions.hover();
   await expect(detourDetails).toBeVisible();
   await detourActions.click();
   await page.getByRole("menuitem", { name: "Remove detour" }).click();
@@ -245,6 +270,12 @@ test("mounts the current planner at its stable route", async ({ page }) => {
     page.getByText("Paris Mountain removed from this Jaunt")
   ).toBeVisible();
   await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(0);
+  if (usesCompactMap) {
+    await page.getByRole("button", { name: "Back to tools" }).click();
+    await expect(
+      page.getByRole("complementary", { name: "Jaunt planning tools" })
+    ).toBeVisible();
+  }
   await expect(
     page.getByRole("region", { name: "Itinerary" })
   ).not.toContainText("Paris Mountain");
@@ -257,28 +288,6 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(
     page.getByText("Paris Mountain removed from this Jaunt")
   ).toHaveCount(0);
-
-  const viewport = page.viewportSize();
-  const showMap = page.getByRole("button", { name: "Show map" });
-  if (viewport && viewport.width <= 780 && viewport.height > 500) {
-    await expect(showMap).toBeVisible();
-    await showMap.click();
-    await expect(
-      page.getByRole("button", { name: "Back to tools" })
-    ).toBeVisible();
-    await expect(
-      page.locator('[aria-label="Jaunt planning tools"]')
-    ).toBeHidden();
-    await expect(
-      page.getByRole("region", { name: "Jaunt route map" })
-    ).toBeVisible();
-    await page.getByRole("button", { name: "Back to tools" }).click();
-    await expect(
-      page.getByRole("complementary", { name: "Jaunt planning tools" })
-    ).toBeVisible();
-  } else {
-    await expect(showMap).toBeHidden();
-  }
 });
 
 test("renders endpoint markers on the saved Jaunt detail map", async ({

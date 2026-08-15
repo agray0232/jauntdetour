@@ -141,7 +141,6 @@ function SelectableMapMarker({
 
   const scheduleHoverDismissal = () => {
     cancelHoverDismissal();
-    if (infoWindowHoveredRef.current) return;
     hoverDismissTimeoutRef.current = window.setTimeout(() => {
       onHover(null);
     }, MARKER_HOVER_DISMISS_DELAY);
@@ -190,15 +189,18 @@ function SelectableMapMarker({
     let infoWindowElement = null;
     const handleMouseMove = (event) => {
       const bounds = infoWindowElement?.getBoundingClientRect();
-      if (
+      const isInsideInfoWindow =
         bounds?.width > 0 &&
         bounds?.height > 0 &&
         event.clientX >= bounds.left &&
         event.clientX <= bounds.right &&
         event.clientY >= bounds.top &&
-        event.clientY <= bounds.bottom
-      ) {
+        event.clientY <= bounds.bottom;
+      if (isInsideInfoWindow) {
         enterInfoWindow();
+      } else if (infoWindowHoveredRef.current) {
+        infoWindowHoveredRef.current = false;
+        scheduleHoverDismissal();
       }
     };
     const attachInfoWindowListeners = () => {
