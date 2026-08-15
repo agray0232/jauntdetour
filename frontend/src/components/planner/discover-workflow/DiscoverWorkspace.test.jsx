@@ -40,10 +40,8 @@ function createProps(overrides = {}) {
     setRoute: jest.fn(),
     setTripSummary: jest.fn(),
     addDetour: jest.fn(),
-    feedback: "",
     onAdded: jest.fn(),
     onDetourHover: jest.fn(),
-    onDismissFeedback: jest.fn(),
     ...overrides,
   };
 }
@@ -114,19 +112,6 @@ describe("DiscoverWorkspace", () => {
       screen.getByRole("slider", { name: "Where along the route?" })
     ).toHaveValue("63.4");
     expect(screen.getByText("Later in the drive · 63%")).toBeVisible();
-  });
-
-  it("shows dismissible add feedback at the top", () => {
-    const props = createProps({
-      feedback: "Paris Mountain added. The route is 18 minutes longer.",
-    });
-    renderWorkspace(props);
-
-    expect(screen.getByText(/Paris Mountain added/)).toBeVisible();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Dismiss added stop message" })
-    );
-    expect(props.onDismissFeedback).toHaveBeenCalledTimes(1);
   });
 
   it("restores persisted results and clears them when criteria changes", () => {

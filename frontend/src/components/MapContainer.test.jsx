@@ -57,9 +57,9 @@ jest.mock("@vis.gl/react-google-maps", () => {
       },
       ref
     ) {
-      React.useImperativeHandle(ref, () => ({ title }), [title]);
       return (
         <div
+          ref={ref}
           aria-label={title || undefined}
           data-testid={title ? `marker-${title}` : undefined}
           data-position={
@@ -86,6 +86,10 @@ jest.mock("@vis.gl/react-google-maps", () => {
       return null;
     },
     useMap: () => mockUseMap(),
+    useAdvancedMarkerRef: () => {
+      const [marker, setMarker] = React.useState(null);
+      return [setMarker, marker];
+    },
     useMapsLibrary: () => ({}),
   };
 });
@@ -100,6 +104,7 @@ function createProps(overrides = {}) {
     detourOptions: [],
     detourHighlight: [],
     detourList: [],
+    onRemoveDetour: jest.fn(),
     onDetourHover: jest.fn(),
     setDetourHighlight: jest.fn(),
     ...overrides,
@@ -518,6 +523,11 @@ describe("MapContainer", () => {
     expect(details).toHaveTextContent("Hike");
     expect(details).toHaveTextContent("4.7 rating");
     expect(details).toHaveTextContent("+ 18 min");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Actions for Paris Mountain" })
+    );
+    fireEvent.click(screen.getByRole("menuitem", { name: "Remove detour" }));
+    expect(props.onRemoveDetour).toHaveBeenCalledWith(0);
     fireEvent.click(screen.getByRole("button", { name: "Close details" }));
     expect(details).not.toBeInTheDocument();
 
@@ -526,6 +536,85 @@ describe("MapContainer", () => {
     expect(
       screen.queryByRole("dialog", { name: "Paris Mountain details" })
     ).not.toBeInTheDocument();
+  });
+
+  test("shows detour actions only for selected added stops", () => {
+    const props = createProps({
+      detourList: [
+        {
+          name: "Paris Mountain",
+          placeId: "place-1",
+          type: "Hike",
+          lat: 34.9,
+          lng: -82.4,
+        },
+      ],
+    });
+    render(<MapContainer {...props} />);
+    const marker = screen.getByRole("button", {
+      name: "Paris Mountain, added stop",
+    });
+
+    fireEvent.mouseEnter(marker);
+    expect(
+      screen.queryByRole("button", { name: "Actions for Paris Mountain" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.mouseLeave(marker);
+    fireEvent.click(marker);
+    expect(
+      screen.getByRole("button", { name: "Actions for Paris Mountain" })
+    ).toBeInTheDocument();
+  });
+
+  test("opens the selected detour action menu on right click", () => {
+    const props = createProps({
+      detourList: [
+        {
+          name: "Paris Mountain",
+          placeId: "place-1",
+          type: "Hike",
+          lat: 34.9,
+          lng: -82.4,
+        },
+      ],
+    });
+    render(<MapContainer {...props} />);
+
+    fireEvent.contextMenu(
+      screen.getAllByTestId("marker-context-detour-place-1")[0]
+    );
+
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: "Remove detour" })
+    ).toBeVisible();
+  });
+
+  test("disables detour actions while a route mutation is pending", () => {
+    const props = createProps({
+      detourList: [
+        {
+          name: "Paris Mountain",
+          placeId: "place-1",
+          type: "Hike",
+          lat: 34.9,
+          lng: -82.4,
+        },
+      ],
+      detourMutationPending: { kind: "remove", index: 0 },
+    });
+    render(<MapContainer {...props} />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Paris Mountain, added stop" })
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Actions for Paris Mountain" })
+    ).toBeDisabled();
   });
 
   test("previews a detour marker on hover without selecting it", () => {

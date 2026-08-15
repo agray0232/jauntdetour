@@ -15,7 +15,6 @@ import {
 import {
   BuildingBankRegular,
   BuildingRegular,
-  DismissRegular,
   DrinkBeerRegular,
   DrinkCoffeeRegular,
   FoodRegular,
@@ -442,20 +441,6 @@ export default function DiscoverWorkspace(props) {
 
   return (
     <section className={styles.root} aria-labelledby="discover-title">
-      {props.feedback ? (
-        <MessageBar intent="success">
-          <MessageBarBody>{props.feedback}</MessageBarBody>
-          <MessageBarActions>
-            <Button
-              appearance="transparent"
-              aria-label="Dismiss added stop message"
-              icon={<DismissRegular />}
-              onClick={props.onDismissFeedback}
-            />
-          </MessageBarActions>
-        </MessageBar>
-      ) : null}
-
       <div className={styles.heading}>
         <Text className={styles.eyebrow}>Along this route</Text>
         <h3 className={styles.title} id="discover-title">
@@ -696,11 +681,9 @@ DiscoverWorkspace.propTypes = {
   detourSearchLocation: PropTypes.number.isRequired,
   detourSearchRadius: PropTypes.number.isRequired,
   detourType: PropTypes.string.isRequired,
-  feedback: PropTypes.string,
   hoveredDetourId: PropTypes.string,
   onAdded: PropTypes.func.isRequired,
   onDetourHover: PropTypes.func.isRequired,
-  onDismissFeedback: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   route: PropTypes.object.isRequired,
   setRoute: PropTypes.func.isRequired,

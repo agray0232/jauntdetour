@@ -220,7 +220,7 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(page.getByText(/set what you want/i)).toBeVisible();
   await expect(page.getByRole("heading", { name: /places?$/ })).toHaveCount(0);
   await page
-    .getByRole("button", { name: "Dismiss added stop message" })
+    .getByRole("button", { name: "Dismiss added detour notification" })
     .click();
   await expect(page.getByText(/Paris Mountain added/)).toHaveCount(0);
   await page.getByRole("tab", { name: "Build" }).click();
@@ -232,8 +232,26 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await expect(detourDetails).toContainText("Hike");
   await expect(detourDetails).toContainText("4.7 rating");
   await expect(detourDetails).toContainText("+ 18 min");
-  await page.keyboard.press("Escape");
-  await expect(detourDetails).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Actions for Paris Mountain" })
+    .click();
+  await page.getByRole("menuitem", { name: "Remove detour" }).click();
+  await expect(
+    page.getByText("Paris Mountain removed from this Jaunt")
+  ).toBeVisible();
+  await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "Itinerary" })
+  ).not.toContainText("Paris Mountain");
+
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(1);
+  await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
+    "Paris Mountain"
+  );
+  await expect(
+    page.getByText("Paris Mountain removed from this Jaunt")
+  ).toHaveCount(0);
 
   const viewport = page.viewportSize();
   const showMap = page.getByRole("button", { name: "Show map" });

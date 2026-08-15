@@ -5,15 +5,23 @@ import {
   Button,
   Field,
   Input,
+  Toast,
+  Toaster,
+  ToastFooter,
+  ToastTitle,
+  ToastTrigger,
   Tab,
   TabList,
   Text,
   makeStyles,
   shorthands,
   tokens,
+  useId,
+  useToastController,
 } from "@fluentui/react-components";
 import {
   ArrowLeftRegular,
+  DismissRegular,
   MapRegular,
   OpenRegular,
   SparkleRegular,
@@ -23,6 +31,7 @@ import RouteForm from "./build-workflow/RouteForm";
 import BuildRouteDetails from "./build-workflow/BuildRouteDetails";
 import DiscoverWorkspace from "./discover-workflow/DiscoverWorkspace";
 import ExportWorkspace from "./export-workflow/ExportWorkspace";
+import useDetourMutations from "./build-workflow/useDetourMutations";
 import MapContainer from "../MapContainer";
 import {
   createPlannerFingerprint,
@@ -227,17 +236,204 @@ const useStyles = makeStyles({
   },
 });
 
+const PLANNER_TOAST_TIMEOUT = 5000;
+
 export default function PlannerWorkspace(props) {
   const styles = useStyles();
   const [selectedTask, setSelectedTask] = useState("build");
   const [mapExpanded, setMapExpanded] = useState(false);
   const [editingRoute, setEditingRoute] = useState(!props.showDetourButton);
   const [saveOperation, setSaveOperation] = useState("idle");
-  const [plannerFeedback, setPlannerFeedback] = useState("");
   const [hoveredDetourId, setHoveredDetourId] = useState(null);
   const previousSuggestedNameRef = useRef("");
   const previousTripNameRef = useRef(props.tripName);
   const tripNameRef = useRef(props.tripName);
+  const addedToastTimeoutRef = useRef(null);
+  const removalToastTimeoutRef = useRef(null);
+  const toasterId = useId("detour-mutation-toaster");
+  const mutationErrorToastId = useId("detour-mutation-error-toast");
+  const addedDetourToastId = useId("detour-added-toast");
+  const removalToastId = useId("detour-removal-toast");
+  const { dismissToast, dispatchToast } = useToastController(toasterId);
+  const detourMutations = useDetourMutations({
+    destination: props.destination,
+    detourList: props.detourList,
+    origin: props.origin,
+    setDetourList: props.setDetourList,
+    setRoute: props.setRoute,
+    setTripSummary: props.setTripSummary,
+  });
+
+  const dismissRemovalToast = () => {
+    window.clearTimeout(removalToastTimeoutRef.current);
+    removalToastTimeoutRef.current = null;
+    detourMutations.clearUndoRemoval();
+    dismissToast(removalToastId);
+  };
+
+  const dismissAddedDetourToast = () => {
+    window.clearTimeout(addedToastTimeoutRef.current);
+    addedToastTimeoutRef.current = null;
+    dismissToast(addedDetourToastId);
+  };
+
+  const undoRemoval = async () => {
+    window.clearTimeout(removalToastTimeoutRef.current);
+    removalToastTimeoutRef.current = null;
+    const undoPromise = detourMutations.undoLastRemoval();
+    dismissToast(removalToastId);
+    const result = await undoPromise;
+    if (result.status === "failed") {
+      showMutationFailureToast(result.mutation);
+    }
+  };
+
+  const showMutationFailureToast = (mutation) => {
+    dispatchToast(
+      <Toast>
+        <ToastTitle>
+          {mutation?.kind === "restore"
+            ? "Could not restore the detour."
+            : "Could not remove the detour."}
+        </ToastTitle>
+        <ToastFooter>
+          <Button
+            appearance="transparent"
+            onClick={retryPlannerMutation}
+            style={{ minWidth: "auto", paddingLeft: 0, paddingRight: 0 }}
+          >
+            Retry
+          </Button>
+        </ToastFooter>
+      </Toast>,
+      {
+        intent: "error",
+        toastId: mutationErrorToastId,
+      }
+    );
+  };
+
+  const showRemovalToast = (detourName) => {
+    window.clearTimeout(removalToastTimeoutRef.current);
+    dispatchToast(
+      <Toast>
+        <ToastTitle
+          action={
+            <ToastTrigger>
+              <Button
+                appearance="transparent"
+                aria-label="Dismiss removal notification"
+                icon={<DismissRegular />}
+                onClick={dismissRemovalToast}
+                size="small"
+              />
+            </ToastTrigger>
+          }
+        >
+          {detourName} removed from this Jaunt
+        </ToastTitle>
+        <ToastFooter>
+          <Button
+            appearance="transparent"
+            onClick={undoRemoval}
+            style={{ minWidth: "auto", paddingLeft: 0, paddingRight: 0 }}
+          >
+            Undo
+          </Button>
+        </ToastFooter>
+      </Toast>,
+      {
+        intent: "success",
+        onStatusChange: (event, data) => {
+          if (data.status === "unmounted") {
+            detourMutations.clearUndoRemoval();
+          }
+        },
+        pauseOnHover: true,
+        pauseOnWindowBlur: false,
+        timeout: PLANNER_TOAST_TIMEOUT,
+        toastId: removalToastId,
+      }
+    );
+    removalToastTimeoutRef.current = window.setTimeout(
+      dismissRemovalToast,
+      PLANNER_TOAST_TIMEOUT
+    );
+  };
+
+  const showAddedDetourToast = (name, addedTime) => {
+    window.clearTimeout(addedToastTimeoutRef.current);
+    dispatchToast(
+      <Toast>
+        <ToastTitle
+          action={
+            <ToastTrigger>
+              <Button
+                appearance="transparent"
+                aria-label="Dismiss added detour notification"
+                icon={<DismissRegular />}
+                onClick={dismissAddedDetourToast}
+                size="small"
+              />
+            </ToastTrigger>
+          }
+        >
+          {name} added. The route is {addedTime} minutes longer.
+        </ToastTitle>
+      </Toast>,
+      {
+        intent: "success",
+        pauseOnHover: true,
+        pauseOnWindowBlur: false,
+        timeout: PLANNER_TOAST_TIMEOUT,
+        toastId: addedDetourToastId,
+      }
+    );
+    addedToastTimeoutRef.current = window.setTimeout(
+      dismissAddedDetourToast,
+      PLANNER_TOAST_TIMEOUT
+    );
+  };
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(addedToastTimeoutRef.current);
+      window.clearTimeout(removalToastTimeoutRef.current);
+    },
+    []
+  );
+
+  const runPlannerMutation = async (mutation) => {
+    const detourName =
+      mutation.kind === "remove"
+        ? props.detourList[mutation.index]?.name
+        : null;
+    const result = await detourMutations.runMutation(mutation);
+    if (result.status === "success" && detourName) {
+      showRemovalToast(detourName);
+    } else if (result.status === "failed" && mutation.source === "map") {
+      showMutationFailureToast(result.mutation);
+    }
+    return result;
+  };
+
+  const retryPlannerMutation = async () => {
+    const failedMutation = detourMutations.failedMutation;
+    const detourName =
+      failedMutation?.kind === "remove"
+        ? props.detourList[failedMutation.index]?.name
+        : null;
+    const result = await detourMutations.retryMutation();
+    if (result.status === "success" && detourName) {
+      showRemovalToast(detourName);
+    } else if (
+      result.status === "failed" &&
+      (failedMutation?.source === "map" || failedMutation?.kind === "restore")
+    ) {
+      showMutationFailureToast(result.mutation);
+    }
+    return result;
+  };
 
   useEffect(() => {
     if (props.showDetourForm) {
@@ -256,14 +452,6 @@ export default function PlannerWorkspace(props) {
   useEffect(() => {
     setHoveredDetourId(null);
   }, [props.detourOptions]);
-
-  useEffect(() => {
-    if (!plannerFeedback) {
-      return undefined;
-    }
-    const timeoutId = window.setTimeout(() => setPlannerFeedback(""), 10000);
-    return () => window.clearTimeout(timeoutId);
-  }, [plannerFeedback]);
 
   const openDiscover = () => {
     if (!props.showDetourForm) {
@@ -450,10 +638,10 @@ export default function PlannerWorkspace(props) {
                 destination={props.destination}
                 tripSummary={props.tripSummary}
                 detourList={props.detourList}
-                removeDetour={props.removeDetour}
-                setRoute={props.setRoute}
-                setTripSummary={props.setTripSummary}
-                setDetourList={props.setDetourList}
+                failedMutation={detourMutations.failedMutation}
+                pending={detourMutations.pending}
+                retryMutation={retryPlannerMutation}
+                runMutation={runPlannerMutation}
                 onClear={props.clearAll}
                 onDiscover={openDiscover}
                 onEditRoute={() => setEditingRoute(true)}
@@ -490,13 +678,7 @@ export default function PlannerWorkspace(props) {
                 detourSearchLocation={props.detourSearchLocation}
                 detourSearchRadius={props.detourSearchRadius}
                 route={props.route}
-                feedback={plannerFeedback}
-                onDismissFeedback={() => setPlannerFeedback("")}
-                onAdded={(name, addedTime) => {
-                  setPlannerFeedback(
-                    `${name} added. The route is ${addedTime} minutes longer.`
-                  );
-                }}
+                onAdded={showAddedDetourToast}
               />
             ) : (
               <div className={styles.discoverEmpty}>
@@ -551,10 +733,15 @@ export default function PlannerWorkspace(props) {
           hoveredDetourId={hoveredDetourId}
           onDetourHover={setHoveredDetourId}
           detourList={props.detourList}
+          detourMutationPending={detourMutations.pending}
+          onRemoveDetour={(index) =>
+            runPlannerMutation({ kind: "remove", index, source: "map" })
+          }
           setDetourHighlight={props.setDetourHighlight}
           route={props.route}
         />
       </section>
+      <Toaster toasterId={toasterId} />
     </div>
   );
 }
@@ -589,7 +776,6 @@ PlannerWorkspace.propTypes = {
   setDetourHighlight: PropTypes.func,
   setDetourList: PropTypes.func,
   addDetour: PropTypes.func,
-  removeDetour: PropTypes.func,
   getDetourForm: PropTypes.func,
   clearAll: PropTypes.func,
   clearDetourOptions: PropTypes.func,

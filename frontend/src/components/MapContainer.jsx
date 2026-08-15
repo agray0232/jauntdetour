@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { Text } from "@fluentui/react-components";
+import {
+  Button,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Text,
+} from "@fluentui/react-components";
+import { DeleteRegular, MoreHorizontalRegular } from "@fluentui/react-icons";
 //import { Map, Circle , Polyline, Marker, GoogleApiWrapper } from 'google-maps-react';
 import {
   AdvancedMarker,
@@ -8,6 +17,7 @@ import {
   InfoWindow,
   Map,
   Pin,
+  useAdvancedMarkerRef,
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
@@ -107,13 +117,46 @@ function SelectableMapMarker({
   iconType,
   onClose,
   onHover,
+  onRemoveDetour,
   onSelect,
+  pending,
   showDetails,
   zIndex,
 }) {
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
+  const [contextMenuRequested, setContextMenuRequested] = useState(false);
+  const [markerRef, marker] = useAdvancedMarkerRef();
+
+  useEffect(() => {
+    if (showDetails === "selected" && contextMenuRequested) {
+      setActionMenuOpen(true);
+      setContextMenuRequested(false);
+    } else if (showDetails !== "selected") {
+      setActionMenuOpen(false);
+    }
+  }, [contextMenuRequested, showDetails]);
+
+  const openContextMenu = (event) => {
+    if (feature.detourIndex == null || !onRemoveDetour) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (pending) return;
+    onSelect(feature.id);
+    setContextMenuRequested(true);
+  };
+
+  useEffect(() => {
+    if (!marker || feature.detourIndex == null || !onRemoveDetour) {
+      return undefined;
+    }
+    marker.addEventListener("contextmenu", openContextMenu);
+    return () => marker.removeEventListener("contextmenu", openContextMenu);
+  });
+
   return (
     <>
       <AdvancedMarker
+        ref={markerRef}
         position={feature.position}
         title={feature.accessibleName}
         onClick={() => onSelect(feature.id)}
@@ -121,14 +164,20 @@ function SelectableMapMarker({
         onMouseLeave={() => onHover(null)}
         zIndex={active ? zIndex + 10 : zIndex}
       >
-        <Pin
-          scale={active ? 1.25 : 1.1}
-          background={background}
-          borderColor={jauntColors.neutral.foregroundOnDark}
-          glyphColor={jauntColors.neutral.foregroundOnDark}
+        <span
+          data-testid={`marker-context-${feature.id}`}
+          onContextMenu={openContextMenu}
+          style={{ display: "contents" }}
         >
-          {getDetourIconComponent(iconType, "1.125rem")}
-        </Pin>
+          <Pin
+            scale={active ? 1.25 : 1.1}
+            background={background}
+            borderColor={jauntColors.neutral.foregroundOnDark}
+            glyphColor={jauntColors.neutral.foregroundOnDark}
+          >
+            {getDetourIconComponent(iconType, "1.125rem")}
+          </Pin>
+        </span>
       </AdvancedMarker>
       {showDetails ? (
         <InfoWindow
@@ -140,12 +189,51 @@ function SelectableMapMarker({
           }
           disableAutoPan
           headerContent={
-            <Text
-              style={{ display: "block", transform: "translateY(-0.3125rem)" }}
-              weight="semibold"
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "0.25rem",
+                width: "100%",
+                transform: "translateY(-0.3125rem)",
+              }}
             >
-              {feature.heading}
-            </Text>
+              <Text weight="semibold">{feature.heading}</Text>
+              {feature.detourIndex != null ? (
+                showDetails === "selected" && onRemoveDetour ? (
+                  <Menu
+                    open={actionMenuOpen}
+                    onOpenChange={(event, data) => setActionMenuOpen(data.open)}
+                  >
+                    <MenuTrigger disableButtonEnhancement>
+                      <Button
+                        appearance="transparent"
+                        aria-label={`Actions for ${feature.heading}`}
+                        disabled={pending}
+                        icon={<MoreHorizontalRegular />}
+                        size="small"
+                      />
+                    </MenuTrigger>
+                    <MenuPopover>
+                      <MenuList>
+                        <MenuItem
+                          icon={<DeleteRegular />}
+                          onClick={() => onRemoveDetour(feature.detourIndex)}
+                        >
+                          Remove detour
+                        </MenuItem>
+                      </MenuList>
+                    </MenuPopover>
+                  </Menu>
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    style={{ display: "block", width: "2rem" }}
+                  />
+                )
+              ) : null}
+            </div>
           }
           maxWidth={280}
           onClose={() => onClose(feature.id, showDetails)}
@@ -370,6 +458,7 @@ function MapContainer(props) {
     category: detour.type,
     rating: detour.rating,
     addedTimeText: formatAddedTime(detour.addedTime),
+    detourIndex: index,
     position: { lat: detour.lat, lng: detour.lng },
   }));
   const visibleFeatureIds = [
@@ -597,7 +686,9 @@ function MapContainer(props) {
               iconType={feature.category}
               onClose={closeFeatureDetails}
               onHover={setHoveredFeatureId}
+              onRemoveDetour={props.onRemoveDetour}
               onSelect={setSelectedFeatureId}
+              pending={props.detourMutationPending != null}
               showDetails={
                 selectedFeatureId === feature.id
                   ? "selected"
@@ -635,9 +726,11 @@ MapContainer.propTypes = {
   detourHighlight: PropTypes.array,
   hoveredDetourId: PropTypes.string,
   mapTypeControl: PropTypes.bool,
+  onRemoveDetour: PropTypes.func,
   detourList: PropTypes.array,
   onDetourHover: PropTypes.func,
   setDetourHighlight: PropTypes.func,
+  detourMutationPending: PropTypes.object,
   zoomControl: PropTypes.bool,
 };
 
@@ -667,7 +760,9 @@ SelectableMapMarker.propTypes = {
   iconType: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   onHover: PropTypes.func.isRequired,
+  onRemoveDetour: PropTypes.func,
   onSelect: PropTypes.func.isRequired,
+  pending: PropTypes.bool,
   showDetails: PropTypes.oneOf(["selected", "hovered"]),
   zIndex: PropTypes.number.isRequired,
 };

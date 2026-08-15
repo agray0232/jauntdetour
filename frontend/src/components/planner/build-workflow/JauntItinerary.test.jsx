@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { FluentProvider } from "@fluentui/react-components";
 import JauntItinerary from "./JauntItinerary";
+import useDetourMutations from "./useDetourMutations";
 import RouteRequester from "../../../scripts/RouteRequester";
 import { jauntDetourTheme } from "../../../design-system/jauntDetourTheme";
 import { trackEvent } from "../../../telemetry/telemetry";
@@ -40,9 +41,14 @@ function createProps(overrides = {}) {
 }
 
 function renderItinerary(props) {
+  function ItineraryHarness() {
+    const mutations = useDetourMutations(props);
+    return <JauntItinerary {...props} {...mutations} />;
+  }
+
   return render(
     <FluentProvider theme={jauntDetourTheme}>
-      <JauntItinerary {...props} />
+      <ItineraryHarness />
     </FluentProvider>
   );
 }

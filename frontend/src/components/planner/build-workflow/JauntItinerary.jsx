@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -18,9 +18,7 @@ import {
   DeleteRegular,
   SearchRegular,
 } from "@fluentui/react-icons";
-import { moveDetour, recalculateItinerary } from "./routeMutations";
 import { getDetourIconComponent } from "../../../utils/detourIcons";
-import { trackEvent } from "../../../telemetry/telemetry";
 import {
   jauntColors,
   jauntRadius,
@@ -129,74 +127,31 @@ function formatAddedTime(detour) {
 export default function JauntItinerary({
   destination,
   detourList,
+  failedMutation,
   onDiscover,
   origin,
-  setDetourList,
-  setRoute,
-  setTripSummary,
+  pending,
+  retryMutation,
+  runMutation,
 }) {
   const styles = useStyles();
-  const [pending, setPending] = useState(null);
-  const [failedMutation, setFailedMutation] = useState(null);
-  const requestIdRef = useRef(0);
   const actionRefs = useRef(new Map());
   const headingRef = useRef(null);
 
-  const runMutation = async (mutation) => {
-    const nextDetours =
-      mutation.kind === "remove"
-        ? detourList.filter((detour, index) => index !== mutation.index)
-        : moveDetour(detourList, mutation.index, mutation.toIndex);
-
-    if (nextDetours === detourList) {
-      return;
-    }
-
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    setPending(mutation);
-    setFailedMutation(null);
-
-    try {
-      const route = await recalculateItinerary({
-        destination,
-        detours: nextDetours,
-        origin,
+  const runItineraryMutation = async (mutation) => {
+    const result = await runMutation(mutation);
+    if (result.status === "success" && mutation.kind === "remove") {
+      const focusIndex = Math.min(
+        mutation.index,
+        result.nextDetours.length - 1
+      );
+      window.setTimeout(() => {
+        if (focusIndex >= 0) {
+          actionRefs.current.get(focusIndex)?.focus();
+        } else {
+          headingRef.current?.focus();
+        }
       });
-      if (requestId !== requestIdRef.current) {
-        return;
-      }
-      setRoute(route);
-      setTripSummary(route.summary);
-      setDetourList(nextDetours);
-      setPending(null);
-
-      if (mutation.kind === "remove") {
-        trackEvent("detour_removed", {
-          category: detourList[mutation.index]?.type || "Unspecified",
-          countBucket:
-            nextDetours.length === 0
-              ? "0"
-              : nextDetours.length <= 5
-                ? "1-5"
-                : "6+",
-          feature: "detour",
-        });
-        const focusIndex = Math.min(mutation.index, nextDetours.length - 1);
-        window.setTimeout(() => {
-          if (focusIndex >= 0) {
-            actionRefs.current.get(focusIndex)?.focus();
-          } else {
-            headingRef.current?.focus();
-          }
-        });
-      }
-    } catch {
-      if (requestId !== requestIdRef.current) {
-        return;
-      }
-      setPending(null);
-      setFailedMutation(mutation);
     }
   };
 
@@ -222,7 +177,7 @@ export default function JauntItinerary({
             The route could not be recalculated. Your itinerary was not changed.
           </MessageBarBody>
           <MessageBarActions>
-            <Button onClick={() => runMutation(failedMutation)}>Retry</Button>
+            <Button onClick={retryMutation}>Retry</Button>
           </MessageBarActions>
         </MessageBar>
       ) : null}
@@ -273,7 +228,11 @@ export default function JauntItinerary({
                     icon={<ArrowUpRegular />}
                     disabled={pending != null || index === 0}
                     onClick={() =>
-                      runMutation({ kind: "move", index, toIndex: index - 1 })
+                      runItineraryMutation({
+                        kind: "move",
+                        index,
+                        toIndex: index - 1,
+                      })
                     }
                   />
                 </Tooltip>
@@ -286,7 +245,11 @@ export default function JauntItinerary({
                       pending != null || index === detourList.length - 1
                     }
                     onClick={() =>
-                      runMutation({ kind: "move", index, toIndex: index + 1 })
+                      runItineraryMutation({
+                        kind: "move",
+                        index,
+                        toIndex: index + 1,
+                      })
                     }
                   />
                 </Tooltip>
@@ -303,7 +266,9 @@ export default function JauntItinerary({
                       itemPending ? <Spinner size="tiny" /> : <DeleteRegular />
                     }
                     disabled={pending != null}
-                    onClick={() => runMutation({ kind: "remove", index })}
+                    onClick={() =>
+                      runItineraryMutation({ kind: "remove", index })
+                    }
                   />
                 </Tooltip>
               </span>
@@ -339,9 +304,10 @@ export default function JauntItinerary({
 JauntItinerary.propTypes = {
   destination: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   detourList: PropTypes.array.isRequired,
+  failedMutation: PropTypes.object,
   onDiscover: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  setDetourList: PropTypes.func.isRequired,
-  setRoute: PropTypes.func.isRequired,
-  setTripSummary: PropTypes.func.isRequired,
+  pending: PropTypes.object,
+  retryMutation: PropTypes.func.isRequired,
+  runMutation: PropTypes.func.isRequired,
 };
