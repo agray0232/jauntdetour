@@ -7,6 +7,7 @@ import {
   FoodRegular,
   GasPumpRegular,
   LocationRegular,
+  NavigationRegular,
   PersonWalkingRegular,
   PlugConnectedRegular,
 } from "@fluentui/react-icons";
@@ -22,7 +23,7 @@ const DETOUR_ICON_MAP = {
   "gas-station": GasPumpRegular,
   "charging station": PlugConnectedRegular,
   "charging-station": PlugConnectedRegular,
-  origin: LocationRegular,
+  origin: NavigationRegular,
   destination: LocationRegular,
   default: LocationRegular,
 };
@@ -51,11 +52,12 @@ function getIconComponent(type) {
  * Get a detour icon for React compositions and map markers.
  * @param {string} type - The detour type
  * @param {string|number} size - Optional icon font size
+ * @param {object} props - Optional icon props
  * @returns {React.Component} Fluent icon element
  */
-export function getDetourIconComponent(type, size = undefined) {
+export function getDetourIconComponent(type, size = undefined, props = {}) {
   const IconComponent = getIconComponent(type);
-  return <IconComponent aria-hidden="true" fontSize={size} />;
+  return <IconComponent {...props} aria-hidden="true" fontSize={size} />;
 }
 
 /**

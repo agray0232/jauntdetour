@@ -72,6 +72,7 @@ jobs:
         run: npm run build
         env:
           CI: true
+          REACT_APP_GOOGLE_API_KEY: ${{ secrets.REACT_APP_GOOGLE_API_KEY }}
 
       - name: Install Playwright browser
         working-directory: ./frontend

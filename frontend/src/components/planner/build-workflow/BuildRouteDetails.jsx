@@ -33,10 +33,12 @@ export default function BuildRouteDetails(props) {
         origin={props.origin}
         destination={props.destination}
         detourList={props.detourList}
+        failedMutation={props.failedMutation}
         onDiscover={props.onDiscover}
-        setDetourList={props.setDetourList}
-        setRoute={props.setRoute}
-        setTripSummary={props.setTripSummary}
+        pending={props.pending}
+        actionsBusy={props.actionsBusy}
+        retryMutation={props.retryMutation}
+        runMutation={props.runMutation}
       />
       <div className={styles.saveSection}>
         <SaveTrip
@@ -52,13 +54,15 @@ export default function BuildRouteDetails(props) {
 BuildRouteDetails.propTypes = {
   destination: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   detourList: PropTypes.array.isRequired,
+  failedMutation: PropTypes.object,
   onClear: PropTypes.func.isRequired,
   onDiscover: PropTypes.func.isRequired,
   onEditRoute: PropTypes.func.isRequired,
   onSaveStateChange: PropTypes.func.isRequired,
   origin: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  setDetourList: PropTypes.func.isRequired,
-  setRoute: PropTypes.func.isRequired,
-  setTripSummary: PropTypes.func.isRequired,
+  pending: PropTypes.object,
+  actionsBusy: PropTypes.bool,
+  retryMutation: PropTypes.func.isRequired,
+  runMutation: PropTypes.func.isRequired,
   tripSummary: PropTypes.object,
 };

@@ -49,7 +49,10 @@ test("loads the branded application foundation", async ({ page, request }) => {
   );
 });
 
-test("mounts the current planner at its stable route", async ({ page }) => {
+test("mounts the current planner at its stable route", async ({
+  page,
+}, testInfo) => {
+  const supportsHover = testInfo.project.name === "desktop-chromium";
   await page.route("**/route**", (route) => {
     const hasDetour = route.request().url().includes("waypoints");
     return route.fulfill({
@@ -66,6 +69,8 @@ test("mounts the current planner at its stable route", async ({ page }) => {
               {
                 distance: { value: 394000 },
                 duration: { value: 13620 },
+                start_address: "Atlanta, GA",
+                end_address: "Charlotte, NC",
                 start_location: { lat: 33.749, lng: -84.388 },
                 end_location: { lat: 35.2271, lng: -80.8431 },
               },
@@ -147,6 +152,10 @@ test("mounts the current planner at its stable route", async ({ page }) => {
     "Atlanta, GA"
   );
   await expect(page.getByText("Not saved")).toBeVisible();
+  const startMarker = page.getByTitle("Jaunt start");
+  const destinationMarker = page.getByTitle("Jaunt destination");
+  await expect(startMarker).toHaveCount(1);
+  await expect(destinationMarker).toHaveCount(1);
   const jauntName = page.getByRole("textbox", { name: "Jaunt name" });
   await expect(jauntName).toHaveCount(1);
   await expect(jauntName).toHaveAttribute(
@@ -167,7 +176,9 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await page.getByRole("button", { name: "Search this area" }).click();
   await expect(page.getByRole("heading", { name: "2 places" })).toBeVisible();
   await expect(page.getByRole("listitem")).toHaveCount(2);
-  await page.getByRole("listitem").first().hover();
+  if (supportsHover) {
+    await page.getByRole("listitem").first().hover();
+  }
   await expect(
     page.getByRole("button", { name: "Add", exact: true })
   ).toHaveCount(0);
@@ -177,21 +188,23 @@ test("mounts the current planner at its stable route", async ({ page }) => {
     "aria-selected",
     "true"
   );
-  await expect(page.getByText(/Paris Mountain added/)).toBeVisible();
+  const dismissAddedDetourToast = page.getByRole("button", {
+    name: "Dismiss added detour notification",
+  });
+  await expect(dismissAddedDetourToast).toBeVisible();
   await expect(page.getByText(/set what you want/i)).toBeVisible();
   await expect(page.getByRole("heading", { name: /places?$/ })).toHaveCount(0);
-  await page
-    .getByRole("button", { name: "Dismiss added stop message" })
-    .click();
-  await expect(page.getByText(/Paris Mountain added/)).toHaveCount(0);
+  await dismissAddedDetourToast.click();
+  await expect(dismissAddedDetourToast).toHaveCount(0);
   await page.getByRole("tab", { name: "Build" }).click();
   await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
     "Adds 18 min"
   );
-
   const viewport = page.viewportSize();
   const showMap = page.getByRole("button", { name: "Show map" });
-  if (viewport && viewport.width <= 780 && viewport.height > 500) {
+  const usesCompactMap =
+    viewport && viewport.width <= 780 && viewport.height > 500;
+  if (usesCompactMap) {
     await expect(showMap).toBeVisible();
     await showMap.click();
     await expect(
@@ -203,13 +216,195 @@ test("mounts the current planner at its stable route", async ({ page }) => {
     await expect(
       page.getByRole("region", { name: "Jaunt route map" })
     ).toBeVisible();
+  } else {
+    await expect(showMap).toBeHidden();
+  }
+  const detourMarker = page.getByTitle("Paris Mountain, added stop");
+  if (supportsHover) {
+    await detourMarker.hover();
+  } else {
+    await detourMarker.click();
+  }
+  const detourDetails = page.getByLabel("Paris Mountain details");
+  await expect(detourDetails).toContainText("Hike");
+  await expect(detourDetails).toContainText("4.7 rating");
+  await expect(detourDetails).toContainText("+ 18 min");
+  const detourActions = page.getByRole("button", {
+    name: "Actions for Paris Mountain",
+  });
+  await expect(detourActions).toBeVisible();
+  await expect(page.getByRole("button", { name: "Close" })).toHaveCount(1);
+  await expect(detourDetails).toBeVisible();
+  await detourActions.click();
+  await page.getByRole("menuitem", { name: "Remove detour" }).click();
+  await expect(
+    page.getByText("Paris Mountain removed from this Jaunt")
+  ).toBeVisible();
+  await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(0);
+  if (usesCompactMap) {
     await page.getByRole("button", { name: "Back to tools" }).click();
     await expect(
       page.getByRole("complementary", { name: "Jaunt planning tools" })
     ).toBeVisible();
-  } else {
-    await expect(showMap).toBeHidden();
   }
+  await expect(
+    page.getByRole("region", { name: "Itinerary" })
+  ).not.toContainText("Paris Mountain");
+
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(1);
+  await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
+    "Paris Mountain"
+  );
+  await expect(
+    page.getByText("Paris Mountain removed from this Jaunt")
+  ).toHaveCount(0);
+});
+
+test("renders endpoint markers on the saved Jaunt detail map", async ({
+  page,
+}) => {
+  await page.route("**/auth/me", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: { email: "traveler@example.com", display_name: "Avery Traveler" },
+      }),
+    })
+  );
+  await page.route("**/api/trips/trip-1", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        trip: {
+          tripId: "trip-1",
+          tripName: "Carolinas weekend",
+          origin: { address: "Atlanta, GA", lat: 33.749, lng: -84.388 },
+          destination: {
+            address: "Charlotte, NC",
+            lat: 35.2271,
+            lng: -80.8431,
+          },
+          updatedAt: "2026-08-01T12:00:00.000Z",
+          distanceMeters: 415000,
+          durationSeconds: 14700,
+        },
+        route: {
+          summary: { distance: 258, time: { hours: 4, min: 5 } },
+          bounds: {
+            northeast: { lat: 35.3, lng: -80.8 },
+            southwest: { lat: 33.7, lng: -84.4 },
+          },
+          overview_polyline: {
+            points: "saved-polyline",
+            complete_overview: [
+              [33.749, -84.388],
+              [35.2271, -80.8431],
+            ],
+          },
+        },
+        detours: [
+          {
+            name: "Paris Mountain",
+            type: "Hike",
+            lat: 34.94,
+            lng: -82.41,
+            placeId: "hike-1",
+            rating: 4.7,
+          },
+        ],
+      }),
+    })
+  );
+
+  await page.goto("/trips/trip-1", { waitUntil: "domcontentloaded" });
+
+  await expect(
+    page.getByRole("heading", { name: "Carolinas weekend" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Saved Jaunt details" })
+  ).toBeVisible();
+  await expect(page.getByTitle("Jaunt start")).toHaveCount(1);
+  await expect(page.getByTitle("Jaunt destination")).toHaveCount(1);
+});
+
+test("selects marker details on a saved Jaunt map", async ({ page }) => {
+  await page.route("**/auth/me", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: { email: "traveler@example.com", display_name: "Avery Traveler" },
+      }),
+    })
+  );
+  await page.route("**/api/trips/trip-1", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        trip: {
+          tripId: "trip-1",
+          tripName: "Carolinas weekend",
+          origin: { address: "Atlanta, GA", lat: 33.749, lng: -84.388 },
+          destination: {
+            address: "Charlotte, NC",
+            lat: 35.2271,
+            lng: -80.8431,
+          },
+          updatedAt: "2026-08-01T12:00:00.000Z",
+          distanceMeters: 415000,
+          durationSeconds: 14700,
+        },
+        route: {
+          summary: { distance: 258, time: { hours: 4, min: 5 } },
+          bounds: {
+            northeast: { lat: 35.3, lng: -80.8 },
+            southwest: { lat: 33.7, lng: -84.4 },
+          },
+          overview_polyline: {
+            points: "saved-polyline",
+            complete_overview: [
+              [33.749, -84.388],
+              [35.2271, -80.8431],
+            ],
+          },
+        },
+        detours: [
+          {
+            name: "Paris Mountain",
+            type: "Hike",
+            lat: 34.94,
+            lng: -82.41,
+            placeId: "hike-1",
+            rating: 4.7,
+            addedTime: 18,
+          },
+        ],
+      }),
+    })
+  );
+
+  await page.goto("/trips/trip-1", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Carolinas weekend" })
+  ).toBeVisible();
+
+  const savedStartMarker = page.getByTitle("Jaunt start");
+  await savedStartMarker.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+  const savedDetourMarker = page.getByTitle("Paris Mountain, added stop");
+  await savedDetourMarker.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByLabel("Start details")).toHaveCount(0);
+  const details = page.getByLabel("Paris Mountain details");
+  await expect(details).toContainText("Hike");
+  await expect(details).toContainText("4.7 rating");
+  await expect(details).toContainText("+ 18 min");
 });
 
 test("protects saved Jaunts while preserving anonymous planning", async ({

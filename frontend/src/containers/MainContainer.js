@@ -92,13 +92,6 @@ let matchDispatchToProps = (dispatch) => {
           detour: detour,
         },
       }),
-    removeDetour: (index) =>
-      dispatch({
-        type: "REMOVE_DETOUR",
-        data: {
-          index: index,
-        },
-      }),
     setDetourList: (detourList) =>
       dispatch({
         type: "SET_DETOUR_LIST",

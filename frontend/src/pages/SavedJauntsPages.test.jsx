@@ -12,13 +12,16 @@ import { exportToGoogleMaps } from "../utils/googleMapsExport";
 import JauntDetailPage from "./JauntDetailPage";
 import MyJauntsPage from "./MyJauntsPage";
 
+const mockMapProps = jest.fn();
+
 jest.mock("../scripts/TripRequester");
 jest.mock("../telemetry/telemetry", () => ({ trackEvent: jest.fn() }));
 jest.mock("../utils/googleMapsExport");
 jest.mock(
   "../components/MapContainer",
   () =>
-    function MockMap() {
+    function MockMap(props) {
+      mockMapProps(props);
       return <div>Saved route map</div>;
     }
 );
@@ -242,6 +245,15 @@ describe("JauntDetailPage", () => {
       screen.getByRole("img", { name: "Destination marker" })
     ).toBeVisible();
     expect(screen.getByText("Saved route map")).toBeVisible();
+    expect(mockMapProps).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cameraControl: false,
+        origin: detailView.trip.origin,
+        destination: detailView.trip.destination,
+        mapTypeControl: false,
+        zoomControl: false,
+      })
+    );
     expect(store.getState().origin).toBe("Current route");
     expect(trackEvent).toHaveBeenCalledWith("trip_detail_viewed", {
       countBucket: "1-5",
