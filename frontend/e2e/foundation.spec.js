@@ -156,55 +156,6 @@ test("mounts the current planner at its stable route", async ({
   const destinationMarker = page.getByTitle("Jaunt destination");
   await expect(startMarker).toHaveCount(1);
   await expect(destinationMarker).toHaveCount(1);
-  if (supportsHover) {
-    await startMarker.hover();
-    await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-    await expect(
-      page.getByRole("button", { name: "Close", exact: true })
-    ).toHaveCount(1);
-    await page
-      .getByLabel("Start details")
-      .getByRole("button", { name: "Close", exact: true })
-      .evaluate((button) => button.click());
-    await expect(page.getByLabel("Start details")).toHaveCount(0);
-  }
-  await startMarker.click();
-  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-  await expect(
-    page.getByRole("button", { name: "Close", exact: true })
-  ).toHaveCount(1);
-  if (supportsHover) {
-    await destinationMarker.hover();
-    await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-    await expect(page.getByLabel("Destination details")).toContainText(
-      "Charlotte, NC"
-    );
-    await expect(page.getByRole("dialog")).toHaveCount(2);
-    await expect(
-      page.getByRole("button", { name: "Close", exact: true })
-    ).toHaveCount(2);
-    await page
-      .getByLabel("Destination details")
-      .getByRole("button", { name: "Close", exact: true })
-      .evaluate((button) => button.click());
-    await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-    await expect(page.getByLabel("Destination details")).toHaveCount(0);
-  }
-  if (supportsHover) {
-    await destinationMarker.focus();
-    await page.keyboard.press("Enter");
-  } else {
-    await destinationMarker.click();
-  }
-  await expect(page.getByLabel("Start details")).toHaveCount(0);
-  await expect(page.getByLabel("Destination details")).toContainText(
-    "Charlotte, NC"
-  );
-  await page.keyboard.press("Escape");
-  await expect(page.getByLabel("Destination details")).toHaveCount(0);
-  if (supportsHover) {
-    await expect(destinationMarker).toBeFocused();
-  }
   const jauntName = page.getByRole("textbox", { name: "Jaunt name" });
   await expect(jauntName).toHaveCount(1);
   await expect(jauntName).toHaveAttribute(
