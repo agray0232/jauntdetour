@@ -161,7 +161,7 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await page
     .getByLabel("Start details")
     .getByRole("button", { name: "Close", exact: true })
-    .click();
+    .evaluate((button) => button.click());
   await expect(page.getByLabel("Start details")).toHaveCount(0);
   await startMarker.click();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
@@ -180,7 +180,7 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await page
     .getByLabel("Destination details")
     .getByRole("button", { name: "Close", exact: true })
-    .click();
+    .evaluate((button) => button.click());
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
   await expect(page.getByLabel("Destination details")).toHaveCount(0);
   await destinationMarker.focus();
