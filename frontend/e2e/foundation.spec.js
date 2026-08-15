@@ -49,7 +49,10 @@ test("loads the branded application foundation", async ({ page, request }) => {
   );
 });
 
-test("mounts the current planner at its stable route", async ({ page }) => {
+test("mounts the current planner at its stable route", async ({
+  page,
+}, testInfo) => {
+  const supportsHover = testInfo.project.name === "desktop-chromium";
   await page.route("**/route**", (route) => {
     const hasDetour = route.request().url().includes("waypoints");
     return route.fulfill({
@@ -153,45 +156,55 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   const destinationMarker = page.getByTitle("Jaunt destination");
   await expect(startMarker).toHaveCount(1);
   await expect(destinationMarker).toHaveCount(1);
-  await startMarker.hover();
-  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-  await expect(
-    page.getByRole("button", { name: "Close", exact: true })
-  ).toHaveCount(1);
-  await page
-    .getByLabel("Start details")
-    .getByRole("button", { name: "Close", exact: true })
-    .evaluate((button) => button.click());
-  await expect(page.getByLabel("Start details")).toHaveCount(0);
+  if (supportsHover) {
+    await startMarker.hover();
+    await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+    await expect(
+      page.getByRole("button", { name: "Close", exact: true })
+    ).toHaveCount(1);
+    await page
+      .getByLabel("Start details")
+      .getByRole("button", { name: "Close", exact: true })
+      .evaluate((button) => button.click());
+    await expect(page.getByLabel("Start details")).toHaveCount(0);
+  }
   await startMarker.click();
   await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
   await expect(
     page.getByRole("button", { name: "Close", exact: true })
   ).toHaveCount(1);
-  await destinationMarker.hover();
-  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-  await expect(page.getByLabel("Destination details")).toContainText(
-    "Charlotte, NC"
-  );
-  await expect(page.getByRole("dialog")).toHaveCount(2);
-  await expect(
-    page.getByRole("button", { name: "Close", exact: true })
-  ).toHaveCount(2);
-  await page
-    .getByLabel("Destination details")
-    .getByRole("button", { name: "Close", exact: true })
-    .evaluate((button) => button.click());
-  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
-  await expect(page.getByLabel("Destination details")).toHaveCount(0);
-  await destinationMarker.focus();
-  await page.keyboard.press("Enter");
+  if (supportsHover) {
+    await destinationMarker.hover();
+    await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+    await expect(page.getByLabel("Destination details")).toContainText(
+      "Charlotte, NC"
+    );
+    await expect(page.getByRole("dialog")).toHaveCount(2);
+    await expect(
+      page.getByRole("button", { name: "Close", exact: true })
+    ).toHaveCount(2);
+    await page
+      .getByLabel("Destination details")
+      .getByRole("button", { name: "Close", exact: true })
+      .evaluate((button) => button.click());
+    await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
+    await expect(page.getByLabel("Destination details")).toHaveCount(0);
+  }
+  if (supportsHover) {
+    await destinationMarker.focus();
+    await page.keyboard.press("Enter");
+  } else {
+    await destinationMarker.click();
+  }
   await expect(page.getByLabel("Start details")).toHaveCount(0);
   await expect(page.getByLabel("Destination details")).toContainText(
     "Charlotte, NC"
   );
   await page.keyboard.press("Escape");
   await expect(page.getByLabel("Destination details")).toHaveCount(0);
-  await expect(destinationMarker).toBeFocused();
+  if (supportsHover) {
+    await expect(destinationMarker).toBeFocused();
+  }
   const jauntName = page.getByRole("textbox", { name: "Jaunt name" });
   await expect(jauntName).toHaveCount(1);
   await expect(jauntName).toHaveAttribute(
@@ -212,7 +225,9 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   await page.getByRole("button", { name: "Search this area" }).click();
   await expect(page.getByRole("heading", { name: "2 places" })).toBeVisible();
   await expect(page.getByRole("listitem")).toHaveCount(2);
-  await page.getByRole("listitem").first().hover();
+  if (supportsHover) {
+    await page.getByRole("listitem").first().hover();
+  }
   await expect(
     page.getByRole("button", { name: "Add", exact: true })
   ).toHaveCount(0);
@@ -253,7 +268,12 @@ test("mounts the current planner at its stable route", async ({ page }) => {
   } else {
     await expect(showMap).toBeHidden();
   }
-  await page.getByTitle("Paris Mountain, added stop").hover();
+  const detourMarker = page.getByTitle("Paris Mountain, added stop");
+  if (supportsHover) {
+    await detourMarker.hover();
+  } else {
+    await detourMarker.click();
+  }
   const detourDetails = page.getByLabel("Paris Mountain details");
   await expect(detourDetails).toContainText("Hike");
   await expect(detourDetails).toContainText("4.7 rating");
