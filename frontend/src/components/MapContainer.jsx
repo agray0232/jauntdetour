@@ -114,6 +114,7 @@ function MarkerDetails({ feature }) {
 function SelectableMapMarker({
   active,
   addFailed,
+  adding,
   background,
   feature,
   glyphColor,
@@ -352,11 +353,11 @@ function SelectableMapMarker({
               <Button
                 appearance="primary"
                 disabled={pending}
-                icon={pending ? <Spinner size="tiny" /> : null}
+                icon={adding ? <Spinner size="tiny" /> : null}
                 onClick={() => onAddDetour?.(feature.result)}
                 style={{ marginTop: "0.75rem", width: "100%" }}
               >
-                {pending ? "Adding" : addFailed ? "Retry add" : "Add to Jaunt"}
+                {adding ? "Adding" : addFailed ? "Retry add" : "Add to Jaunt"}
               </Button>
             ) : null}
           </div>
@@ -848,6 +849,7 @@ function MapContainer(props) {
                 }
                 iconType={feature.category}
                 onAddDetour={props.detourAddController?.addResult}
+                adding={props.detourAddController?.addingId === feature.placeId}
                 onClose={closeFeatureDetails}
                 onHover={(featureId) => {
                   setHoveredFeatureId((currentFeatureId) =>
@@ -972,6 +974,7 @@ MarkerDetails.propTypes = {
 SelectableMapMarker.propTypes = {
   active: PropTypes.bool.isRequired,
   addFailed: PropTypes.bool,
+  adding: PropTypes.bool,
   background: PropTypes.string.isRequired,
   feature: PropTypes.object.isRequired,
   glyphColor: PropTypes.string,
