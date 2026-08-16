@@ -1,5 +1,11 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { axe } from "jest-axe";
 import { FluentProvider } from "@fluentui/react-components";
 import DiscoverWorkspace from "./DiscoverWorkspace";
@@ -326,6 +332,41 @@ describe("DiscoverWorkspace", () => {
     expect(onAddingChange).toHaveBeenLastCalledWith(false);
   });
 
+  it("ignores duplicate add commands before pending state rerenders", async () => {
+    const result = {
+      id: "one",
+      name: "Paris Mountain",
+      place_id: "place-1",
+      rating: 4.7,
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    let resolveRoute;
+    const getRoute = jest.fn(
+      () =>
+        new Promise((resolve) => {
+          resolveRoute = resolve;
+        })
+    );
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const props = createProps({
+      detourOptions: [result],
+      detourHighlight: [{ id: "place-1", highlight: true }],
+    });
+    renderWorkspace(props);
+    const addButton = screen.getByRole("button", { name: "Add" });
+
+    fireEvent.click(addButton);
+    fireEvent.click(addButton);
+
+    expect(getRoute).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      resolveRoute({
+        routes: [{ summary: { distance: 258, time: { hours: 4, min: 5 } } }],
+      });
+    });
+  });
+
   it("previews a result on hover without selecting it or showing Add", () => {
     const result = {
       name: "Paris Mountain",
@@ -347,6 +388,43 @@ describe("DiscoverWorkspace", () => {
 
     fireEvent.mouseLeave(resultCard);
     expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
+  });
+
+  it("scrolls an offscreen result into view after map selection", () => {
+    const result = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const scrollIntoView = jest.fn();
+    const getComputedStyle = jest
+      .spyOn(window, "getComputedStyle")
+      .mockReturnValue({ overflowY: "auto" });
+    const getBoundingClientRect = jest
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function getBounds() {
+        return this.tagName === "LI"
+          ? { bottom: 200, top: 150 }
+          : { bottom: 100, top: 0 };
+      });
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+    renderWorkspace(
+      createProps({
+        detourOptions: [result],
+        mapSelectedDetourId: "place-1",
+      })
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "nearest",
+    });
+    HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+    getComputedStyle.mockRestore();
+    getBoundingClientRect.mockRestore();
   });
 
   it("previews a result on keyboard focus and clears it on blur", () => {

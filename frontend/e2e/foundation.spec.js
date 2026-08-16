@@ -261,6 +261,125 @@ test("mounts the current planner at its stable route", async ({
   ).toHaveCount(0);
 });
 
+test("adds a detour by selecting a candidate marker on the map", async ({
+  page,
+}) => {
+  await page.route("**/route**", (route) => {
+    const hasDetour = route.request().url().includes("waypoints");
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        routes: [
+          {
+            bounds: {
+              northeast: { lat: 35.2271, lng: -80.8431 },
+              southwest: { lat: 33.749, lng: -84.388 },
+            },
+            legs: [
+              {
+                distance: { value: 394000 },
+                duration: { value: 13620 },
+                start_address: "Atlanta, GA",
+                end_address: "Charlotte, NC",
+                start_location: { lat: 33.749, lng: -84.388 },
+                end_location: { lat: 35.2271, lng: -80.8431 },
+              },
+            ],
+            overview_polyline: {
+              points: "encoded",
+              decodedPoints: [
+                [33.749, -84.388],
+                [35.2271, -80.8431],
+              ],
+              complete_overview: [
+                [33.749, -84.388],
+                [35.2271, -80.8431],
+              ],
+            },
+            summary: hasDetour
+              ? { distance: 258, time: { hours: 4, min: 5 } }
+              : { distance: 245, time: { hours: 3, min: 47 } },
+          },
+        ],
+      }),
+    });
+  });
+  await page.route("**/places**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        results: [
+          {
+            id: "one",
+            place_id: "place-1",
+            name: "Paris Mountain",
+            rating: 4.7,
+            geometry: { location: { lat: 34.9, lng: -82.4 } },
+          },
+        ],
+      }),
+    })
+  );
+  await page.goto("/plan", { waitUntil: "domcontentloaded" });
+
+  await page.getByRole("combobox", { name: "Start" }).fill("Atlanta, GA");
+  await page
+    .getByRole("combobox", { name: "Destination" })
+    .fill("Charlotte, NC");
+  await page.getByRole("button", { name: "Create route" }).click();
+  await expect(
+    page.getByRole("region", { name: "Route summary" })
+  ).toContainText("245 mi");
+
+  await page.getByRole("tab", { name: "Discover" }).click();
+  await page.getByRole("button", { name: "Search this area" }).click();
+  await expect(page.getByRole("heading", { name: "1 place" })).toBeVisible();
+
+  const viewport = page.viewportSize();
+  const usesCompactMap =
+    viewport && viewport.width <= 780 && viewport.height > 500;
+  if (usesCompactMap) {
+    await page.getByRole("button", { name: "Show map" }).click();
+    await expect(
+      page.getByRole("region", { name: "Jaunt route map" })
+    ).toBeVisible();
+  }
+
+  const candidateMarker = page.getByTitle("1. Paris Mountain");
+  await expect(candidateMarker).toBeVisible();
+  await candidateMarker.click();
+
+  const candidateDetails = page.getByLabel("Paris Mountain details");
+  await expect(candidateDetails).toBeVisible();
+  const addToJaunt = candidateDetails.getByRole("button", {
+    name: "Add to Jaunt",
+  });
+  await expect(addToJaunt).toBeVisible();
+  await addToJaunt.click();
+
+  await expect(
+    page.getByRole("button", {
+      name: "Dismiss added detour notification",
+    })
+  ).toBeVisible();
+  await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(1);
+  await expect(page.getByTitle("1. Paris Mountain")).toHaveCount(0);
+
+  if (usesCompactMap) {
+    await page.getByRole("button", { name: "Back to tools" }).click();
+    await expect(
+      page.getByRole("complementary", { name: "Jaunt planning tools" })
+    ).toBeVisible();
+  }
+
+  await page.getByRole("tab", { name: "Build" }).click();
+  await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
+    "Paris Mountain"
+  );
+});
+
 test("renders endpoint markers on the saved Jaunt detail map", async ({
   page,
 }) => {
@@ -393,14 +512,8 @@ test("selects marker details on a saved Jaunt map", async ({ page }) => {
     page.getByRole("heading", { name: "Carolinas weekend" })
   ).toBeVisible();
 
-  const savedStartMarker = page.getByTitle("Jaunt start");
-  await savedStartMarker.focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
   const savedDetourMarker = page.getByTitle("Paris Mountain, added stop");
-  await savedDetourMarker.focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByLabel("Start details")).toHaveCount(0);
+  await savedDetourMarker.click();
   const details = page.getByLabel("Paris Mountain details");
   await expect(details).toContainText("Hike");
   await expect(details).toContainText("4.7 rating");
