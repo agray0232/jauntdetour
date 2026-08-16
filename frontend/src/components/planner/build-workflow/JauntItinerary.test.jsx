@@ -123,6 +123,28 @@ describe("JauntItinerary", () => {
     expect(getRoute).toHaveBeenCalledTimes(2);
   });
 
+  it("disables Retry while another mutation is active", () => {
+    const retryMutation = jest.fn();
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <JauntItinerary
+          {...createProps()}
+          actionsBusy
+          failedMutation={{ kind: "remove", index: 0 }}
+          onDiscover={jest.fn()}
+          pending={null}
+          retryMutation={retryMutation}
+          runMutation={jest.fn()}
+        />
+      </FluentProvider>
+    );
+
+    const retryButton = screen.getByRole("button", { name: "Retry" });
+    expect(retryButton).toBeDisabled();
+    fireEvent.click(retryButton);
+    expect(retryMutation).not.toHaveBeenCalled();
+  });
+
   it("reorders stops through keyboard-operable commands", async () => {
     RouteRequester.mockImplementation(() => ({
       getRoute: jest.fn().mockResolvedValue({

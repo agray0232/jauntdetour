@@ -1,5 +1,11 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { axe } from "jest-axe";
 import { FluentProvider } from "@fluentui/react-components";
 import DiscoverWorkspace from "./DiscoverWorkspace";
@@ -324,6 +330,41 @@ describe("DiscoverWorkspace", () => {
     expect(onAddingChange).toHaveBeenCalledWith(true);
     await waitFor(() => expect(props.addDetour).toHaveBeenCalledTimes(1));
     expect(onAddingChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it("ignores duplicate add commands before pending state rerenders", async () => {
+    const result = {
+      id: "one",
+      name: "Paris Mountain",
+      place_id: "place-1",
+      rating: 4.7,
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    let resolveRoute;
+    const getRoute = jest.fn(
+      () =>
+        new Promise((resolve) => {
+          resolveRoute = resolve;
+        })
+    );
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const props = createProps({
+      detourOptions: [result],
+      detourHighlight: [{ id: "place-1", highlight: true }],
+    });
+    renderWorkspace(props);
+    const addButton = screen.getByRole("button", { name: "Add" });
+
+    fireEvent.click(addButton);
+    fireEvent.click(addButton);
+
+    expect(getRoute).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      resolveRoute({
+        routes: [{ summary: { distance: 258, time: { hours: 4, min: 5 } } }],
+      });
+    });
   });
 
   it("previews a result on hover without selecting it or showing Add", () => {

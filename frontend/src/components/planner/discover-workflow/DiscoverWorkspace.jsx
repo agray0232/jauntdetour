@@ -286,6 +286,7 @@ export default function DiscoverWorkspace(props) {
   const [addErrorId, setAddErrorId] = useState(null);
   const resultRefs = useRef(new Map());
   const addPropsRef = useRef(props);
+  const addingRef = useRef(false);
   addPropsRef.current = props;
   const selectedId = props.detourHighlight.find(
     (option) => option.highlight
@@ -378,9 +379,10 @@ export default function DiscoverWorkspace(props) {
 
   const addResult = useCallback(async (result) => {
     const currentProps = addPropsRef.current;
-    if (currentProps.mutationPending) {
+    if (currentProps.mutationPending || addingRef.current) {
       return;
     }
+    addingRef.current = true;
     setAddingId(result.place_id);
     setAddErrorId(null);
     currentProps.onAddingChange?.(true);
@@ -424,6 +426,7 @@ export default function DiscoverWorkspace(props) {
       currentProps.setDetourHighlight([]);
       setStatus("idle");
       setAddingId(null);
+      addingRef.current = false;
       currentProps.onAddingChange?.(false);
       currentProps.onAdded(result.name, addedTime);
       trackEvent("detour_added", {
@@ -433,6 +436,7 @@ export default function DiscoverWorkspace(props) {
       });
     } catch {
       setAddingId(null);
+      addingRef.current = false;
       currentProps.onAddingChange?.(false);
       setAddErrorId(result.place_id);
       trackEvent("detour_add_failed", {

@@ -72,7 +72,7 @@ jest.mock("./discover-workflow/DiscoverWorkspace", () => {
 
   function MockDiscoverWorkspace(props) {
     mockDiscoverProps(props);
-    const { hoveredDetourId, onAdded, onDetourHover } = props;
+    const { hoveredDetourId, onAdded, onAddingChange, onDetourHover } = props;
     return (
       <div>
         Discover workspace instance
@@ -81,6 +81,10 @@ jest.mock("./discover-workflow/DiscoverWorkspace", () => {
         <button onClick={() => onAdded("Paris Mountain", 18)}>
           Complete add
         </button>
+        <button onClick={() => onAddingChange(true)}>Start add request</button>
+        <button onClick={() => onAddingChange(false)}>
+          Finish add request
+        </button>
       </div>
     );
   }
@@ -88,6 +92,7 @@ jest.mock("./discover-workflow/DiscoverWorkspace", () => {
   MockDiscoverWorkspace.propTypes = {
     hoveredDetourId: PropTypes.string,
     onAdded: PropTypes.func.isRequired,
+    onAddingChange: PropTypes.func.isRequired,
     onDetourHover: PropTypes.func.isRequired,
   };
 
@@ -300,6 +305,53 @@ describe("PlannerWorkspace", () => {
       "Address",
       { waypoints: ["place-1"] }
     );
+  });
+
+  it("blocks Undo during a Discover add and releases it afterward", async () => {
+    const detour = {
+      name: "Paris Mountain",
+      placeId: "place-1",
+      type: "Hike",
+    };
+    const getRoute = jest.fn().mockResolvedValue({
+      routes: [{ summary: { distance: 180 } }],
+    });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+
+    function MutationHarness() {
+      const [detourList, setDetourList] = useState([detour]);
+      return (
+        <PlannerWorkspace
+          {...createProps({
+            destination: "Charlotte",
+            detourList,
+            origin: "Atlanta",
+            setDetourList,
+            showDetourButton: true,
+            showDetourForm: true,
+            showRoute: true,
+            tripSummary: { distance: 205 },
+          })}
+        />
+      );
+    }
+
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <MutationHarness />
+      </FluentProvider>
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Remove map detour" }));
+    await screen.findByRole("button", { name: "Undo" });
+    expect(getRoute).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Start add request" }));
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(getRoute).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Finish add request" }));
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    await waitFor(() => expect(getRoute).toHaveBeenCalledTimes(2));
   });
 
   it("retries a failed map removal from the error toast", async () => {

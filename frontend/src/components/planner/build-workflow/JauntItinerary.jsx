@@ -178,7 +178,9 @@ export default function JauntItinerary({
             The route could not be recalculated. Your itinerary was not changed.
           </MessageBarBody>
           <MessageBarActions>
-            <Button onClick={() => retryMutation()}>Retry</Button>
+            <Button disabled={actionsBusy} onClick={() => retryMutation()}>
+              Retry
+            </Button>
           </MessageBarActions>
         </MessageBar>
       ) : null}
