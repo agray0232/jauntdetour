@@ -251,6 +251,7 @@ export default function PlannerWorkspace(props) {
   const previousSuggestedNameRef = useRef("");
   const previousTripNameRef = useRef(props.tripName);
   const tripNameRef = useRef(props.tripName);
+  const addedToastTimeoutRef = useRef(null);
   const toasterId = useId("detour-mutation-toaster");
   const mutationErrorToastId = useId("detour-mutation-error-toast");
   const addedDetourToastId = useId("detour-added-toast");
@@ -274,6 +275,8 @@ export default function PlannerWorkspace(props) {
   };
 
   const dismissAddedDetourToast = () => {
+    window.clearTimeout(addedToastTimeoutRef.current);
+    addedToastTimeoutRef.current = null;
     dismissToast(addedDetourToastId);
   };
 
@@ -355,6 +358,7 @@ export default function PlannerWorkspace(props) {
   };
 
   const showAddedDetourToast = (name, addedTime) => {
+    window.clearTimeout(addedToastTimeoutRef.current);
     dispatchToast(
       <Toast>
         <ToastTitle
@@ -381,7 +385,13 @@ export default function PlannerWorkspace(props) {
         toastId: addedDetourToastId,
       }
     );
+    addedToastTimeoutRef.current = window.setTimeout(
+      dismissAddedDetourToast,
+      PLANNER_TOAST_TIMEOUT
+    );
   };
+
+  useEffect(() => () => window.clearTimeout(addedToastTimeoutRef.current), []);
 
   const runPlannerMutation = async (mutation) => {
     const detourName =

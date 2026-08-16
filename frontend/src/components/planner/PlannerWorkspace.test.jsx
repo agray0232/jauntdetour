@@ -622,13 +622,11 @@ describe("PlannerWorkspace", () => {
 
       act(() => jest.advanceTimersByTime(6000));
 
-      await waitFor(() =>
-        expect(
-          screen.queryByRole("button", {
-            name: "Dismiss added detour notification",
-          })
-        ).not.toBeInTheDocument()
-      );
+      expect(
+        screen.queryByRole("button", {
+          name: "Dismiss added detour notification",
+        })
+      ).not.toBeInTheDocument();
     } finally {
       jest.useRealTimers();
     }
