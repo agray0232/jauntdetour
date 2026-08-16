@@ -6,6 +6,7 @@ const mockMapProps = jest.fn();
 const mockInfoWindowProps = jest.fn();
 const mockPinProps = jest.fn();
 const mockUseMap = jest.fn();
+const mockMapsLibrary = {};
 
 jest.mock("@vis.gl/react-google-maps", () => {
   const React = require("react");
@@ -88,7 +89,7 @@ jest.mock("@vis.gl/react-google-maps", () => {
       const [marker, setMarker] = React.useState(null);
       return [setMarker, marker];
     },
-    useMapsLibrary: () => ({}),
+    useMapsLibrary: () => mockMapsLibrary,
   };
 });
 
@@ -856,8 +857,9 @@ describe("MapContainer", () => {
 
   test("clears candidate selection when the search radius circle is clicked", () => {
     const setMap = jest.fn();
+    const setOptions = jest.fn();
     const Circle = jest.fn(function Circle() {
-      return { setMap };
+      return { setMap, setOptions };
     });
     window.google = {
       maps: {
@@ -889,9 +891,12 @@ describe("MapContainer", () => {
       showRoute: true,
     });
 
-    const { unmount } = render(<MapContainer {...props} />);
+    const { rerender, unmount } = render(<MapContainer {...props} />);
     expect(Circle).toHaveBeenCalledWith(
       expect.objectContaining({ clickable: false })
+    );
+    expect(setOptions).toHaveBeenCalledWith(
+      expect.objectContaining({ radius: 20000 })
     );
     act(() => mockMapProps.mock.lastCall[0].onClick());
 
@@ -899,6 +904,16 @@ describe("MapContainer", () => {
       { id: "place-1", highlight: false },
     ]);
     expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
+
+    rerender(<MapContainer {...props} hoveredDetourId="place-1" />);
+    expect(Circle).toHaveBeenCalledTimes(1);
+
+    rerender(<MapContainer {...props} detourSearchLocation={0} />);
+    expect(Circle).toHaveBeenCalledTimes(1);
+    expect(setOptions).toHaveBeenLastCalledWith({
+      center: { lat: 33.749, lng: -84.388 },
+      radius: 20000,
+    });
 
     unmount();
     delete window.google;

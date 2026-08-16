@@ -489,38 +489,53 @@ function DetourCircle({
   const map = useMap();
   const mapsLibrary = useMapsLibrary("maps");
   const circleRef = useRef(null);
+  const detourPointLat = detourPoint?.lat;
+  const detourPointLng = detourPoint?.lng;
 
-  useEffect(() => {
-    if (!map || !mapsLibrary || !showDetourSearchPoint || !detourPoint) return;
-
-    // Clean up existing circle
-    if (circleRef.current) {
-      circleRef.current.setMap(null);
-    }
-
-    circleRef.current = new window.google.maps.Circle({
-      center: detourPoint,
-      clickable: false,
-      radius: parseFloat(detourSearchRadius),
-      strokeColor: "transparent",
-      strokeOpacity: 0,
-      strokeWeight: 5,
-      fillColor: jauntColors.map.searchArea,
-      fillOpacity: 0.2,
-    });
-
-    circleRef.current.setMap(map);
-
-    return () => {
+  useEffect(
+    () => () => {
       if (circleRef.current) {
         circleRef.current.setMap(null);
+        circleRef.current = null;
       }
-    };
+    },
+    [map, mapsLibrary]
+  );
+
+  useEffect(() => {
+    if (!map || !mapsLibrary) return;
+
+    if (
+      !showDetourSearchPoint ||
+      !Number.isFinite(detourPointLat) ||
+      !Number.isFinite(detourPointLng)
+    ) {
+      circleRef.current?.setMap(null);
+      return;
+    }
+
+    if (!circleRef.current) {
+      circleRef.current = new window.google.maps.Circle({
+        clickable: false,
+        strokeColor: "transparent",
+        strokeOpacity: 0,
+        strokeWeight: 5,
+        fillColor: jauntColors.map.searchArea,
+        fillOpacity: 0.2,
+      });
+    }
+
+    circleRef.current.setOptions({
+      center: { lat: detourPointLat, lng: detourPointLng },
+      radius: parseFloat(detourSearchRadius),
+    });
+    circleRef.current.setMap(map);
   }, [
     map,
     mapsLibrary,
     showDetourSearchPoint,
-    detourPoint,
+    detourPointLat,
+    detourPointLng,
     detourSearchRadius,
   ]);
 
