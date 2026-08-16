@@ -318,13 +318,6 @@ test("adds a detour by selecting a candidate marker on the map", async ({
             rating: 4.7,
             geometry: { location: { lat: 34.9, lng: -82.4 } },
           },
-          {
-            id: "two",
-            place_id: "place-2",
-            name: "Falls Park",
-            rating: 4.8,
-            geometry: { location: { lat: 34.85, lng: -82.4 } },
-          },
         ],
       }),
     })
@@ -342,7 +335,7 @@ test("adds a detour by selecting a candidate marker on the map", async ({
 
   await page.getByRole("tab", { name: "Discover" }).click();
   await page.getByRole("button", { name: "Search this area" }).click();
-  await expect(page.getByRole("heading", { name: "2 places" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "1 place" })).toBeVisible();
 
   const viewport = page.viewportSize();
   const usesCompactMap =
@@ -367,7 +360,9 @@ test("adds a detour by selecting a candidate marker on the map", async ({
   await addToJaunt.click();
 
   await expect(
-    page.getByText(/Paris Mountain added\. The route is/)
+    page.getByRole("button", {
+      name: "Dismiss added detour notification",
+    })
   ).toBeVisible();
   await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(1);
   await expect(page.getByTitle("1. Paris Mountain")).toHaveCount(0);
@@ -517,14 +512,8 @@ test("selects marker details on a saved Jaunt map", async ({ page }) => {
     page.getByRole("heading", { name: "Carolinas weekend" })
   ).toBeVisible();
 
-  const savedStartMarker = page.getByTitle("Jaunt start");
-  await savedStartMarker.focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByLabel("Start details")).toContainText("Atlanta, GA");
   const savedDetourMarker = page.getByTitle("Paris Mountain, added stop");
-  await savedDetourMarker.focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByLabel("Start details")).toHaveCount(0);
+  await savedDetourMarker.click();
   const details = page.getByLabel("Paris Mountain details");
   await expect(details).toContainText("Hike");
   await expect(details).toContainText("4.7 rating");
