@@ -854,6 +854,56 @@ describe("MapContainer", () => {
     expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
   });
 
+  test("clears candidate selection when the search radius circle is clicked", () => {
+    const setMap = jest.fn();
+    const Circle = jest.fn(function Circle() {
+      return { setMap };
+    });
+    window.google = {
+      maps: {
+        Circle,
+      },
+    };
+    mockUseMap.mockReturnValue({
+      getDiv: () => document.createElement("div"),
+    });
+    const detour = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const props = createProps({
+      detourHighlight: [{ id: "place-1", highlight: true }],
+      detourOptions: [detour],
+      detourSearchRadius: 20000,
+      route: {
+        overview_polyline: {
+          decodedPoints: [
+            [33.749, -84.388],
+            [35.2271, -80.8431],
+          ],
+        },
+      },
+      showDetourSearchPoint: true,
+      showRoute: true,
+    });
+
+    const { unmount } = render(<MapContainer {...props} />);
+    expect(Circle).toHaveBeenCalledWith(
+      expect.objectContaining({ clickable: false })
+    );
+    act(() => mockMapProps.mock.lastCall[0].onClick());
+
+    expect(props.setDetourHighlight).toHaveBeenLastCalledWith([
+      { id: "place-1", highlight: false },
+    ]);
+    expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
+
+    unmount();
+    delete window.google;
+  });
+
   test("shows candidate details on hover and adds from persistent selection", () => {
     jest.useFakeTimers();
     const addResult = jest.fn();

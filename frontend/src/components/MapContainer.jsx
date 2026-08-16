@@ -500,6 +500,7 @@ function DetourCircle({
 
     circleRef.current = new window.google.maps.Circle({
       center: detourPoint,
+      clickable: false,
       radius: parseFloat(detourSearchRadius),
       strokeColor: "transparent",
       strokeOpacity: 0,
