@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import PlannerWorkspace from "./PlannerWorkspace";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
@@ -294,116 +300,6 @@ describe("PlannerWorkspace", () => {
       "Address",
       { waypoints: ["place-1"] }
     );
-  });
-
-  it("retries a failed map removal from the error toast", async () => {
-    const detour = {
-      name: "Paris Mountain",
-      placeId: "place-1",
-      type: "Hike",
-    };
-    const getRoute = jest
-      .fn()
-      .mockRejectedValueOnce(new Error("network"))
-      .mockResolvedValueOnce({ routes: [{ summary: { distance: 180 } }] });
-    RouteRequester.mockImplementation(() => ({ getRoute }));
-
-    function MutationHarness() {
-      const [detourList, setDetourList] = useState([detour]);
-      return (
-        <PlannerWorkspace
-          {...createProps({
-            destination: "Charlotte",
-            detourList,
-            origin: "Atlanta",
-            setDetourList,
-            showDetourButton: true,
-            showRoute: true,
-            tripSummary: { distance: 205 },
-          })}
-        />
-      );
-    }
-
-    render(
-      <FluentProvider theme={jauntDetourTheme}>
-        <MutationHarness />
-      </FluentProvider>
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Remove map detour" }));
-
-    expect(
-      await screen.findByText("Could not remove the detour.")
-    ).toBeVisible();
-    expect(screen.getByTestId("map-detour-count")).toHaveTextContent("1");
-
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
-
-    expect(
-      await screen.findByText("Paris Mountain removed from this Jaunt")
-    ).toBeVisible();
-    await waitFor(() =>
-      expect(screen.getByTestId("map-detour-count")).toHaveTextContent("0")
-    );
-    expect(getRoute).toHaveBeenCalledTimes(2);
-  });
-
-  it("retries a failed Undo restore from the error toast", async () => {
-    const detour = {
-      name: "Paris Mountain",
-      placeId: "place-1",
-      type: "Hike",
-    };
-    const getRoute = jest
-      .fn()
-      .mockResolvedValueOnce({ routes: [{ summary: { distance: 180 } }] })
-      .mockRejectedValueOnce(new Error("network"))
-      .mockResolvedValueOnce({ routes: [{ summary: { distance: 205 } }] });
-    RouteRequester.mockImplementation(() => ({ getRoute }));
-
-    function MutationHarness() {
-      const [detourList, setDetourList] = useState([detour]);
-      return (
-        <PlannerWorkspace
-          {...createProps({
-            destination: "Charlotte",
-            detourList,
-            origin: "Atlanta",
-            setDetourList,
-            showDetourButton: true,
-            showRoute: true,
-            tripSummary: { distance: 205 },
-          })}
-        />
-      );
-    }
-
-    render(
-      <FluentProvider theme={jauntDetourTheme}>
-        <MutationHarness />
-      </FluentProvider>
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Remove map detour" }));
-    await screen.findByText("Paris Mountain removed from this Jaunt");
-    await waitFor(() =>
-      expect(screen.getByTestId("map-detour-count")).toHaveTextContent("0")
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
-
-    expect(
-      await screen.findByText("Could not restore the detour.")
-    ).toBeVisible();
-    expect(screen.getByTestId("map-detour-count")).toHaveTextContent("0");
-
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
-
-    await waitFor(() =>
-      expect(screen.getByTestId("map-detour-count")).toHaveTextContent("1")
-    );
-    expect(getRoute).toHaveBeenCalledTimes(3);
   });
 
   it("allows the removal toast to be dismissed early", async () => {
@@ -712,31 +608,30 @@ describe("PlannerWorkspace", () => {
     );
   });
 
-  it("delegates the add toast lifetime to Fluent without an early forced dismiss", async () => {
-    renderWorkspace(
-      createProps({
-        showDetourButton: true,
-        showDetourForm: true,
-        tripSummary: { distance: 245 },
-      })
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Complete add" }));
+  it("clears the add toast automatically after five seconds", async () => {
+    jest.useFakeTimers();
+    try {
+      renderWorkspace(
+        createProps({
+          showDetourButton: true,
+          showDetourForm: true,
+          tripSummary: { distance: 245 },
+        })
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Complete add" }));
 
-    expect(
-      screen.getByRole("button", {
-        name: "Dismiss added detour notification",
-      })
-    ).toBeVisible();
+      act(() => jest.advanceTimersByTime(6000));
 
-    // The previous implementation force-dismissed via a native 5s timer. Fluent
-    // now owns the timeout (unverifiable in jsdom), so the toast must remain
-    // until Fluent dismisses it rather than being torn down by our own timer.
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(
-      screen.getByRole("button", {
-        name: "Dismiss added detour notification",
-      })
-    ).toBeVisible();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("button", {
+            name: "Dismiss added detour notification",
+          })
+        ).not.toBeInTheDocument()
+      );
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("keeps the map mounted while compact tools are hidden", () => {

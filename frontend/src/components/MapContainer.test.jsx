@@ -716,6 +716,7 @@ describe("MapContainer", () => {
   });
 
   test("previews a detour marker on hover without selecting it", () => {
+    jest.useFakeTimers();
     const detour = {
       name: "Paris Mountain",
       place_id: "place-1",
@@ -726,6 +727,10 @@ describe("MapContainer", () => {
       hoveredDetourId: "place-1",
     });
     render(<MapContainer {...props} />);
+
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toBeInTheDocument();
 
     expect(mockPinProps).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -741,7 +746,43 @@ describe("MapContainer", () => {
     expect(props.setDetourHighlight).not.toHaveBeenCalled();
 
     fireEvent.mouseLeave(marker);
+    act(() => jest.advanceTimersByTime(450));
     expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
+    jest.useRealTimers();
+  });
+
+  test("keeps the newest candidate preview open when an older timer fires", () => {
+    jest.useFakeTimers();
+    const detourOptions = [
+      {
+        name: "Paris Mountain",
+        place_id: "place-1",
+        geometry: { location: { lat: 34.9, lng: -82.4 } },
+      },
+      {
+        name: "Falls Park",
+        place_id: "place-2",
+        geometry: { location: { lat: 34.84, lng: -82.4 } },
+      },
+    ];
+    render(<MapContainer {...createProps({ detourOptions })} />);
+
+    const firstMarker = screen.getByRole("button", {
+      name: "1. Paris Mountain",
+    });
+    const secondMarker = screen.getByRole("button", { name: "2. Falls Park" });
+    fireEvent.mouseEnter(firstMarker);
+    fireEvent.mouseLeave(firstMarker);
+    fireEvent.mouseEnter(secondMarker);
+    act(() => jest.advanceTimersByTime(450));
+
+    expect(
+      screen.getByRole("dialog", { name: "Falls Park details" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("dialog", { name: "Paris Mountain details" })
+    ).not.toBeInTheDocument();
+    jest.useRealTimers();
   });
 
   test("keeps click selection visually distinct from hover preview", () => {
@@ -769,5 +810,92 @@ describe("MapContainer", () => {
     expect(props.setDetourHighlight).toHaveBeenCalledWith([
       { id: "place-1", highlight: true },
     ]);
+  });
+
+  test("opens a persistent candidate card from Discover list selection", () => {
+    const detour = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    render(
+      <MapContainer
+        {...createProps({
+          detourHighlight: [{ id: "place-1", highlight: true }],
+          detourOptions: [detour],
+        })}
+      />
+    );
+
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toBeInTheDocument();
+  });
+
+  test("clears candidate selection when the map background is clicked", () => {
+    const detour = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const props = createProps({
+      detourHighlight: [{ id: "place-1", highlight: true }],
+      detourOptions: [detour],
+    });
+    render(<MapContainer {...props} />);
+
+    act(() => mockMapProps.mock.lastCall[0].onClick());
+
+    expect(props.setDetourHighlight).toHaveBeenLastCalledWith([
+      { id: "place-1", highlight: false },
+    ]);
+    expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
+  });
+
+  test("shows candidate details on hover and adds from persistent selection", () => {
+    jest.useFakeTimers();
+    const addResult = jest.fn();
+    const detour = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      rating: 4.7,
+      vicinity: "Greenville County",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    render(
+      <MapContainer
+        {...createProps({
+          detourAddController: {
+            addErrorId: null,
+            addResult,
+            addingId: null,
+          },
+          detourOptions: [detour],
+        })}
+      />
+    );
+
+    const marker = screen.getByRole("button", { name: "1. Paris Mountain" });
+    fireEvent.mouseEnter(marker);
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toHaveTextContent("Greenville County");
+    expect(screen.getByText("4.7 rating")).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Add to Jaunt" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(marker);
+    fireEvent.mouseLeave(marker);
+    act(() => jest.advanceTimersByTime(450));
+    expect(
+      screen.getByRole("dialog", { name: "Paris Mountain details" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add to Jaunt" }));
+    expect(addResult).toHaveBeenCalledWith(detour);
+    jest.useRealTimers();
   });
 });

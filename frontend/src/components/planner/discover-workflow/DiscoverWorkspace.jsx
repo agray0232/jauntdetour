@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -278,11 +278,15 @@ function formatRangeValue(value) {
 
 export default function DiscoverWorkspace(props) {
   const styles = useStyles();
+  const { onAddControllerChange } = props;
   const [status, setStatus] = useState(
     props.detourOptions.length > 0 ? "success" : "idle"
   );
   const [addingId, setAddingId] = useState(null);
   const [addErrorId, setAddErrorId] = useState(null);
+  const resultRefs = useRef(new Map());
+  const addPropsRef = useRef(props);
+  addPropsRef.current = props;
   const selectedId = props.detourHighlight.find(
     (option) => option.highlight
   )?.id;
@@ -372,40 +376,41 @@ export default function DiscoverWorkspace(props) {
     }
   };
 
-  const addResult = async (result) => {
-    if (props.mutationPending) {
+  const addResult = useCallback(async (result) => {
+    const currentProps = addPropsRef.current;
+    if (currentProps.mutationPending) {
       return;
     }
     setAddingId(result.place_id);
     setAddErrorId(null);
-    props.onAddingChange?.(true);
+    currentProps.onAddingChange?.(true);
     trackEvent("detour_add_started", {
       category: result.type,
       feature: "detour",
     });
     try {
       const waypointIds = [
-        ...props.detourList.map((detour) => detour.placeId),
+        ...currentProps.detourList.map((detour) => detour.placeId),
         result.place_id,
       ];
       const data = await new RouteRequester().getRoute(
-        props.origin,
-        props.destination,
+        currentProps.origin,
+        currentProps.destination,
         "Address",
         { waypoints: waypointIds }
       );
       const route = data.routes && data.routes[0];
       if (!route) throw new Error("No route returned");
       const originalMinutes =
-        (props.tripSummary.time?.hours || 0) * 60 +
-        (props.tripSummary.time?.min || 0);
+        (currentProps.tripSummary.time?.hours || 0) * 60 +
+        (currentProps.tripSummary.time?.min || 0);
       const nextMinutes =
         (route.summary.time?.hours || 0) * 60 + (route.summary.time?.min || 0);
       const addedTime = nextMinutes - originalMinutes;
 
-      props.setRoute(route);
-      props.setTripSummary(route.summary);
-      props.addDetour({
+      currentProps.setRoute(route);
+      currentProps.setTripSummary(route.summary);
+      currentProps.addDetour({
         name: result.name,
         type: result.type,
         lat: result.geometry.location.lat,
@@ -415,20 +420,20 @@ export default function DiscoverWorkspace(props) {
         placeId: result.place_id,
         addedTime,
       });
-      props.setDetourOptions([]);
-      props.setDetourHighlight([]);
+      currentProps.setDetourOptions([]);
+      currentProps.setDetourHighlight([]);
       setStatus("idle");
       setAddingId(null);
-      props.onAddingChange?.(false);
-      props.onAdded(result.name, addedTime);
+      currentProps.onAddingChange?.(false);
+      currentProps.onAdded(result.name, addedTime);
       trackEvent("detour_added", {
         category: result.type,
-        countBucket: getCountBucket(props.detourList.length + 1),
+        countBucket: getCountBucket(currentProps.detourList.length + 1),
         feature: "detour",
       });
     } catch {
       setAddingId(null);
-      props.onAddingChange?.(false);
+      currentProps.onAddingChange?.(false);
       setAddErrorId(result.place_id);
       trackEvent("detour_add_failed", {
         category: result.type,
@@ -436,7 +441,35 @@ export default function DiscoverWorkspace(props) {
         feature: "detour",
       });
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    onAddControllerChange?.({ addErrorId, addResult, addingId });
+  }, [addErrorId, addResult, addingId, onAddControllerChange]);
+
+  useEffect(() => () => onAddControllerChange?.(null), [onAddControllerChange]);
+
+  useEffect(() => {
+    const resultElement = resultRefs.current.get(props.mapSelectedDetourId);
+    if (!resultElement) return;
+
+    let scrollContainer = resultElement.parentElement;
+    while (scrollContainer) {
+      const overflowY = window.getComputedStyle(scrollContainer).overflowY;
+      if (overflowY === "auto" || overflowY === "scroll") break;
+      scrollContainer = scrollContainer.parentElement;
+    }
+    if (!scrollContainer) return;
+
+    const resultBounds = resultElement.getBoundingClientRect();
+    const containerBounds = scrollContainer.getBoundingClientRect();
+    if (
+      resultBounds.top < containerBounds.top ||
+      resultBounds.bottom > containerBounds.bottom
+    ) {
+      resultElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [props.mapSelectedDetourId]);
 
   const clearResults = () => {
     props.setDetourOptions([]);
@@ -624,6 +657,13 @@ export default function DiscoverWorkspace(props) {
                     selected && styles.selectedResult
                   )}
                   key={result.place_id || result.id || result.name}
+                  ref={(element) => {
+                    if (element) {
+                      resultRefs.current.set(result.place_id, element);
+                    } else {
+                      resultRefs.current.delete(result.place_id);
+                    }
+                  }}
                   onMouseEnter={() => props.onDetourHover(result.place_id)}
                   onMouseLeave={() => props.onDetourHover(null)}
                 >
@@ -688,7 +728,9 @@ DiscoverWorkspace.propTypes = {
   detourSearchRadius: PropTypes.number.isRequired,
   detourType: PropTypes.string.isRequired,
   hoveredDetourId: PropTypes.string,
+  mapSelectedDetourId: PropTypes.string,
   onAdded: PropTypes.func.isRequired,
+  onAddControllerChange: PropTypes.func,
   onAddingChange: PropTypes.func,
   mutationPending: PropTypes.bool,
   onDetourHover: PropTypes.func.isRequired,

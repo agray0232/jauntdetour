@@ -349,6 +349,43 @@ describe("DiscoverWorkspace", () => {
     expect(props.onDetourHover).toHaveBeenLastCalledWith(null);
   });
 
+  it("scrolls an offscreen result into view after map selection", () => {
+    const result = {
+      name: "Paris Mountain",
+      place_id: "place-1",
+      type: "Hike",
+      geometry: { location: { lat: 34.9, lng: -82.4 } },
+    };
+    const scrollIntoView = jest.fn();
+    const getComputedStyle = jest
+      .spyOn(window, "getComputedStyle")
+      .mockReturnValue({ overflowY: "auto" });
+    const getBoundingClientRect = jest
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function getBounds() {
+        return this.tagName === "LI"
+          ? { bottom: 200, top: 150 }
+          : { bottom: 100, top: 0 };
+      });
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+    renderWorkspace(
+      createProps({
+        detourOptions: [result],
+        mapSelectedDetourId: "place-1",
+      })
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "nearest",
+    });
+    HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+    getComputedStyle.mockRestore();
+    getBoundingClientRect.mockRestore();
+  });
+
   it("previews a result on keyboard focus and clears it on blur", () => {
     const result = {
       name: "Paris Mountain",

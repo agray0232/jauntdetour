@@ -246,6 +246,8 @@ export default function PlannerWorkspace(props) {
   const [saveOperation, setSaveOperation] = useState("idle");
   const [hoveredDetourId, setHoveredDetourId] = useState(null);
   const [discoverAdding, setDiscoverAdding] = useState(false);
+  const [detourAddController, setDetourAddController] = useState(null);
+  const [mapSelectedDetourId, setMapSelectedDetourId] = useState(null);
   const previousSuggestedNameRef = useRef("");
   const previousTripNameRef = useRef(props.tripName);
   const tripNameRef = useRef(props.tripName);
@@ -645,8 +647,10 @@ export default function PlannerWorkspace(props) {
                 detourHighlight={props.detourHighlight}
                 hoveredDetourId={hoveredDetourId}
                 onDetourHover={setHoveredDetourId}
+                mapSelectedDetourId={mapSelectedDetourId}
                 addDetour={props.addDetour}
                 mutationPending={mutationInFlight}
+                onAddControllerChange={setDetourAddController}
                 onAddingChange={setDiscoverAdding}
                 setRoute={props.setRoute}
                 setTripSummary={props.setTripSummary}
@@ -713,9 +717,11 @@ export default function PlannerWorkspace(props) {
           detourHighlight={props.detourHighlight}
           hoveredDetourId={hoveredDetourId}
           onDetourHover={setHoveredDetourId}
+          onDetourSelect={setMapSelectedDetourId}
           detourList={props.detourList}
           detourMutationPending={detourMutations.pending}
           detourActionsBusy={anyMutationBusy}
+          detourAddController={detourAddController}
           onRemoveDetour={(index) =>
             runPlannerMutation({ kind: "remove", index, source: "map" })
           }
