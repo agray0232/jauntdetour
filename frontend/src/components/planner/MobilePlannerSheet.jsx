@@ -91,29 +91,44 @@ const useStyles = makeStyles({
   },
 });
 
-function getViewportHeight(element) {
+function clamp(value, minimum, maximum) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function getViewportBounds(element) {
   const parent = element?.parentElement;
-  const parentHeight =
-    parent?.getBoundingClientRect().height || parent?.clientHeight || 0;
+  const rect = parent?.getBoundingClientRect();
+  const parentHeight = rect?.height || parent?.clientHeight || 0;
   const viewport =
     typeof window !== "undefined" ? window.visualViewport : undefined;
 
-  if (parent && viewport) {
-    const rect = parent.getBoundingClientRect();
-    const visibleTop = Math.max(rect.top, viewport.offsetTop);
-    const visibleBottom = Math.min(
-      rect.bottom,
-      viewport.offsetTop + viewport.height
+  if (rect && viewport && parentHeight) {
+    const visibleTop = clamp(viewport.offsetTop - rect.top, 0, parentHeight);
+    const visibleBottom = clamp(
+      viewport.offsetTop + viewport.height - rect.top,
+      visibleTop,
+      parentHeight
     );
-    const visibleHeight = visibleBottom - visibleTop;
-    if (visibleHeight > 0) {
-      return parentHeight
-        ? Math.min(parentHeight, visibleHeight)
-        : visibleHeight;
+    if (visibleBottom > visibleTop) {
+      return {
+        bottomInset: parentHeight - visibleBottom,
+        height: visibleBottom - visibleTop,
+        top: visibleTop,
+      };
     }
   }
 
-  return parentHeight || viewport?.height || window.innerHeight;
+  return {
+    bottomInset: 0,
+    height: parentHeight || viewport?.height || window.innerHeight,
+    top: 0,
+  };
+}
+
+function offsetAnchors(anchors, offset) {
+  return Object.fromEntries(
+    Object.entries(anchors).map(([name, position]) => [name, position + offset])
+  );
 }
 
 function getAnchorInDirection(position, anchors, direction) {
@@ -129,6 +144,7 @@ function MobilePlannerSheet({ active, children }) {
   const sheetRef = useRef(null);
   const dragRef = useRef(null);
   const frameRef = useRef(null);
+  const measureFrameRef = useRef(null);
   const suppressClickRef = useRef(false);
   const positionRef = useRef(0);
   const anchorsRef = useRef(calculateSheetAnchors(window.innerHeight));
@@ -153,16 +169,32 @@ function MobilePlannerSheet({ active, children }) {
   );
 
   const measure = useCallback(() => {
-    const height = getViewportHeight(sheetRef.current);
-    const nextAnchors = calculateSheetAnchors(height);
+    const viewportBounds = getViewportBounds(sheetRef.current);
+    const nextAnchors = offsetAnchors(
+      calculateSheetAnchors(viewportBounds.height),
+      viewportBounds.top
+    );
     const nextState = remapSheetPosition({
       ...stateRef.current,
       previousAnchors: anchorsRef.current,
       nextAnchors,
     });
     anchorsRef.current = nextAnchors;
+    if (sheetRef.current) {
+      sheetRef.current.style.bottom = `${viewportBounds.bottomInset}px`;
+    }
     commitState(nextState);
   }, [commitState]);
+
+  const scheduleMeasure = useCallback(() => {
+    if (measureFrameRef.current != null) {
+      cancelAnimationFrame(measureFrameRef.current);
+    }
+    measureFrameRef.current = requestAnimationFrame(() => {
+      measureFrameRef.current = null;
+      measure();
+    });
+  }, [measure]);
 
   useLayoutEffect(() => {
     if (!active) return undefined;
@@ -174,22 +206,29 @@ function MobilePlannerSheet({ active, children }) {
 
     let observer;
     if (parent && typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(measure);
+      observer = new ResizeObserver(scheduleMeasure);
       observer.observe(parent);
     }
-    viewport?.addEventListener("resize", measure);
-    viewport?.addEventListener("scroll", measure);
+    viewport?.addEventListener("resize", scheduleMeasure);
+    viewport?.addEventListener("scroll", scheduleMeasure);
 
     return () => {
       observer?.disconnect();
-      viewport?.removeEventListener("resize", measure);
-      viewport?.removeEventListener("scroll", measure);
+      viewport?.removeEventListener("resize", scheduleMeasure);
+      viewport?.removeEventListener("scroll", scheduleMeasure);
+      if (measureFrameRef.current != null) {
+        cancelAnimationFrame(measureFrameRef.current);
+        measureFrameRef.current = null;
+      }
     };
-  }, [active, measure]);
+  }, [active, measure, scheduleMeasure]);
 
   useEffect(
     () => () => {
       if (frameRef.current != null) cancelAnimationFrame(frameRef.current);
+      if (measureFrameRef.current != null) {
+        cancelAnimationFrame(measureFrameRef.current);
+      }
     },
     []
   );
@@ -306,6 +345,7 @@ function MobilePlannerSheet({ active, children }) {
         active && dragging ? styles.dragging : ""
       }`}
       data-sheet-position={active ? positionName : undefined}
+      data-testid="mobile-planner-sheet"
       ref={sheetRef}
       style={active ? { top: `${sheetState.position}px` } : undefined}
     >
