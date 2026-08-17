@@ -53,9 +53,10 @@ tool sheet layered above it.
 
 - The map fills the planner viewport and supports one-finger pan and pinch zoom
 - Map type, camera, and zoom controls are removed to preserve map space
-- The tool sheet initially occupies approximately the bottom third
+- The tool sheet initially rests at the balanced anchor, occupying roughly the
+  lower two-fifths of the planner viewport
 - The sheet can rest at any bounded height during the current planner visit
-- Peek, one-third, and expanded positions act as magnetic anchors
+- Peek, balanced, and expanded positions act as magnetic anchors
 - The sheet body owns its internal scroll; dragging starts from the handle
 - The same Build and Discover components and map remain mounted once
 - Header navigation remains visible above the expanded sheet
@@ -77,7 +78,7 @@ the Atlanta-to-Charlotte mock scenario.
 | ---------- | ----------------------- | --------------------------------------- | ------------------------------------------ |
 | 1440 × 900 | Desktop                 | 410-pixel panel and 1030-pixel map      | No horizontal overflow or header collision |
 | 1024 × 768 | Small laptop            | 380-pixel panel and 644-pixel map       | No horizontal overflow or workspace escape |
-| 768 × 1024 | Tablet portrait         | Full map with one-third tool sheet      | Requires production validation             |
+| 768 × 1024 | Tablet portrait         | Full map with balanced tool sheet       | Requires production validation             |
 | 430 × 932  | Large phone portrait    | Full map with magnetic tool sheet       | Requires production validation             |
 | 390 × 844  | Common phone portrait   | Full map with magnetic tool sheet       | Automated compact coverage active          |
 | 360 × 800  | Small phone portrait    | Full map with magnetic tool sheet       | Requires production validation             |

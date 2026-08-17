@@ -15,6 +15,10 @@ import {
   resolveSheetRelease,
 } from "./mobileSheetGeometry";
 
+// Ignore drag velocity when the pointer has been held still for longer than
+// this before release, so a pause after a fast drag does not trigger a fling.
+const VELOCITY_IDLE_TIMEOUT = 80;
+
 const useStyles = makeStyles({
   sheet: {
     position: "absolute",
@@ -82,16 +86,34 @@ const useStyles = makeStyles({
       transform: "none",
     },
   },
+  passthrough: {
+    display: "contents",
+  },
 });
 
 function getViewportHeight(element) {
   const parent = element?.parentElement;
-  return (
-    parent?.getBoundingClientRect().height ||
-    parent?.clientHeight ||
-    window.visualViewport?.height ||
-    window.innerHeight
-  );
+  const parentHeight =
+    parent?.getBoundingClientRect().height || parent?.clientHeight || 0;
+  const viewport =
+    typeof window !== "undefined" ? window.visualViewport : undefined;
+
+  if (parent && viewport) {
+    const rect = parent.getBoundingClientRect();
+    const visibleTop = Math.max(rect.top, viewport.offsetTop);
+    const visibleBottom = Math.min(
+      rect.bottom,
+      viewport.offsetTop + viewport.height
+    );
+    const visibleHeight = visibleBottom - visibleTop;
+    if (visibleHeight > 0) {
+      return parentHeight
+        ? Math.min(parentHeight, visibleHeight)
+        : visibleHeight;
+    }
+  }
+
+  return parentHeight || viewport?.height || window.innerHeight;
 }
 
 function getAnchorInDirection(position, anchors, direction) {
@@ -102,7 +124,7 @@ function getAnchorInDirection(position, anchors, direction) {
   return direction < 0 ? candidates.at(-1) : candidates.at(0);
 }
 
-function ActiveMobilePlannerSheet({ children }) {
+function MobilePlannerSheet({ active, children }) {
   const styles = useStyles();
   const sheetRef = useRef(null);
   const dragRef = useRef(null);
@@ -143,14 +165,27 @@ function ActiveMobilePlannerSheet({ children }) {
   }, [commitState]);
 
   useLayoutEffect(() => {
+    if (!active) return undefined;
+
     measure();
     const parent = sheetRef.current?.parentElement;
-    if (!parent || typeof ResizeObserver === "undefined") return undefined;
+    const viewport =
+      typeof window !== "undefined" ? window.visualViewport : undefined;
 
-    const observer = new ResizeObserver(measure);
-    observer.observe(parent);
-    return () => observer.disconnect();
-  }, [measure]);
+    let observer;
+    if (parent && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(measure);
+      observer.observe(parent);
+    }
+    viewport?.addEventListener("resize", measure);
+    viewport?.addEventListener("scroll", measure);
+
+    return () => {
+      observer?.disconnect();
+      viewport?.removeEventListener("resize", measure);
+      viewport?.removeEventListener("scroll", measure);
+    };
+  }, [active, measure]);
 
   useEffect(
     () => () => {
@@ -202,8 +237,12 @@ function ActiveMobilePlannerSheet({ children }) {
       cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
     }
+    const idleSinceMove = event.timeStamp - drag.lastTime;
     const elapsed = Math.max(drag.lastTime - drag.startTime, 1);
-    const velocity = (drag.lastY - drag.startY) / elapsed;
+    const velocity =
+      idleSinceMove > VELOCITY_IDLE_TIMEOUT
+        ? 0
+        : (drag.lastY - drag.startY) / elapsed;
     const release = resolveSheetRelease({
       anchors: anchorsRef.current,
       position: drag.startPosition + drag.lastY - drag.startY,
@@ -263,46 +302,48 @@ function ActiveMobilePlannerSheet({ children }) {
 
   return (
     <div
-      className={`${styles.sheet} ${dragging ? styles.dragging : ""}`}
-      data-sheet-position={positionName}
+      className={`${active ? styles.sheet : styles.passthrough} ${
+        active && dragging ? styles.dragging : ""
+      }`}
+      data-sheet-position={active ? positionName : undefined}
       ref={sheetRef}
-      style={{ top: `${sheetState.position}px` }}
+      style={active ? { top: `${sheetState.position}px` } : undefined}
     >
+      {active ? (
+        <div
+          key="handle"
+          aria-label="Resize planning tools"
+          aria-valuemax={100}
+          aria-valuemin={0}
+          aria-valuenow={positionPercent}
+          aria-valuetext={`${positionName} position`}
+          className={styles.handle}
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          onPointerCancel={finishDrag}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={finishDrag}
+          role="slider"
+          tabIndex={0}
+        >
+          <span aria-hidden="true" className={styles.handleBar} />
+        </div>
+      ) : null}
       <div
-        aria-label="Resize planning tools"
-        aria-valuemax={100}
-        aria-valuemin={0}
-        aria-valuenow={positionPercent}
-        aria-valuetext={`${positionName} position`}
-        className={styles.handle}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        onPointerCancel={finishDrag}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={finishDrag}
-        role="slider"
-        tabIndex={0}
+        key="body"
+        className={active ? styles.body : styles.passthrough}
+        onFocusCapture={active ? handleBodyFocus : undefined}
       >
-        <span aria-hidden="true" className={styles.handleBar} />
-      </div>
-      <div className={styles.body} onFocusCapture={handleBodyFocus}>
         {children}
       </div>
     </div>
   );
 }
 
-ActiveMobilePlannerSheet.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export default function MobilePlannerSheet({ active, children }) {
-  if (!active) return children;
-  return <ActiveMobilePlannerSheet>{children}</ActiveMobilePlannerSheet>;
-}
-
 MobilePlannerSheet.propTypes = {
   active: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,
 };
+
+export default MobilePlannerSheet;

@@ -1,6 +1,6 @@
 const EXPANDED_TOP_INSET = 8;
 const PEEK_HEIGHT = 56;
-const MID_TOP_RATIO = 0.58;
+const MID_TOP_RATIO = 0.58; // balanced anchor: sheet occupies ~42% of the viewport
 const MAGNETIC_RADIUS = 28;
 const FLING_VELOCITY = 0.55;
 

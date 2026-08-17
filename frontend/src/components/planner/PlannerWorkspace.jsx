@@ -65,11 +65,12 @@ const useStyles = makeStyles({
       gridTemplateColumns: "minmax(0, 1fr)",
       gridTemplateRows: "minmax(0, 1fr)",
     },
-    "@media (max-width: 48.75rem) and (orientation: landscape)": {
-      gridTemplateAreas: '"map"',
-      gridTemplateColumns: "minmax(0, 1fr)",
-      gridTemplateRows: "minmax(0, 1fr)",
-    },
+    "@media (max-width: 48.75rem) and (orientation: landscape), (max-height: 31.25rem) and (orientation: landscape)":
+      {
+        gridTemplateAreas: '"map"',
+        gridTemplateColumns: "minmax(0, 1fr)",
+        gridTemplateRows: "minmax(0, 1fr)",
+      },
   },
   tools: {
     gridArea: "tools",
@@ -80,10 +81,11 @@ const useStyles = makeStyles({
     overflow: "hidden",
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.borderRight("1px", "solid", tokens.colorNeutralStroke1),
-    "@media (max-width: 48.75rem) and (min-height: 31.251rem)": {
-      ...shorthands.borderRight("0", "solid", "transparent"),
-      ...shorthands.borderTop("1px", "solid", tokens.colorNeutralStroke1),
-    },
+    "@media (max-width: 48.75rem) and (min-height: 31.251rem), (max-height: 31.25rem) and (orientation: landscape)":
+      {
+        ...shorthands.borderRight("0", "solid", "transparent"),
+        ...shorthands.borderTop("1px", "solid", tokens.colorNeutralStroke1),
+      },
   },
   panelHeader: {
     display: "grid",

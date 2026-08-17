@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-const COMPACT_MEDIA_QUERY = "(max-width: 48.75rem)";
+const COMPACT_MEDIA_QUERY =
+  "(max-width: 48.75rem), (max-height: 31.25rem) and (orientation: landscape)";
 
 export default function useCompactLayout() {
   const [compact, setCompact] = useState(

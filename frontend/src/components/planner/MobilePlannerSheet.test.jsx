@@ -93,4 +93,43 @@ describe("MobilePlannerSheet", () => {
     fireEvent.focus(screen.getByRole("textbox", { name: "Route origin" }));
     expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
   });
+
+  it("preserves child state when toggling across the compact breakpoint", () => {
+    function StatefulChild() {
+      const [value, setValue] = React.useState("");
+      return (
+        <input
+          aria-label="Route origin"
+          onChange={(event) => setValue(event.target.value)}
+          value={value}
+        />
+      );
+    }
+
+    const tree = (activeSheet) => (
+      <FluentProvider theme={jauntDetourTheme}>
+        <div style={{ height: "840px", position: "relative" }}>
+          <MobilePlannerSheet active={activeSheet}>
+            <StatefulChild />
+          </MobilePlannerSheet>
+        </div>
+      </FluentProvider>
+    );
+
+    const { rerender } = render(tree(true));
+    const input = screen.getByRole("textbox", { name: "Route origin" });
+    fireEvent.change(input, { target: { value: "Atlanta" } });
+    expect(input).toHaveValue("Atlanta");
+
+    rerender(tree(false));
+    expect(screen.getByRole("textbox", { name: "Route origin" })).toHaveValue(
+      "Atlanta"
+    );
+    expect(screen.queryByRole("slider")).not.toBeInTheDocument();
+
+    rerender(tree(true));
+    expect(screen.getByRole("textbox", { name: "Route origin" })).toHaveValue(
+      "Atlanta"
+    );
+  });
 });
