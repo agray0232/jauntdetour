@@ -30,3 +30,14 @@ export function calculateViewportBounds({
     top: 0,
   };
 }
+
+export function subscribeToViewport(viewport, listener) {
+  if (!viewport) return () => {};
+
+  viewport.addEventListener("resize", listener);
+  viewport.addEventListener("scroll", listener);
+  return () => {
+    viewport.removeEventListener("resize", listener);
+    viewport.removeEventListener("scroll", listener);
+  };
+}

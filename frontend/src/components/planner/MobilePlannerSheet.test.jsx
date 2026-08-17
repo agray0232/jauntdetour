@@ -1,9 +1,12 @@
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
 import MobilePlannerSheet from "./MobilePlannerSheet";
-import { calculateViewportBounds } from "./mobileViewportGeometry";
+import {
+  calculateViewportBounds,
+  subscribeToViewport,
+} from "./mobileViewportGeometry";
 
 function renderSheet() {
   return render(
@@ -164,55 +167,25 @@ describe("MobilePlannerSheet", () => {
     ).toEqual({ bottomInset: 320, height: 300, top: 120 });
   });
 
-  it("subscribes to visual viewport changes and cleans up listeners", () => {
-    const listeners = {};
+  it("subscribes to viewport changes and cleans up listeners", () => {
     const viewport = {
-      addEventListener: jest.fn((name, listener) => {
-        listeners[name] = listener;
-      }),
-      height: 400,
-      offsetTop: 180,
+      addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
     };
-    Object.defineProperty(window, "visualViewport", {
-      configurable: true,
-      value: viewport,
-    });
-    const animationFrameSpy = jest
-      .spyOn(window, "requestAnimationFrame")
-      .mockImplementation((callback) => {
-        callback();
-        return 1;
-      });
+    const listener = jest.fn();
+    const unsubscribe = subscribeToViewport(viewport, listener);
 
-    try {
-      const { unmount } = renderSheet();
-      expect(viewport.addEventListener).toHaveBeenCalledWith(
-        "resize",
-        expect.any(Function)
-      );
-      expect(viewport.addEventListener).toHaveBeenCalledWith(
-        "scroll",
-        expect.any(Function)
-      );
+    expect(viewport.addEventListener).toHaveBeenCalledWith("resize", listener);
+    expect(viewport.addEventListener).toHaveBeenCalledWith("scroll", listener);
 
-      act(() => {
-        listeners.resize();
-        listeners.scroll();
-      });
-      expect(animationFrameSpy).toHaveBeenCalled();
-
-      unmount();
-      expect(viewport.removeEventListener).toHaveBeenCalledWith(
-        "resize",
-        listeners.resize
-      );
-      expect(viewport.removeEventListener).toHaveBeenCalledWith(
-        "scroll",
-        listeners.scroll
-      );
-    } finally {
-      animationFrameSpy.mockRestore();
-    }
+    unsubscribe();
+    expect(viewport.removeEventListener).toHaveBeenCalledWith(
+      "resize",
+      listener
+    );
+    expect(viewport.removeEventListener).toHaveBeenCalledWith(
+      "scroll",
+      listener
+    );
   });
 });

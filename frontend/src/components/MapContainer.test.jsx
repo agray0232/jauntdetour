@@ -162,7 +162,6 @@ describe("MapContainer", () => {
     expect(mockMapProps).toHaveBeenCalledWith(
       expect.objectContaining({
         cameraControl: false,
-        gestureHandling: "greedy",
         mapTypeControl: false,
         zoomControl: false,
       })

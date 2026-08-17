@@ -14,7 +14,10 @@ import {
   remapSheetPosition,
   resolveSheetRelease,
 } from "./mobileSheetGeometry";
-import { calculateViewportBounds } from "./mobileViewportGeometry";
+import {
+  calculateViewportBounds,
+  subscribeToViewport,
+} from "./mobileViewportGeometry";
 
 // Ignore drag velocity when the pointer has been held still for longer than
 // this before release, so a pause after a fast drag does not trigger a fling.
@@ -191,13 +194,11 @@ function MobilePlannerSheet({ active, children }) {
       observer = new ResizeObserver(scheduleMeasure);
       observer.observe(parent);
     }
-    viewport?.addEventListener("resize", scheduleMeasure);
-    viewport?.addEventListener("scroll", scheduleMeasure);
+    const unsubscribeViewport = subscribeToViewport(viewport, scheduleMeasure);
 
     return () => {
       observer?.disconnect();
-      viewport?.removeEventListener("resize", scheduleMeasure);
-      viewport?.removeEventListener("scroll", scheduleMeasure);
+      unsubscribeViewport();
       if (measureFrameRef.current != null) {
         cancelAnimationFrame(measureFrameRef.current);
         measureFrameRef.current = null;
