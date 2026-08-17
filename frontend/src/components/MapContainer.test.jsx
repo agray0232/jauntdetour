@@ -147,6 +147,28 @@ describe("MapContainer", () => {
     );
   });
 
+  test("forwards touch gesture and compact control options", () => {
+    render(
+      <MapContainer
+        {...createProps({
+          cameraControl: false,
+          mapGestureHandling: "greedy",
+          mapTypeControl: false,
+          zoomControl: false,
+        })}
+      />
+    );
+
+    expect(mockMapProps).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cameraControl: false,
+        gestureHandling: "greedy",
+        mapTypeControl: false,
+        zoomControl: false,
+      })
+    );
+  });
+
   test("fits the map to a newly loaded route", () => {
     jest.useFakeTimers();
 

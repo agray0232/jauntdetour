@@ -177,7 +177,15 @@ function renderWorkspace(props) {
 }
 
 describe("PlannerWorkspace", () => {
+  let compactMediaQuery;
+
   beforeEach(() => {
+    compactMediaQuery = {
+      matches: false,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    };
+    window.matchMedia = jest.fn(() => compactMediaQuery);
     mockDiscoverProps.mockClear();
     mockMapProps.mockClear();
     RouteRequester.mockReset();
@@ -193,6 +201,32 @@ describe("PlannerWorkspace", () => {
     expect(screen.queryByText("Not saved")).not.toBeInTheDocument();
     expect(screen.queryByText("My Jaunts control")).not.toBeInTheDocument();
     expect(screen.getAllByText("Map instance")).toHaveLength(1);
+  });
+
+  it("uses touch-native map options only in compact layouts", () => {
+    compactMediaQuery.matches = true;
+    const { unmount } = renderWorkspace(createProps());
+
+    expect(mockMapProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        cameraControl: false,
+        mapGestureHandling: "greedy",
+        mapTypeControl: false,
+        zoomControl: false,
+      })
+    );
+    unmount();
+
+    compactMediaQuery.matches = false;
+    renderWorkspace(createProps());
+    expect(mockMapProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        cameraControl: true,
+        mapGestureHandling: undefined,
+        mapTypeControl: true,
+        zoomControl: true,
+      })
+    );
   });
 
   it("replaces route entry with details and supports Edit route", () => {
@@ -794,13 +828,22 @@ describe("PlannerWorkspace", () => {
     }
   });
 
-  it("keeps the map mounted while compact tools are hidden", () => {
+  it("keeps one map and one tools panel mounted while the compact sheet moves", () => {
+    compactMediaQuery.matches = true;
     renderWorkspace(createProps());
 
-    fireEvent.click(screen.getByRole("button", { name: "Show map" }));
+    const handle = screen.getByRole("slider", {
+      name: "Resize planning tools",
+    });
+    expect(handle).toHaveAttribute("aria-valuetext", "mid position");
+    expect(screen.getAllByText("Map instance")).toHaveLength(1);
+    expect(
+      screen.getAllByRole("complementary", { name: "Jaunt planning tools" })
+    ).toHaveLength(1);
 
-    expect(screen.getByText("Map instance")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Back to tools" }));
+    fireEvent.click(handle);
+    expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
+    expect(screen.getAllByText("Map instance")).toHaveLength(1);
     expect(screen.getByText("Route form instance")).toBeInTheDocument();
   });
 });

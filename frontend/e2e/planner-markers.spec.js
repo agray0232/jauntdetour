@@ -4,6 +4,7 @@ const {
   createSinglePlaceResponse,
   installAnonymousAuth,
   installPlannerApi,
+  moveCompactSheetToPeek,
   searchForDetours,
 } = require("./support/plannerFixtures");
 
@@ -20,7 +21,7 @@ test("planner adds a detour from a candidate marker", async ({
   await expect(page.getByRole("heading", { name: "1 place" })).toBeVisible();
 
   if (testInfo.project.metadata.compact) {
-    await page.getByRole("button", { name: "Show map" }).click();
+    await moveCompactSheetToPeek(page);
   }
 
   const candidateMarker = page.getByTitle("1. Paris Mountain");
@@ -61,24 +62,29 @@ test("desktop marker hover previews details before selection", async ({
   ).toBeVisible();
 });
 
-test("compact planner switches between tools and its tappable map", async ({
+test("compact planner resizes tools over its tappable map", async ({
   page,
 }, testInfo) => {
   test.skip(!testInfo.project.metadata.compact, "Requires compact layout");
 
   await createPlannerRoute(page);
   await searchForDetours(page);
-  await page.getByRole("button", { name: "Show map" }).click();
+  const sheetHandle = page.getByRole("slider", {
+    name: "Resize planning tools",
+  });
+  await expect(sheetHandle).toHaveAttribute("aria-valuetext", "mid position");
+  await moveCompactSheetToPeek(page);
   await expect(
     page.getByRole("region", { name: "Jaunt route map" })
   ).toBeVisible();
   await expect(
     page.getByRole("complementary", { name: "Jaunt planning tools" })
-  ).toBeHidden();
+  ).toBeAttached();
 
   await page.getByTitle("1. Paris Mountain").click();
   await expect(page.getByLabel("Paris Mountain details")).toBeVisible();
-  await page.getByRole("button", { name: "Back to tools" }).click();
+  await sheetHandle.click();
+  await expect(sheetHandle).toHaveAttribute("aria-valuetext", "mid position");
   await expect(
     page.getByRole("complementary", { name: "Jaunt planning tools" })
   ).toBeVisible();

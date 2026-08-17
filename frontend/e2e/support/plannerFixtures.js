@@ -131,7 +131,10 @@ async function installAuthorizedAuth(page) {
   });
 }
 
-async function installPlannerApi(page, { places = createPlacesResponse() } = {}) {
+async function installPlannerApi(
+  page,
+  { places = createPlacesResponse() } = {}
+) {
   await page.route("**/route**", async (route) => {
     const hasDetour = route.request().url().includes("waypoints");
     await route.fulfill({
@@ -210,14 +213,34 @@ async function createPlannerRoute(
   await page.getByRole("combobox", { name: "Start" }).fill(origin);
   await page.getByRole("combobox", { name: "Destination" }).fill(destination);
   await page.getByRole("button", { name: "Create route" }).click();
-  await expect(page.getByRole("region", { name: "Route summary" })).toContainText(
-    "245 mi"
-  );
+  await expect(
+    page.getByRole("region", { name: "Route summary" })
+  ).toContainText("245 mi");
 }
 
 async function searchForDetours(page) {
   await page.getByRole("tab", { name: "Discover" }).click();
   await page.getByRole("button", { name: "Search this area" }).click();
+}
+
+async function moveCompactSheetToPeek(page) {
+  const handle = page.getByRole("slider", { name: "Resize planning tools" });
+  await handle.dispatchEvent("pointerdown", {
+    clientY: 100,
+    pointerId: 1,
+    pointerType: "touch",
+  });
+  await handle.dispatchEvent("pointermove", {
+    clientY: 500,
+    pointerId: 1,
+    pointerType: "touch",
+  });
+  await handle.dispatchEvent("pointerup", {
+    clientY: 500,
+    pointerId: 1,
+    pointerType: "touch",
+  });
+  await expect(handle).toHaveAttribute("aria-valuetext", "peek position");
 }
 
 module.exports = {
@@ -232,6 +255,7 @@ module.exports = {
   installAuthorizedAuth,
   installPlannerApi,
   installSavedJauntApi,
+  moveCompactSheetToPeek,
   searchForDetours,
   seedPlannerWithDetour,
 };
