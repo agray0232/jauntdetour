@@ -54,7 +54,7 @@ tool sheet layered above it.
 - The map fills the planner viewport and supports one-finger pan and pinch zoom
 - Map type, camera, and zoom controls are removed to preserve map space
 - The tool sheet initially rests at the balanced anchor, occupying roughly the
-  lower two-fifths of the planner viewport
+  lower 45 percent of the planner viewport
 - The sheet can rest at any bounded height during the current planner visit
 - Peek, balanced, and expanded positions act as magnetic anchors
 - The sheet body owns its internal scroll; dragging starts from the handle
