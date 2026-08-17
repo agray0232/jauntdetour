@@ -727,6 +727,7 @@ function MapContainer(props) {
             height: "100%",
           }}
           fullscreenControl={false}
+          gestureHandling={props.mapGestureHandling}
           mapId="DEMO_MAP_ID"
           mapTypeControl={props.mapTypeControl !== false}
           onClick={() => {
@@ -918,6 +919,12 @@ function MapContainer(props) {
 
 MapContainer.propTypes = {
   cameraControl: PropTypes.bool,
+  mapGestureHandling: PropTypes.oneOf([
+    "auto",
+    "cooperative",
+    "greedy",
+    "none",
+  ]),
   origin: PropTypes.shape({
     address: PropTypes.string,
     lat: PropTypes.number,

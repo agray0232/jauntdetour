@@ -20,9 +20,7 @@ import {
   useToastController,
 } from "@fluentui/react-components";
 import {
-  ArrowLeftRegular,
   DismissRegular,
-  MapRegular,
   OpenRegular,
   SparkleRegular,
   TextBulletListTreeRegular,
@@ -40,15 +38,16 @@ import {
 } from "./build-workflow/plannerFingerprint";
 import {
   jauntColors,
-  jauntRadius,
   jauntSize,
   jauntSpacing,
   jauntTypography,
 } from "../../design-system/tokens";
-import "./PlannerWorkspace.css";
+import useCompactLayout from "../../hooks/useCompactLayout";
+import MobilePlannerSheet from "./MobilePlannerSheet";
 
 const useStyles = makeStyles({
   root: {
+    position: "relative",
     display: "grid",
     width: "100%",
     height: "100%",
@@ -62,13 +61,13 @@ const useStyles = makeStyles({
       gridTemplateColumns: "23.75rem minmax(0, 1fr)",
     },
     "@media (max-width: 48.75rem) and (orientation: portrait)": {
-      gridTemplateAreas: '"map" "tools"',
+      gridTemplateAreas: '"map"',
       gridTemplateColumns: "minmax(0, 1fr)",
-      gridTemplateRows: "minmax(12rem, 39%) minmax(0, 61%)",
+      gridTemplateRows: "minmax(0, 1fr)",
     },
-    "@media (max-height: 31.25rem) and (orientation: landscape)": {
-      gridTemplateAreas: '"tools map"',
-      gridTemplateColumns: "minmax(19rem, 46%) minmax(0, 54%)",
+    "@media (max-width: 48.75rem) and (orientation: landscape)": {
+      gridTemplateAreas: '"map"',
+      gridTemplateColumns: "minmax(0, 1fr)",
       gridTemplateRows: "minmax(0, 1fr)",
     },
   },
@@ -84,11 +83,6 @@ const useStyles = makeStyles({
     "@media (max-width: 48.75rem) and (min-height: 31.251rem)": {
       ...shorthands.borderRight("0", "solid", "transparent"),
       ...shorthands.borderTop("1px", "solid", tokens.colorNeutralStroke1),
-    },
-  },
-  toolsHidden: {
-    "@media (max-width: 48.75rem) and (min-height: 31.251rem)": {
-      display: "none",
     },
   },
   panelHeader: {
@@ -162,12 +156,6 @@ const useStyles = makeStyles({
   tabs: {
     flexGrow: 1,
   },
-  compactMapAction: {
-    display: "none",
-    "@media (max-width: 48.75rem) and (min-height: 31.251rem)": {
-      display: "inline-flex",
-    },
-  },
   panelScroll: {
     minWidth: 0,
     minHeight: 0,
@@ -220,28 +208,14 @@ const useStyles = makeStyles({
     overflow: "hidden",
     backgroundColor: jauntColors.neutral.backgroundTinted,
   },
-  mapBack: {
-    position: "absolute",
-    top: jauntSpacing[3],
-    right: jauntSpacing[3],
-    zIndex: 2,
-    display: "none",
-    color: tokens.colorNeutralForeground1,
-    backgroundColor: tokens.colorNeutralBackground1,
-    borderRadius: jauntRadius.control,
-    boxShadow: tokens.shadow16,
-    "@media (max-width: 48.75rem) and (min-height: 31.251rem)": {
-      display: "inline-flex",
-    },
-  },
 });
 
 const PLANNER_TOAST_TIMEOUT = 5000;
 
 export default function PlannerWorkspace(props) {
   const styles = useStyles();
+  const compactLayout = useCompactLayout();
   const [selectedTask, setSelectedTask] = useState("build");
-  const [mapExpanded, setMapExpanded] = useState(false);
   const [editingRoute, setEditingRoute] = useState(!props.showDetourButton);
   const [saveOperation, setSaveOperation] = useState("idle");
   const [hoveredDetourId, setHoveredDetourId] = useState(null);
@@ -474,7 +448,6 @@ export default function PlannerWorkspace(props) {
   useEffect(() => {
     if (!props.showDetourButton) {
       setSelectedTask("build");
-      setMapExpanded(false);
       setEditingRoute(true);
     }
   }, [props.showDetourButton]);
@@ -557,206 +530,192 @@ export default function PlannerWorkspace(props) {
 
   return (
     <div
-      className={`${styles.root} jaunt-planner-root ${
-        mapExpanded ? "jaunt-planner-root--map-expanded" : ""
-      }`}
+      className={styles.root}
+      data-layout={compactLayout ? "compact" : "desktop"}
     >
-      <aside
-        className={`${styles.tools} ${mapExpanded ? styles.toolsHidden : ""}`}
-        aria-label="Jaunt planning tools"
-      >
-        <div className={styles.panelHeader}>
-          <div className={styles.panelIdentity}>
-            {props.showDetourButton ? (
-              <Field className={styles.panelNameField} label="Jaunt name">
-                <Input
-                  className={styles.panelNameInput}
-                  aria-label="Jaunt name"
-                  value={props.tripName || ""}
-                  placeholder={routeTitle || "Name this Jaunt"}
-                  onChange={(event) => props.setTripName(event.target.value)}
-                />
-              </Field>
-            ) : (
-              <>
-                <Text className={styles.eyebrow}>New Jaunt</Text>
-                <h2 className={styles.panelTitle}>Build your Jaunt</h2>
-              </>
-            )}
-          </div>
-          {props.showDetourButton ? (
-            <div
-              className={`${styles.panelActions} ${styles.panelActionsReady}`}
-            >
-              <Badge appearance="tint" color={currentStatus.color}>
-                {currentStatus.label}
-              </Badge>
+      <MobilePlannerSheet active={compactLayout}>
+        <aside className={styles.tools} aria-label="Jaunt planning tools">
+          <div className={styles.panelHeader}>
+            <div className={styles.panelIdentity}>
+              {props.showDetourButton ? (
+                <Field className={styles.panelNameField} label="Jaunt name">
+                  <Input
+                    className={styles.panelNameInput}
+                    aria-label="Jaunt name"
+                    value={props.tripName || ""}
+                    placeholder={routeTitle || "Name this Jaunt"}
+                    onChange={(event) => props.setTripName(event.target.value)}
+                  />
+                </Field>
+              ) : (
+                <>
+                  <Text className={styles.eyebrow}>New Jaunt</Text>
+                  <h2 className={styles.panelTitle}>Build your Jaunt</h2>
+                </>
+              )}
             </div>
-          ) : null}
-        </div>
-
-        <div className={styles.tabsRow}>
-          <TabList
-            className={styles.tabs}
-            selectedValue={selectedTask}
-            onTabSelect={handleTabSelect}
-            aria-label="Planning tools"
-          >
-            <Tab
-              value="build"
-              icon={<TextBulletListTreeRegular data-testid="build-tab-icon" />}
-            >
-              Build
-            </Tab>
-            <Tab
-              value="discover"
-              icon={<SparkleRegular data-testid="discover-tab-icon" />}
-              disabled={!props.showDetourButton}
-              style={
-                !props.showDetourButton ? { cursor: "default" } : undefined
-              }
-            >
-              Discover
-            </Tab>
-            <Tab
-              value="export"
-              icon={<OpenRegular data-testid="export-tab-icon" />}
-              disabled={!props.showDetourButton}
-              style={
-                !props.showDetourButton ? { cursor: "default" } : undefined
-              }
-            >
-              Export
-            </Tab>
-          </TabList>
-          <Button
-            className={styles.compactMapAction}
-            appearance="subtle"
-            icon={<MapRegular />}
-            onClick={() => setMapExpanded(true)}
-          >
-            Show map
-          </Button>
-        </div>
-
-        <div className={styles.panelScroll}>
-          <section
-            className={styles.tabPanel}
-            role="tabpanel"
-            aria-label="Build"
-            hidden={selectedTask !== "build"}
-          >
-            {editingRoute ? (
-              <RouteForm
-                origin={props.origin}
-                destination={props.destination}
-                detourList={props.detourList}
-                setOrigin={props.setOrigin}
-                setDestination={props.setDestination}
-                setDetourList={props.setDetourList}
-                setRoute={props.setRoute}
-                setTripSummary={props.setTripSummary}
-                clearAll={props.clearAll}
-                onCancel={
-                  props.showDetourButton ? () => setEditingRoute(false) : null
-                }
-                onRouteReady={() => setEditingRoute(false)}
-              />
-            ) : (
-              <BuildRouteDetails
-                origin={props.origin}
-                destination={props.destination}
-                tripSummary={props.tripSummary}
-                detourList={props.detourList}
-                failedMutation={detourMutations.failedMutation}
-                pending={detourMutations.pending}
-                actionsBusy={anyMutationBusy}
-                retryMutation={retryPlannerMutation}
-                runMutation={runPlannerMutation}
-                onClear={props.clearAll}
-                onDiscover={openDiscover}
-                onEditRoute={() => setEditingRoute(true)}
-                onSaveStateChange={setSaveOperation}
-              />
-            )}
-          </section>
-
-          <section
-            className={styles.tabPanel}
-            role="tabpanel"
-            aria-label="Discover"
-            hidden={selectedTask !== "discover"}
-          >
-            {props.showDetourForm ? (
-              <DiscoverWorkspace
-                origin={props.origin}
-                destination={props.destination}
-                tripSummary={props.tripSummary}
-                detourOptions={props.detourOptions}
-                detourList={props.detourList}
-                detourHighlight={props.detourHighlight}
-                hoveredDetourId={hoveredDetourId}
-                onDetourHover={setHoveredDetourId}
-                mapSelectedDetourId={mapSelectedDetourId}
-                addDetour={props.addDetour}
-                mutationPending={mutationInFlight}
-                onAddControllerChange={setDetourAddController}
-                onAddingChange={handleAddingChange}
-                setRoute={props.setRoute}
-                setTripSummary={props.setTripSummary}
-                setDetourSearchLocation={props.setDetourSearchLocation}
-                setDetourSearchRadius={props.setDetourSearchRadius}
-                setDetourType={props.setDetourType}
-                setDetourOptions={props.setDetourOptions}
-                setDetourHighlight={props.setDetourHighlight}
-                detourType={props.detourType}
-                detourSearchLocation={props.detourSearchLocation}
-                detourSearchRadius={props.detourSearchRadius}
-                route={props.route}
-                onAdded={showAddedDetourToast}
-              />
-            ) : (
-              <div className={styles.discoverEmpty}>
-                <h3 className={styles.discoverTitle}>Create a route first</h3>
-                <Text>
-                  Discover becomes available when your origin and destination
-                  are connected.
-                </Text>
-              </div>
-            )}
-          </section>
-
-          <section
-            className={styles.tabPanel}
-            role="tabpanel"
-            aria-label="Export"
-            hidden={selectedTask !== "export"}
-          >
             {props.showDetourButton ? (
-              <ExportWorkspace
-                origin={props.origin}
-                destination={props.destination}
-                detourList={props.detourList}
-              />
+              <div
+                className={`${styles.panelActions} ${styles.panelActionsReady}`}
+              >
+                <Badge appearance="tint" color={currentStatus.color}>
+                  {currentStatus.label}
+                </Badge>
+              </div>
             ) : null}
-          </section>
-        </div>
-      </aside>
+          </div>
+
+          <div className={styles.tabsRow}>
+            <TabList
+              className={styles.tabs}
+              selectedValue={selectedTask}
+              onTabSelect={handleTabSelect}
+              aria-label="Planning tools"
+            >
+              <Tab
+                value="build"
+                icon={
+                  <TextBulletListTreeRegular data-testid="build-tab-icon" />
+                }
+              >
+                Build
+              </Tab>
+              <Tab
+                value="discover"
+                icon={<SparkleRegular data-testid="discover-tab-icon" />}
+                disabled={!props.showDetourButton}
+                style={
+                  !props.showDetourButton ? { cursor: "default" } : undefined
+                }
+              >
+                Discover
+              </Tab>
+              <Tab
+                value="export"
+                icon={<OpenRegular data-testid="export-tab-icon" />}
+                disabled={!props.showDetourButton}
+                style={
+                  !props.showDetourButton ? { cursor: "default" } : undefined
+                }
+              >
+                Export
+              </Tab>
+            </TabList>
+          </div>
+
+          <div className={styles.panelScroll}>
+            <section
+              className={styles.tabPanel}
+              role="tabpanel"
+              aria-label="Build"
+              hidden={selectedTask !== "build"}
+            >
+              {editingRoute ? (
+                <RouteForm
+                  origin={props.origin}
+                  destination={props.destination}
+                  detourList={props.detourList}
+                  setOrigin={props.setOrigin}
+                  setDestination={props.setDestination}
+                  setDetourList={props.setDetourList}
+                  setRoute={props.setRoute}
+                  setTripSummary={props.setTripSummary}
+                  clearAll={props.clearAll}
+                  onCancel={
+                    props.showDetourButton ? () => setEditingRoute(false) : null
+                  }
+                  onRouteReady={() => setEditingRoute(false)}
+                />
+              ) : (
+                <BuildRouteDetails
+                  origin={props.origin}
+                  destination={props.destination}
+                  tripSummary={props.tripSummary}
+                  detourList={props.detourList}
+                  failedMutation={detourMutations.failedMutation}
+                  pending={detourMutations.pending}
+                  actionsBusy={anyMutationBusy}
+                  retryMutation={retryPlannerMutation}
+                  runMutation={runPlannerMutation}
+                  onClear={props.clearAll}
+                  onDiscover={openDiscover}
+                  onEditRoute={() => setEditingRoute(true)}
+                  onSaveStateChange={setSaveOperation}
+                />
+              )}
+            </section>
+
+            <section
+              className={styles.tabPanel}
+              role="tabpanel"
+              aria-label="Discover"
+              hidden={selectedTask !== "discover"}
+            >
+              {props.showDetourForm ? (
+                <DiscoverWorkspace
+                  origin={props.origin}
+                  destination={props.destination}
+                  tripSummary={props.tripSummary}
+                  detourOptions={props.detourOptions}
+                  detourList={props.detourList}
+                  detourHighlight={props.detourHighlight}
+                  hoveredDetourId={hoveredDetourId}
+                  onDetourHover={setHoveredDetourId}
+                  mapSelectedDetourId={mapSelectedDetourId}
+                  addDetour={props.addDetour}
+                  mutationPending={mutationInFlight}
+                  onAddControllerChange={setDetourAddController}
+                  onAddingChange={handleAddingChange}
+                  setRoute={props.setRoute}
+                  setTripSummary={props.setTripSummary}
+                  setDetourSearchLocation={props.setDetourSearchLocation}
+                  setDetourSearchRadius={props.setDetourSearchRadius}
+                  setDetourType={props.setDetourType}
+                  setDetourOptions={props.setDetourOptions}
+                  setDetourHighlight={props.setDetourHighlight}
+                  detourType={props.detourType}
+                  detourSearchLocation={props.detourSearchLocation}
+                  detourSearchRadius={props.detourSearchRadius}
+                  route={props.route}
+                  onAdded={showAddedDetourToast}
+                />
+              ) : (
+                <div className={styles.discoverEmpty}>
+                  <h3 className={styles.discoverTitle}>Create a route first</h3>
+                  <Text>
+                    Discover becomes available when your origin and destination
+                    are connected.
+                  </Text>
+                </div>
+              )}
+            </section>
+
+            <section
+              className={styles.tabPanel}
+              role="tabpanel"
+              aria-label="Export"
+              hidden={selectedTask !== "export"}
+            >
+              {props.showDetourButton ? (
+                <ExportWorkspace
+                  origin={props.origin}
+                  destination={props.destination}
+                  detourList={props.detourList}
+                />
+              ) : null}
+            </section>
+          </div>
+        </aside>
+      </MobilePlannerSheet>
 
       <section className={styles.map} aria-label="Jaunt route map">
-        {mapExpanded ? (
-          <Button
-            className={styles.mapBack}
-            appearance="secondary"
-            icon={<ArrowLeftRegular />}
-            onClick={() => setMapExpanded(false)}
-          >
-            Back to tools
-          </Button>
-        ) : null}
         <MapContainer
+          cameraControl={!compactLayout}
+          mapGestureHandling={compactLayout ? "greedy" : undefined}
+          mapTypeControl={!compactLayout}
           origin={props.currentTrip?.origin}
           destination={props.currentTrip?.destination}
+          zoomControl={!compactLayout}
           showRoute={props.showRoute}
           showDetourSearchPoint={
             selectedTask === "discover" && props.showDetourSearchPoint

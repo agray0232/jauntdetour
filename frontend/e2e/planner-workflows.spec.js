@@ -3,6 +3,7 @@ const {
   createPlannerRoute,
   installAnonymousAuth,
   installPlannerApi,
+  moveCompactSheetToPeek,
   searchForDetours,
   seedPlannerWithDetour,
 } = require("./support/plannerFixtures");
@@ -15,9 +16,9 @@ test.beforeEach(async ({ page }) => {
 test("planner initializes a route", async ({ page }) => {
   await createPlannerRoute(page);
 
-  await expect(
-    page.getByRole("region", { name: "Itinerary" })
-  ).toContainText("Atlanta, GA");
+  await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
+    "Atlanta, GA"
+  );
   await expect(page.getByTitle("Jaunt start")).toHaveCount(1);
   await expect(page.getByTitle("Jaunt destination")).toHaveCount(1);
   await expect(page.getByText("Not saved")).toBeVisible();
@@ -61,7 +62,7 @@ test("planner removes a detour and restores it with Undo", async ({
   await page.goto("/plan", { waitUntil: "domcontentloaded" });
 
   if (testInfo.project.metadata.compact) {
-    await page.getByRole("button", { name: "Show map" }).click();
+    await moveCompactSheetToPeek(page);
   }
 
   await page.getByTitle("Paris Mountain, added stop").click();
@@ -76,10 +77,6 @@ test("planner removes a detour and restores it with Undo", async ({
   await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(0);
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.getByTitle("Paris Mountain, added stop")).toHaveCount(1);
-
-  if (testInfo.project.metadata.compact) {
-    await page.getByRole("button", { name: "Back to tools" }).click();
-  }
 
   await expect(page.getByRole("region", { name: "Itinerary" })).toContainText(
     "Paris Mountain"
