@@ -19,7 +19,14 @@ test("saved Jaunt renders its endpoint markers", async ({ page }) => {
   await expect(page.getByTitle("Jaunt destination")).toHaveCount(1);
 });
 
-test("saved Jaunt selects an added marker to show details", async ({ page }) => {
+test("saved Jaunt selects an added marker to show details", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    !testInfo.project.metadata.supportsHover,
+    "Saved-map selection is covered on desktop; compact tap selection is covered in the planner"
+  );
+
   await page.goto("/trips/trip-1", { waitUntil: "domcontentloaded" });
   await page.getByTitle("Paris Mountain, added stop").click();
 
