@@ -535,73 +535,79 @@ export default function PlannerWorkspace(props) {
     >
       <MobilePlannerSheet active={compactLayout}>
         <aside className={styles.tools} aria-label="Jaunt planning tools">
-          <div className={styles.panelHeader}>
-            <div className={styles.panelIdentity}>
-              {props.showDetourButton ? (
-                <Field className={styles.panelNameField} label="Jaunt name">
-                  <Input
-                    className={styles.panelNameInput}
-                    aria-label="Jaunt name"
-                    value={props.tripName || ""}
-                    placeholder={routeTitle || "Name this Jaunt"}
-                    onChange={(event) => props.setTripName(event.target.value)}
-                  />
-                </Field>
-              ) : (
-                <>
-                  <Text className={styles.eyebrow}>New Jaunt</Text>
-                  <h2 className={styles.panelTitle}>Build your Jaunt</h2>
-                </>
-              )}
-            </div>
-            {props.showDetourButton ? (
-              <div
-                className={`${styles.panelActions} ${styles.panelActionsReady}`}
-              >
-                <Badge appearance="tint" color={currentStatus.color}>
-                  {currentStatus.label}
-                </Badge>
+          {props.showDetourButton || !compactLayout ? (
+            <div className={styles.panelHeader}>
+              <div className={styles.panelIdentity}>
+                {props.showDetourButton ? (
+                  <Field className={styles.panelNameField} label="Jaunt name">
+                    <Input
+                      className={styles.panelNameInput}
+                      aria-label="Jaunt name"
+                      value={props.tripName || ""}
+                      placeholder={routeTitle || "Name this Jaunt"}
+                      onChange={(event) =>
+                        props.setTripName(event.target.value)
+                      }
+                    />
+                  </Field>
+                ) : (
+                  <>
+                    <Text className={styles.eyebrow}>New Jaunt</Text>
+                    <h2 className={styles.panelTitle}>Build your Jaunt</h2>
+                  </>
+                )}
               </div>
-            ) : null}
-          </div>
+              {props.showDetourButton ? (
+                <div
+                  className={`${styles.panelActions} ${styles.panelActionsReady}`}
+                >
+                  <Badge appearance="tint" color={currentStatus.color}>
+                    {currentStatus.label}
+                  </Badge>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-          <div className={styles.tabsRow}>
-            <TabList
-              className={styles.tabs}
-              selectedValue={selectedTask}
-              onTabSelect={handleTabSelect}
-              aria-label="Planning tools"
-            >
-              <Tab
-                value="build"
-                icon={
-                  <TextBulletListTreeRegular data-testid="build-tab-icon" />
-                }
+          {props.showDetourButton || !compactLayout ? (
+            <div className={styles.tabsRow}>
+              <TabList
+                className={styles.tabs}
+                selectedValue={selectedTask}
+                onTabSelect={handleTabSelect}
+                aria-label="Planning tools"
               >
-                Build
-              </Tab>
-              <Tab
-                value="discover"
-                icon={<SparkleRegular data-testid="discover-tab-icon" />}
-                disabled={!props.showDetourButton}
-                style={
-                  !props.showDetourButton ? { cursor: "default" } : undefined
-                }
-              >
-                Discover
-              </Tab>
-              <Tab
-                value="export"
-                icon={<OpenRegular data-testid="export-tab-icon" />}
-                disabled={!props.showDetourButton}
-                style={
-                  !props.showDetourButton ? { cursor: "default" } : undefined
-                }
-              >
-                Export
-              </Tab>
-            </TabList>
-          </div>
+                <Tab
+                  value="build"
+                  icon={
+                    <TextBulletListTreeRegular data-testid="build-tab-icon" />
+                  }
+                >
+                  Build
+                </Tab>
+                <Tab
+                  value="discover"
+                  icon={<SparkleRegular data-testid="discover-tab-icon" />}
+                  disabled={!props.showDetourButton}
+                  style={
+                    !props.showDetourButton ? { cursor: "default" } : undefined
+                  }
+                >
+                  Discover
+                </Tab>
+                <Tab
+                  value="export"
+                  icon={<OpenRegular data-testid="export-tab-icon" />}
+                  disabled={!props.showDetourButton}
+                  style={
+                    !props.showDetourButton ? { cursor: "default" } : undefined
+                  }
+                >
+                  Export
+                </Tab>
+              </TabList>
+            </div>
+          ) : null}
 
           <div className={styles.panelScroll}>
             <section

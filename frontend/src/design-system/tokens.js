@@ -85,6 +85,7 @@ export const jauntSpacing = {
 export const jauntRadius = {
   control: "0.375rem",
   surface: "0.5rem",
+  sheet: "1rem",
   round: "999px",
 };
 
