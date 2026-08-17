@@ -9,7 +9,7 @@ describe("mobileSheetGeometry", () => {
   const anchors = calculateSheetAnchors(840);
 
   it("creates expanded, balanced, and peek anchors", () => {
-    expect(anchors).toEqual({ expanded: 8, mid: 487, peek: 784 });
+    expect(anchors).toEqual({ expanded: 8, mid: 466, peek: 784 });
   });
 
   it("clamps free positions to the sheet bounds", () => {
@@ -19,9 +19,9 @@ describe("mobileSheetGeometry", () => {
   });
 
   it("magnetically settles releases near an anchor", () => {
-    expect(resolveSheetRelease({ anchors, position: 470 })).toEqual({
+    expect(resolveSheetRelease({ anchors, position: 450 })).toEqual({
       anchor: "mid",
-      position: 487,
+      position: 466,
     });
   });
 
@@ -35,10 +35,10 @@ describe("mobileSheetGeometry", () => {
   it("uses clear velocity to settle at the next anchor", () => {
     expect(
       resolveSheetRelease({ anchors, position: 420, velocity: 0.7 })
-    ).toEqual({ anchor: "mid", position: 487 });
+    ).toEqual({ anchor: "mid", position: 466 });
     expect(
       resolveSheetRelease({ anchors, position: 700, velocity: -0.7 })
-    ).toEqual({ anchor: "mid", position: 487 });
+    ).toEqual({ anchor: "mid", position: 466 });
   });
 
   it("remaps custom positions proportionally after resize", () => {

@@ -10,11 +10,51 @@ test.beforeEach(async ({ page }) => {
   await installPlannerApi(page);
 });
 
+test("compact header stays visible while routes and planner tools scroll", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.metadata.compact, "Requires compact layout");
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const main = page.locator("#main-content");
+  const homeLink = page.getByRole("link", { name: "JauntDetour home" });
+  await main.evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  await expect
+    .poll(() => main.evaluate((element) => element.scrollTop))
+    .toBeGreaterThan(0);
+  await expect(homeLink).toBeInViewport();
+
+  await page.getByRole("link", { name: "Plan your Jaunt" }).first().click();
+  await expect(page).toHaveURL(/\/plan$/);
+  await expect
+    .poll(() => main.evaluate((element) => element.scrollTop))
+    .toBe(0);
+  await expect(homeLink).toBeInViewport();
+  await expect(
+    page.getByRole("navigation", { name: "Compact navigation" })
+  ).toBeInViewport();
+
+  await page.getByRole("combobox", { name: "Start" }).focus();
+  const sheetHandle = page.getByRole("slider", {
+    name: "Resize planning tools",
+  });
+  await sheetHandle.press("End");
+  await expect(sheetHandle).toHaveAttribute(
+    "aria-valuetext",
+    "expanded position"
+  );
+  await expect(homeLink).toBeInViewport();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+});
+
 test("compact planner exposes route entry at the initial sheet height", async ({
   page,
 }, testInfo) => {
   test.skip(!testInfo.project.metadata.compact, "Requires compact layout");
 
+  await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/plan", { waitUntil: "domcontentloaded" });
   const sheetHandle = page.getByRole("slider", {
     name: "Resize planning tools",
