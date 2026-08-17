@@ -14,6 +14,7 @@ import {
   remapSheetPosition,
   resolveSheetRelease,
 } from "./mobileSheetGeometry";
+import { calculateViewportBounds } from "./mobileViewportGeometry";
 
 // Ignore drag velocity when the pointer has been held still for longer than
 // this before release, so a pause after a fast drag does not trigger a fling.
@@ -91,10 +92,6 @@ const useStyles = makeStyles({
   },
 });
 
-function clamp(value, minimum, maximum) {
-  return Math.min(maximum, Math.max(minimum, value));
-}
-
 function getViewportBounds(element) {
   const parent = element?.parentElement;
   const rect = parent?.getBoundingClientRect();
@@ -102,27 +99,12 @@ function getViewportBounds(element) {
   const viewport =
     typeof window !== "undefined" ? window.visualViewport : undefined;
 
-  if (rect && viewport && parentHeight) {
-    const visibleTop = clamp(viewport.offsetTop - rect.top, 0, parentHeight);
-    const visibleBottom = clamp(
-      viewport.offsetTop + viewport.height - rect.top,
-      visibleTop,
-      parentHeight
-    );
-    if (visibleBottom > visibleTop) {
-      return {
-        bottomInset: parentHeight - visibleBottom,
-        height: visibleBottom - visibleTop,
-        top: visibleTop,
-      };
-    }
-  }
-
-  return {
-    bottomInset: 0,
-    height: parentHeight || viewport?.height || window.innerHeight,
-    top: 0,
-  };
+  return calculateViewportBounds({
+    fallbackHeight: window.innerHeight,
+    parentHeight,
+    parentTop: rect?.top || 0,
+    viewport,
+  });
 }
 
 function offsetAnchors(anchors, offset) {

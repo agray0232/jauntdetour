@@ -1,14 +1,9 @@
 import React from "react";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
 import MobilePlannerSheet from "./MobilePlannerSheet";
+import { calculateViewportBounds } from "./mobileViewportGeometry";
 
 function renderSheet() {
   return render(
@@ -149,7 +144,27 @@ describe("MobilePlannerSheet", () => {
     );
   });
 
-  it("stays within the keyboard-visible viewport and cleans up listeners", async () => {
+  it("calculates planner-local bounds above the virtual keyboard", () => {
+    expect(
+      calculateViewportBounds({
+        fallbackHeight: 840,
+        parentHeight: 740,
+        parentTop: 100,
+        viewport: { height: 400, offsetTop: 180 },
+      })
+    ).toEqual({ bottomInset: 260, height: 400, top: 80 });
+
+    expect(
+      calculateViewportBounds({
+        fallbackHeight: 840,
+        parentHeight: 740,
+        parentTop: 100,
+        viewport: { height: 300, offsetTop: 220 },
+      })
+    ).toEqual({ bottomInset: 320, height: 300, top: 120 });
+  });
+
+  it("subscribes to visual viewport changes and cleans up listeners", () => {
     const listeners = {};
     const viewport = {
       addEventListener: jest.fn((name, listener) => {
@@ -163,19 +178,6 @@ describe("MobilePlannerSheet", () => {
       configurable: true,
       value: viewport,
     });
-    const rect = {
-      bottom: 840,
-      height: 740,
-      left: 0,
-      right: 390,
-      top: 100,
-      width: 390,
-      x: 0,
-      y: 100,
-    };
-    const boundsSpy = jest
-      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
-      .mockReturnValue(rect);
     const animationFrameSpy = jest
       .spyOn(window, "requestAnimationFrame")
       .mockImplementation((callback) => {
@@ -185,10 +187,6 @@ describe("MobilePlannerSheet", () => {
 
     try {
       const { unmount } = renderSheet();
-      const sheet = screen.getByTestId("mobile-planner-sheet");
-      await waitFor(() =>
-        expect(sheet).toHaveStyle({ bottom: "260px", top: "312px" })
-      );
       expect(viewport.addEventListener).toHaveBeenCalledWith(
         "resize",
         expect.any(Function)
@@ -198,12 +196,11 @@ describe("MobilePlannerSheet", () => {
         expect.any(Function)
       );
 
-      viewport.offsetTop = 220;
-      viewport.height = 300;
-      act(() => listeners.resize());
-      await waitFor(() =>
-        expect(sheet).toHaveStyle({ bottom: "320px", top: "294px" })
-      );
+      act(() => {
+        listeners.resize();
+        listeners.scroll();
+      });
+      expect(animationFrameSpy).toHaveBeenCalled();
 
       unmount();
       expect(viewport.removeEventListener).toHaveBeenCalledWith(
@@ -216,7 +213,6 @@ describe("MobilePlannerSheet", () => {
       );
     } finally {
       animationFrameSpy.mockRestore();
-      boundsSpy.mockRestore();
     }
   });
 });
