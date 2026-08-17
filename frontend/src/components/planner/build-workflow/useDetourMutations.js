@@ -6,6 +6,24 @@ function getDetourIdentity(detour) {
   return detour?.placeId || detour?.id || null;
 }
 
+function resolveMutationTarget(mutation, detourList) {
+  if (mutation.kind === "restore") return mutation;
+
+  const detourIdentity =
+    mutation.detourIdentity || getDetourIdentity(detourList[mutation.index]);
+  const index = detourIdentity
+    ? detourList.findIndex(
+        (detour) => getDetourIdentity(detour) === detourIdentity
+      )
+    : mutation.index;
+
+  if (!Number.isInteger(index) || index < 0 || index >= detourList.length) {
+    return null;
+  }
+
+  return { ...mutation, detourIdentity, index };
+}
+
 export default function useDetourMutations(options) {
   const [pending, setPending] = useState(null);
   const [failedMutation, setFailedMutation] = useState(null);
@@ -30,12 +48,18 @@ export default function useDetourMutations(options) {
         setRoute,
         setTripSummary,
       } = optionsRef.current;
+      const resolvedMutation = resolveMutationTarget(mutation, detourList);
+      if (!resolvedMutation) {
+        return { status: "unchanged" };
+      }
       const nextDetours =
-        mutation.kind === "remove"
-          ? detourList.filter((detour, index) => index !== mutation.index)
-          : mutation.kind === "restore"
+        resolvedMutation.kind === "remove"
+          ? detourList.filter(
+              (detour, index) => index !== resolvedMutation.index
+            )
+          : resolvedMutation.kind === "restore"
             ? (() => {
-                const identity = getDetourIdentity(mutation.detour);
+                const identity = getDetourIdentity(resolvedMutation.detour);
                 if (
                   identity &&
                   detourList.some(
@@ -46,13 +70,21 @@ export default function useDetourMutations(options) {
                 }
                 const restoredDetours = detourList.slice();
                 const insertionIndex = Math.min(
-                  Math.max(mutation.index, 0),
+                  Math.max(resolvedMutation.index, 0),
                   restoredDetours.length
                 );
-                restoredDetours.splice(insertionIndex, 0, mutation.detour);
+                restoredDetours.splice(
+                  insertionIndex,
+                  0,
+                  resolvedMutation.detour
+                );
                 return restoredDetours;
               })()
-            : moveDetour(detourList, mutation.index, mutation.toIndex);
+            : moveDetour(
+                detourList,
+                resolvedMutation.index,
+                resolvedMutation.toIndex
+              );
 
       if (nextDetours === detourList) {
         return { status: "unchanged" };
@@ -60,7 +92,7 @@ export default function useDetourMutations(options) {
 
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
-      setPending(mutation);
+      setPending(resolvedMutation);
       setFailedMutation(null);
 
       try {
@@ -78,15 +110,15 @@ export default function useDetourMutations(options) {
         setDetourList(nextDetours);
         setPending(null);
 
-        if (mutation.kind === "remove") {
-          const removedDetour = detourList[mutation.index];
+        if (resolvedMutation.kind === "remove") {
+          const removedDetour = detourList[resolvedMutation.index];
           updateUndoRemoval(
             removedDetour
-              ? { detour: removedDetour, index: mutation.index }
+              ? { detour: removedDetour, index: resolvedMutation.index }
               : null
           );
           trackEvent("detour_removed", {
-            category: detourList[mutation.index]?.type || "Unspecified",
+            category: detourList[resolvedMutation.index]?.type || "Unspecified",
             countBucket:
               nextDetours.length === 0
                 ? "0"
@@ -95,18 +127,23 @@ export default function useDetourMutations(options) {
                   : "6+",
             feature: "detour",
           });
-        } else if (mutation.kind === "restore") {
+        } else if (resolvedMutation.kind === "restore") {
           updateUndoRemoval(null);
         }
 
-        return { mutation, nextDetours, route, status: "success" };
+        return {
+          mutation: resolvedMutation,
+          nextDetours,
+          route,
+          status: "success",
+        };
       } catch {
         if (requestId !== requestIdRef.current) {
           return { status: "stale" };
         }
         setPending(null);
-        setFailedMutation(mutation);
-        return { mutation, status: "failed" };
+        setFailedMutation(resolvedMutation);
+        return { mutation: resolvedMutation, status: "failed" };
       }
     },
     [updateUndoRemoval]

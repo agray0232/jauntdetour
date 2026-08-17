@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -7,6 +7,7 @@ import {
   MenuList,
   MenuPopover,
   MenuTrigger,
+  Spinner,
   Text,
 } from "@fluentui/react-components";
 import { DeleteRegular, MoreHorizontalRegular } from "@fluentui/react-icons";
@@ -112,9 +113,14 @@ function MarkerDetails({ feature }) {
 
 function SelectableMapMarker({
   active,
+  addFailed,
+  adding,
   background,
   feature,
+  glyphColor,
+  glyphText,
   iconType,
+  onAddDetour,
   onClose,
   onHover,
   onRemoveDetour,
@@ -258,16 +264,17 @@ function SelectableMapMarker({
         zIndex={active ? zIndex + 10 : zIndex}
       >
         <Pin
-          scale={active ? 1.25 : 1.1}
+          scale={glyphText ? (active ? 1 : 0.85) : active ? 1.25 : 1.1}
           background={background}
           borderColor={
             showDetails === "selected"
               ? jauntColors.brand.primary
               : jauntColors.neutral.foregroundOnDark
           }
-          glyphColor={jauntColors.neutral.foregroundOnDark}
+          glyphColor={glyphColor || jauntColors.neutral.foregroundOnDark}
+          glyphText={glyphText}
         >
-          {getDetourIconComponent(iconType, "1.125rem")}
+          {glyphText ? null : getDetourIconComponent(iconType, "1.125rem")}
         </Pin>
       </AdvancedMarker>
       {showDetails ? (
@@ -342,6 +349,17 @@ function SelectableMapMarker({
             onMouseLeave={leaveInfoWindow}
           >
             <MarkerDetails feature={feature} />
+            {feature.candidate && showDetails === "selected" ? (
+              <Button
+                appearance="primary"
+                disabled={pending}
+                icon={adding ? <Spinner size="tiny" /> : null}
+                onClick={() => onAddDetour?.(feature.result)}
+                style={{ marginTop: "0.75rem", width: "100%" }}
+              >
+                {adding ? "Adding" : addFailed ? "Retry add" : "Add to Jaunt"}
+              </Button>
+            ) : null}
           </div>
         </InfoWindow>
       ) : null}
@@ -472,37 +490,53 @@ function DetourCircle({
   const map = useMap();
   const mapsLibrary = useMapsLibrary("maps");
   const circleRef = useRef(null);
+  const detourPointLat = detourPoint?.lat;
+  const detourPointLng = detourPoint?.lng;
 
-  useEffect(() => {
-    if (!map || !mapsLibrary || !showDetourSearchPoint || !detourPoint) return;
-
-    // Clean up existing circle
-    if (circleRef.current) {
-      circleRef.current.setMap(null);
-    }
-
-    circleRef.current = new window.google.maps.Circle({
-      center: detourPoint,
-      radius: parseFloat(detourSearchRadius),
-      strokeColor: "transparent",
-      strokeOpacity: 0,
-      strokeWeight: 5,
-      fillColor: jauntColors.map.searchArea,
-      fillOpacity: 0.2,
-    });
-
-    circleRef.current.setMap(map);
-
-    return () => {
+  useEffect(
+    () => () => {
       if (circleRef.current) {
         circleRef.current.setMap(null);
+        circleRef.current = null;
       }
-    };
+    },
+    [map, mapsLibrary]
+  );
+
+  useEffect(() => {
+    if (!map || !mapsLibrary) return;
+
+    if (
+      !showDetourSearchPoint ||
+      !Number.isFinite(detourPointLat) ||
+      !Number.isFinite(detourPointLng)
+    ) {
+      circleRef.current?.setMap(null);
+      return;
+    }
+
+    if (!circleRef.current) {
+      circleRef.current = new window.google.maps.Circle({
+        clickable: false,
+        strokeColor: "transparent",
+        strokeOpacity: 0,
+        strokeWeight: 5,
+        fillColor: jauntColors.map.searchArea,
+        fillOpacity: 0.2,
+      });
+    }
+
+    circleRef.current.setOptions({
+      center: { lat: detourPointLat, lng: detourPointLng },
+      radius: parseFloat(detourSearchRadius),
+    });
+    circleRef.current.setMap(map);
   }, [
     map,
     mapsLibrary,
     showDetourSearchPoint,
-    detourPoint,
+    detourPointLat,
+    detourPointLng,
     detourSearchRadius,
   ]);
 
@@ -516,8 +550,10 @@ function MapContainer(props) {
   const [hoveredFeatureId, setHoveredFeatureId] = useState(null);
   const selectedFeatureIdRef = useRef(selectedFeatureId);
   const hoveredFeatureIdRef = useRef(hoveredFeatureId);
+  const propsRef = useRef(props);
   selectedFeatureIdRef.current = selectedFeatureId;
   hoveredFeatureIdRef.current = hoveredFeatureId;
+  propsRef.current = props;
   const routeEndpoints = getRouteEndpoints(
     props.route,
     props.origin,
@@ -562,12 +598,49 @@ function MapContainer(props) {
     detourIndex: index,
     position: { lat: detour.lat, lng: detour.lng },
   }));
+  const candidateDetourFeatures = getVisibleDetourOptions(
+    props.detourOptions || [],
+    props.detourList || []
+  ).map(({ option, index }) => ({
+    id: `candidate-${option.place_id || option.id || index}`,
+    accessibleName: `${index + 1}. ${option.name}`,
+    heading: option.name,
+    address: option.vicinity || option.formatted_address,
+    category: option.type,
+    rating: option.rating,
+    candidate: true,
+    placeId: option.place_id,
+    result: option,
+    resultIndex: index,
+    position: {
+      lat: option.geometry.location.lat,
+      lng: option.geometry.location.lng,
+    },
+  }));
   const visibleFeatureIds = [
     ...(props.showRoute && endpointFeatures.start ? ["start"] : []),
     ...(props.showRoute && endpointFeatures.destination ? ["destination"] : []),
+    ...candidateDetourFeatures.map((feature) => feature.id),
     ...addedDetourFeatures.map((feature) => feature.id),
   ];
   const visibleFeatureIdsKey = visibleFeatureIds.join("|");
+  const highlightedCandidatePlaceId = props.detourHighlight?.find(
+    (item) => item.highlight
+  )?.id;
+  const highlightedCandidateFeatureId = candidateDetourFeatures.find(
+    (feature) => feature.placeId === highlightedCandidatePlaceId
+  )?.id;
+
+  const clearDetourOptionSelection = useCallback(() => {
+    const currentProps = propsRef.current;
+    currentProps.setDetourHighlight?.(
+      (currentProps.detourOptions || []).map((option) => ({
+        id: option.place_id,
+        highlight: false,
+      }))
+    );
+    currentProps.onDetourSelect?.(null);
+  }, []);
 
   useEffect(() => {
     if (
@@ -577,6 +650,12 @@ function MapContainer(props) {
       setSelectedFeatureId(null);
     }
   }, [selectedFeatureId, visibleFeatureIdsKey]);
+
+  useEffect(() => {
+    if (highlightedCandidateFeatureId) {
+      setSelectedFeatureId(highlightedCandidateFeatureId);
+    }
+  }, [highlightedCandidateFeatureId]);
 
   useEffect(() => {
     if (
@@ -592,6 +671,9 @@ function MapContainer(props) {
 
     const dismissSelectedFeature = (event) => {
       if (event.key !== "Escape") return;
+      if (selectedFeatureId.startsWith("candidate-")) {
+        clearDetourOptionSelection();
+      }
       setHoveredFeatureId(null);
       setSelectedFeatureId(null);
     };
@@ -599,13 +681,16 @@ function MapContainer(props) {
     document.addEventListener("keydown", dismissSelectedFeature);
     return () =>
       document.removeEventListener("keydown", dismissSelectedFeature);
-  }, [selectedFeatureId]);
+  }, [clearDetourOptionSelection, selectedFeatureId]);
 
   const closeFeatureDetails = (featureId, detailsMode) => {
     if (
       detailsMode === "selected" &&
       selectedFeatureIdRef.current === featureId
     ) {
+      if (featureId.startsWith("candidate-")) {
+        clearDetourOptionSelection();
+      }
       setSelectedFeatureId(null);
     }
     if (
@@ -642,11 +727,14 @@ function MapContainer(props) {
             height: "100%",
           }}
           fullscreenControl={false}
+          gestureHandling={props.mapGestureHandling}
           mapId="DEMO_MAP_ID"
           mapTypeControl={props.mapTypeControl !== false}
           onClick={() => {
             setHoveredFeatureId(null);
             setSelectedFeatureId(null);
+            props.onDetourHover?.(null);
+            clearDetourOptionSelection();
           }}
           streetViewControl={false}
           zoomControl={props.zoomControl !== false}
@@ -728,51 +816,72 @@ function MapContainer(props) {
           />
 
           {/* Detour options markers */}
-          {props.detourOptions?.length > 0 &&
-            getVisibleDetourOptions(props.detourOptions, props.detourList).map(
-              ({ option: detour, index }) => {
-                // Check if this detour should be highlighted
-                const highlight = props.detourHighlight?.some(
-                  (detourHighlight) =>
-                    detourHighlight.id === detour.place_id &&
-                    detourHighlight.highlight
-                );
-                const hovered = props.hoveredDetourId === detour.place_id;
+          {candidateDetourFeatures.map((feature) => {
+            const highlight = highlightedCandidatePlaceId === feature.placeId;
+            const hovered = props.hoveredDetourId === feature.placeId;
+            const selected =
+              highlight ||
+              (!highlightedCandidatePlaceId &&
+                selectedFeatureId === feature.id);
+            const markerPreviewed = hoveredFeatureId === feature.id;
+            const previewed =
+              markerPreviewed || props.hoveredDetourId === feature.placeId;
 
-                return (
-                  <AdvancedMarker
-                    key={`detour-option-${detour.place_id || index}`}
-                    title={`${index + 1}. ${detour.name}`}
-                    onClick={() => selectDetourOption(detour.place_id)}
-                    onMouseEnter={() => props.onDetourHover?.(detour.place_id)}
-                    onMouseLeave={() => props.onDetourHover?.(null)}
-                    position={{
-                      lat: detour.geometry.location.lat,
-                      lng: detour.geometry.location.lng,
-                    }}
-                    zIndex={highlight ? 3 : hovered ? 2 : 1}
-                  >
-                    <Pin
-                      scale={highlight ? 1 : 0.85}
-                      background={
-                        highlight
-                          ? jauntColors.map.selected
-                          : hovered
-                            ? jauntColors.brand.accent
-                            : jauntColors.map.result
-                      }
-                      glyphColor={
-                        highlight
-                          ? jauntColors.neutral.foregroundOnDark
-                          : jauntColors.map.endpoint
-                      }
-                      borderColor={jauntColors.map.endpoint}
-                      glyphText={`${index + 1}`}
-                    />
-                  </AdvancedMarker>
-                );
-              }
-            )}
+            return (
+              <SelectableMapMarker
+                key={feature.id}
+                active={selected || markerPreviewed || highlight}
+                addFailed={
+                  props.detourAddController?.addErrorId === feature.placeId
+                }
+                background={
+                  selected || highlight
+                    ? jauntColors.map.selected
+                    : previewed || hovered
+                      ? jauntColors.brand.accent
+                      : jauntColors.map.result
+                }
+                feature={feature}
+                glyphText={`${feature.resultIndex + 1}`}
+                glyphColor={
+                  selected || highlight
+                    ? jauntColors.neutral.foregroundOnDark
+                    : jauntColors.map.endpoint
+                }
+                iconType={feature.category}
+                onAddDetour={props.detourAddController?.addResult}
+                adding={props.detourAddController?.addingId === feature.placeId}
+                onClose={closeFeatureDetails}
+                onHover={(featureId) => {
+                  setHoveredFeatureId((currentFeatureId) =>
+                    featureId
+                      ? featureId
+                      : currentFeatureId === feature.id
+                        ? null
+                        : currentFeatureId
+                  );
+                  if (featureId) {
+                    props.onDetourHover?.(feature.placeId);
+                  } else if (props.hoveredDetourId === feature.placeId) {
+                    props.onDetourHover?.(null);
+                  }
+                }}
+                onSelect={(featureId) => {
+                  setSelectedFeatureId(featureId);
+                  selectDetourOption(feature.placeId);
+                  props.onDetourSelect?.(feature.placeId);
+                }}
+                pending={
+                  props.detourActionsBusy ||
+                  props.detourAddController?.addingId === feature.placeId
+                }
+                showDetails={
+                  selected ? "selected" : previewed ? "hovered" : null
+                }
+                zIndex={highlight ? 3 : hovered ? 2 : 1}
+              />
+            );
+          })}
 
           {/* Detour list markers */}
           {addedDetourFeatures.map((feature) => (
@@ -810,6 +919,12 @@ function MapContainer(props) {
 
 MapContainer.propTypes = {
   cameraControl: PropTypes.bool,
+  mapGestureHandling: PropTypes.oneOf([
+    "auto",
+    "cooperative",
+    "greedy",
+    "none",
+  ]),
   origin: PropTypes.shape({
     address: PropTypes.string,
     lat: PropTypes.number,
@@ -827,14 +942,20 @@ MapContainer.propTypes = {
   showDetourSearchPoint: PropTypes.bool,
   detourOptions: PropTypes.array,
   detourHighlight: PropTypes.array,
+  detourActionsBusy: PropTypes.bool,
+  detourAddController: PropTypes.shape({
+    addErrorId: PropTypes.string,
+    addResult: PropTypes.func.isRequired,
+    addingId: PropTypes.string,
+  }),
   hoveredDetourId: PropTypes.string,
   mapTypeControl: PropTypes.bool,
   onRemoveDetour: PropTypes.func,
   detourList: PropTypes.array,
   onDetourHover: PropTypes.func,
+  onDetourSelect: PropTypes.func,
   setDetourHighlight: PropTypes.func,
   detourMutationPending: PropTypes.object,
-  detourActionsBusy: PropTypes.bool,
   zoomControl: PropTypes.bool,
 };
 
@@ -859,9 +980,14 @@ MarkerDetails.propTypes = {
 
 SelectableMapMarker.propTypes = {
   active: PropTypes.bool.isRequired,
+  addFailed: PropTypes.bool,
+  adding: PropTypes.bool,
   background: PropTypes.string.isRequired,
   feature: PropTypes.object.isRequired,
+  glyphColor: PropTypes.string,
+  glyphText: PropTypes.string,
   iconType: PropTypes.string.isRequired,
+  onAddDetour: PropTypes.func,
   onClose: PropTypes.func.isRequired,
   onHover: PropTypes.func.isRequired,
   onRemoveDetour: PropTypes.func,

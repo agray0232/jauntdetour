@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "dependencies": {
     "@fluentui/react-components": "^9.74.3",
@@ -24,6 +24,7 @@
     "test:watch": "react-scripts test",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
     "test:e2e": "playwright test",
+    "test:e2e:stability": "playwright test -g \"planner|marker|detour\" --repeat-each=20 --retries=0",
     "test:e2e:install": "playwright install chromium",
     "start:test": "serve -s build -l 3001",
     "lint": "eslint src/",

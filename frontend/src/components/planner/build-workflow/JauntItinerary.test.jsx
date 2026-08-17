@@ -59,20 +59,6 @@ describe("JauntItinerary", () => {
     trackEvent.mockReset();
   });
 
-  it("disables itinerary actions while another mutation is in flight", () => {
-    renderItinerary(createProps({ actionsBusy: true }));
-
-    expect(
-      screen.getByRole("button", { name: "Move Falls Park earlier" })
-    ).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: "Move Paris Mountain later" })
-    ).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: "Remove Paris Mountain" })
-    ).toBeDisabled();
-  });
-
   it("renders a complete non-map route sequence", () => {
     renderItinerary(createProps());
 
@@ -135,6 +121,28 @@ describe("JauntItinerary", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(props.setDetourList).toHaveBeenCalledTimes(1));
     expect(getRoute).toHaveBeenCalledTimes(2);
+  });
+
+  it("disables Retry while another mutation is active", () => {
+    const retryMutation = jest.fn();
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <JauntItinerary
+          {...createProps()}
+          actionsBusy
+          failedMutation={{ kind: "remove", index: 0 }}
+          onDiscover={jest.fn()}
+          pending={null}
+          retryMutation={retryMutation}
+          runMutation={jest.fn()}
+        />
+      </FluentProvider>
+    );
+
+    const retryButton = screen.getByRole("button", { name: "Retry" });
+    expect(retryButton).toBeDisabled();
+    fireEvent.click(retryButton);
+    expect(retryMutation).not.toHaveBeenCalled();
   });
 
   it("reorders stops through keyboard-operable commands", async () => {

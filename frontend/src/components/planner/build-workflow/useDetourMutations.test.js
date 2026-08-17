@@ -85,4 +85,58 @@ describe("useDetourMutations", () => {
 
     expect(props.setDetourList).toHaveBeenCalledTimes(setDetourListCalls);
   });
+
+  it("retries a failed removal by identity after the itinerary is reordered", async () => {
+    const getRoute = jest
+      .fn()
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ routes: [{ summary: { distance: 180 } }] });
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const props = createProps();
+    const { result, rerender } = renderHook(
+      (hookProps) => useDetourMutations(hookProps),
+      { initialProps: props }
+    );
+    let failure;
+
+    await act(async () => {
+      failure = await result.current.runMutation({ kind: "remove", index: 0 });
+    });
+    expect(failure.mutation.detourIdentity).toBe("one");
+
+    rerender({ ...props, detourList: [detours[1], detours[0]] });
+    await act(() => result.current.retryMutation(failure.mutation));
+
+    expect(props.setDetourList).toHaveBeenLastCalledWith([detours[1]]);
+    expect(getRoute).toHaveBeenLastCalledWith(
+      "Atlanta",
+      "Charlotte",
+      "Address",
+      { waypoints: ["two"] }
+    );
+  });
+
+  it("does not retry a removal when its detour no longer exists", async () => {
+    const getRoute = jest.fn().mockRejectedValueOnce(new Error("network"));
+    RouteRequester.mockImplementation(() => ({ getRoute }));
+    const props = createProps();
+    const { result, rerender } = renderHook(
+      (hookProps) => useDetourMutations(hookProps),
+      { initialProps: props }
+    );
+    let failure;
+
+    await act(async () => {
+      failure = await result.current.runMutation({ kind: "remove", index: 0 });
+    });
+    rerender({ ...props, detourList: [detours[1]] });
+
+    let retryResult;
+    await act(async () => {
+      retryResult = await result.current.retryMutation(failure.mutation);
+    });
+
+    expect(retryResult).toEqual({ status: "unchanged" });
+    expect(getRoute).toHaveBeenCalledTimes(1);
+  });
 });

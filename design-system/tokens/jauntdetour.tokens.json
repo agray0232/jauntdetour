@@ -239,6 +239,11 @@
       "$value": "0.5rem",
       "$description": "Cards, dialogs, and grouped content"
     },
+    "sheet": {
+      "$type": "dimension",
+      "$value": "1rem",
+      "$description": "Top corners of compact bottom sheets"
+    },
     "round": {
       "$type": "dimension",
       "$value": "999px",
