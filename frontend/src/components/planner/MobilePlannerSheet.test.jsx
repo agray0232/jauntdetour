@@ -37,14 +37,14 @@ describe("MobilePlannerSheet", () => {
     });
   });
 
-  it("starts at the one-third magnetic position", () => {
+  it("starts at the balanced magnetic position", () => {
     renderSheet();
 
     const handle = screen.getByRole("slider", {
       name: "Resize planning tools",
     });
     expect(handle).toHaveAttribute("aria-valuetext", "mid position");
-    expect(handle).toHaveAttribute("aria-valuenow", "29");
+    expect(handle).toHaveAttribute("aria-valuenow", "38");
   });
 
   it("cycles between magnetic positions on tap", () => {

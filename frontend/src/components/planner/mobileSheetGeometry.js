@@ -1,5 +1,6 @@
 const EXPANDED_TOP_INSET = 8;
 const PEEK_HEIGHT = 56;
+const MID_TOP_RATIO = 0.58;
 const MAGNETIC_RADIUS = 28;
 const FLING_VELOCITY = 0.55;
 
@@ -11,7 +12,7 @@ export function calculateSheetAnchors(viewportHeight) {
   const usableHeight = Math.max(viewportHeight, PEEK_HEIGHT * 2);
   const expanded = Math.min(EXPANDED_TOP_INSET, usableHeight - PEEK_HEIGHT);
   const peek = usableHeight - PEEK_HEIGHT;
-  const mid = clampSheetPosition(Math.round(usableHeight * (2 / 3)), {
+  const mid = clampSheetPosition(Math.round(usableHeight * MID_TOP_RATIO), {
     expanded,
     peek,
   });

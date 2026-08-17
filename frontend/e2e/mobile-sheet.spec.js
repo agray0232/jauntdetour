@@ -24,10 +24,28 @@ test("compact planner exposes route entry at the initial sheet height", async ({
     page.getByRole("heading", { name: "Where are you headed?" })
   ).toBeInViewport();
   await expect(page.getByRole("combobox", { name: "Start" })).toBeInViewport();
+  await expect(
+    page.getByRole("combobox", { name: "Destination" })
+  ).toBeInViewport();
+  await expect(
+    page.getByRole("button", { name: "Create route" })
+  ).toBeInViewport();
 
   const sheet = page.locator('[data-sheet-position="mid"]');
   await expect(sheet).toHaveCSS("border-top-left-radius", "16px");
   await expect(sheet).toHaveCSS("border-top-right-radius", "16px");
+});
+
+test("compact route-ready header stays concise at mid height", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.metadata.compact, "Requires compact layout");
+
+  await createPlannerRoute(page);
+  await expect(
+    page.getByRole("textbox", { name: "Jaunt name" })
+  ).toBeInViewport();
+  await expect(page.getByRole("tab", { name: "Build" })).toBeInViewport();
 });
 
 test("compact Discover scroll reaches controls at mid sheet height", async ({

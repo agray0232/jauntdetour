@@ -73,6 +73,14 @@ const useStyles = makeStyles({
     flexDirection: "column",
     overflow: "hidden",
     paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    "& > aside > div:first-child": {
+      minHeight: "3.75rem",
+      padding: "0.25rem 0.75rem",
+      columnGap: "0.5rem",
+    },
+    "& > aside > div:first-child > div:nth-child(2)": {
+      transform: "none",
+    },
   },
 });
 
