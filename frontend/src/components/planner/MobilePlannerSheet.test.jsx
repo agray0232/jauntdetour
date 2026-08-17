@@ -58,7 +58,7 @@ describe("MobilePlannerSheet", () => {
       name: "Resize planning tools",
     });
     expect(handle).toHaveAttribute("aria-valuetext", "mid position");
-    expect(handle).toHaveAttribute("aria-valuenow", "38");
+    expect(handle).toHaveAttribute("aria-valuenow", "41");
   });
 
   it("cycles between magnetic positions on tap", () => {
