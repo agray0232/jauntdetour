@@ -1,5 +1,11 @@
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
 import MobilePlannerSheet from "./MobilePlannerSheet";
@@ -143,7 +149,7 @@ describe("MobilePlannerSheet", () => {
     );
   });
 
-  it("stays within the keyboard-visible viewport and cleans up listeners", () => {
+  it("stays within the keyboard-visible viewport and cleans up listeners", async () => {
     const listeners = {};
     const viewport = {
       addEventListener: jest.fn((name, listener) => {
@@ -177,33 +183,40 @@ describe("MobilePlannerSheet", () => {
         return 1;
       });
 
-    const { unmount } = renderSheet();
-    const sheet = screen.getByTestId("mobile-planner-sheet");
-    expect(sheet).toHaveStyle({ bottom: "260px", top: "312px" });
-    expect(viewport.addEventListener).toHaveBeenCalledWith(
-      "resize",
-      expect.any(Function)
-    );
-    expect(viewport.addEventListener).toHaveBeenCalledWith(
-      "scroll",
-      expect.any(Function)
-    );
+    try {
+      const { unmount } = renderSheet();
+      const sheet = screen.getByTestId("mobile-planner-sheet");
+      await waitFor(() =>
+        expect(sheet).toHaveStyle({ bottom: "260px", top: "312px" })
+      );
+      expect(viewport.addEventListener).toHaveBeenCalledWith(
+        "resize",
+        expect.any(Function)
+      );
+      expect(viewport.addEventListener).toHaveBeenCalledWith(
+        "scroll",
+        expect.any(Function)
+      );
 
-    viewport.offsetTop = 220;
-    viewport.height = 300;
-    act(() => listeners.resize());
-    expect(sheet).toHaveStyle({ bottom: "320px", top: "294px" });
+      viewport.offsetTop = 220;
+      viewport.height = 300;
+      act(() => listeners.resize());
+      await waitFor(() =>
+        expect(sheet).toHaveStyle({ bottom: "320px", top: "294px" })
+      );
 
-    unmount();
-    expect(viewport.removeEventListener).toHaveBeenCalledWith(
-      "resize",
-      listeners.resize
-    );
-    expect(viewport.removeEventListener).toHaveBeenCalledWith(
-      "scroll",
-      listeners.scroll
-    );
-    animationFrameSpy.mockRestore();
-    boundsSpy.mockRestore();
+      unmount();
+      expect(viewport.removeEventListener).toHaveBeenCalledWith(
+        "resize",
+        listeners.resize
+      );
+      expect(viewport.removeEventListener).toHaveBeenCalledWith(
+        "scroll",
+        listeners.scroll
+      );
+    } finally {
+      animationFrameSpy.mockRestore();
+      boundsSpy.mockRestore();
+    }
   });
 });
