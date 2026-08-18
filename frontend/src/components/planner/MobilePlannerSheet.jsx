@@ -130,12 +130,43 @@ function MobilePlannerSheet({ active, children }) {
   const dragRef = useRef(null);
   const frameRef = useRef(null);
   const measureFrameRef = useRef(null);
+  const focusFrameRef = useRef(null);
+  const focusedControlRef = useRef(null);
   const suppressClickRef = useRef(false);
   const positionRef = useRef(0);
   const anchorsRef = useRef(calculateSheetAnchors(window.innerHeight));
   const stateRef = useRef({ anchor: "mid", position: anchorsRef.current.mid });
   const [sheetState, setSheetState] = useState(stateRef.current);
   const [dragging, setDragging] = useState(false);
+
+  const revealFocusedControl = useCallback(() => {
+    const control = focusedControlRef.current;
+    if (!control?.isConnected) return;
+
+    const scrollRegion = control.closest('[data-planner-scroll="true"]');
+    if (!scrollRegion) return;
+
+    const controlBounds = control.getBoundingClientRect();
+    const scrollBounds = scrollRegion.getBoundingClientRect();
+    const edgePadding = 16;
+    if (controlBounds.top < scrollBounds.top + edgePadding) {
+      scrollRegion.scrollTop -=
+        scrollBounds.top + edgePadding - controlBounds.top;
+    } else if (controlBounds.bottom > scrollBounds.bottom - edgePadding) {
+      scrollRegion.scrollTop +=
+        controlBounds.bottom - (scrollBounds.bottom - edgePadding);
+    }
+  }, []);
+
+  const scheduleFocusedControlReveal = useCallback(() => {
+    if (focusFrameRef.current != null) {
+      cancelAnimationFrame(focusFrameRef.current);
+    }
+    focusFrameRef.current = requestAnimationFrame(() => {
+      focusFrameRef.current = null;
+      revealFocusedControl();
+    });
+  }, [revealFocusedControl]);
 
   const applyPosition = useCallback((position) => {
     positionRef.current = position;
@@ -169,7 +200,8 @@ function MobilePlannerSheet({ active, children }) {
       sheetRef.current.style.bottom = `${viewportBounds.bottomInset}px`;
     }
     commitState(nextState);
-  }, [commitState]);
+    scheduleFocusedControlReveal();
+  }, [commitState, scheduleFocusedControlReveal]);
 
   const scheduleMeasure = useCallback(() => {
     if (measureFrameRef.current != null) {
@@ -182,7 +214,10 @@ function MobilePlannerSheet({ active, children }) {
   }, [measure]);
 
   useLayoutEffect(() => {
-    if (!active) return undefined;
+    if (!active) {
+      focusedControlRef.current = null;
+      return undefined;
+    }
 
     measure();
     const parent = sheetRef.current?.parentElement;
@@ -203,6 +238,10 @@ function MobilePlannerSheet({ active, children }) {
         cancelAnimationFrame(measureFrameRef.current);
         measureFrameRef.current = null;
       }
+      if (focusFrameRef.current != null) {
+        cancelAnimationFrame(focusFrameRef.current);
+        focusFrameRef.current = null;
+      }
     };
   }, [active, measure, scheduleMeasure]);
 
@@ -211,6 +250,9 @@ function MobilePlannerSheet({ active, children }) {
       if (frameRef.current != null) cancelAnimationFrame(frameRef.current);
       if (measureFrameRef.current != null) {
         cancelAnimationFrame(measureFrameRef.current);
+      }
+      if (focusFrameRef.current != null) {
+        cancelAnimationFrame(focusFrameRef.current);
       }
     },
     []
@@ -306,12 +348,20 @@ function MobilePlannerSheet({ active, children }) {
 
   const handleBodyFocus = (event) => {
     if (
-      event.target.matches(
-        "input, textarea, select, [contenteditable='true']"
-      ) &&
-      positionRef.current > anchorsRef.current.mid
-    ) {
-      moveToAnchor("expanded");
+      !event.target.matches("input, textarea, select, [contenteditable='true']")
+    )
+      return;
+
+    focusedControlRef.current = event.target;
+    scheduleFocusedControlReveal();
+  };
+
+  const handleBodyBlur = (event) => {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    focusedControlRef.current = null;
+    if (focusFrameRef.current != null) {
+      cancelAnimationFrame(focusFrameRef.current);
+      focusFrameRef.current = null;
     }
   };
 
@@ -356,6 +406,7 @@ function MobilePlannerSheet({ active, children }) {
       <div
         key="body"
         className={active ? styles.body : styles.passthrough}
+        onBlurCapture={active ? handleBodyBlur : undefined}
         onFocusCapture={active ? handleBodyFocus : undefined}
       >
         {children}

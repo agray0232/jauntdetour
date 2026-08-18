@@ -88,7 +88,26 @@ describe("MobilePlannerSheet", () => {
     expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
   });
 
-  it("expands low-position tools when a form field receives focus", () => {
+  it("preserves the balanced position when focus does not resize the viewport", () => {
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <div style={{ height: "840px", position: "relative" }}>
+          <MobilePlannerSheet active>
+            <input aria-label="Route origin" />
+          </MobilePlannerSheet>
+        </div>
+      </FluentProvider>
+    );
+    const handle = screen.getByRole("slider", {
+      name: "Resize planning tools",
+    });
+
+    expect(handle).toHaveAttribute("aria-valuetext", "mid position");
+    fireEvent.focus(screen.getByRole("textbox", { name: "Route origin" }));
+    expect(handle).toHaveAttribute("aria-valuetext", "mid position");
+  });
+
+  it("preserves the user's peek position when focus does not resize the viewport", () => {
     render(
       <FluentProvider theme={jauntDetourTheme}>
         <div style={{ height: "840px", position: "relative" }}>
@@ -105,7 +124,50 @@ describe("MobilePlannerSheet", () => {
     fireEvent.keyDown(handle, { key: "Home" });
     expect(handle).toHaveAttribute("aria-valuetext", "peek position");
     fireEvent.focus(screen.getByRole("textbox", { name: "Route origin" }));
-    expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
+    expect(handle).toHaveAttribute("aria-valuetext", "peek position");
+  });
+
+  it("keeps a focused field visible using only planner content scrolling", () => {
+    jest.spyOn(window, "scrollTo").mockImplementation(() => {});
+    jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((callback) => {
+        callback();
+        return 1;
+      });
+    render(
+      <FluentProvider theme={jauntDetourTheme}>
+        <div style={{ height: "840px", position: "relative" }}>
+          <MobilePlannerSheet active>
+            <div
+              aria-label="Planning tools content"
+              data-planner-scroll="true"
+              role="region"
+            >
+              <input aria-label="Route origin" />
+            </div>
+          </MobilePlannerSheet>
+        </div>
+      </FluentProvider>
+    );
+    const input = screen.getByRole("textbox", { name: "Route origin" });
+    const scrollRegion = screen.getByRole("region", {
+      name: "Planning tools content",
+    });
+    input.getBoundingClientRect = jest.fn(() => ({
+      bottom: 520,
+      top: 480,
+    }));
+    scrollRegion.getBoundingClientRect = jest.fn(() => ({
+      bottom: 400,
+      top: 100,
+    }));
+    scrollRegion.scrollTop = 20;
+
+    fireEvent.focus(input);
+
+    expect(scrollRegion.scrollTop).toBe(156);
+    expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
   it("preserves child state when toggling across the compact breakpoint", () => {
