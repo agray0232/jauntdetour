@@ -65,4 +65,23 @@ describe("mobileSheetGeometry", () => {
       })
     ).toEqual({ anchor: "mid", position: nextAnchors.mid });
   });
+
+  it("temporarily raises an anchor for a keyboard-sized viewport", () => {
+    const keyboardAnchors = calculateSheetAnchors(480);
+    const raised = remapSheetPosition({
+      anchor: "mid",
+      position: anchors.mid,
+      previousAnchors: anchors,
+      nextAnchors: keyboardAnchors,
+    });
+    const restored = remapSheetPosition({
+      ...raised,
+      previousAnchors: keyboardAnchors,
+      nextAnchors: anchors,
+    });
+
+    expect(raised).toEqual({ anchor: "mid", position: keyboardAnchors.mid });
+    expect(raised.position).toBeLessThan(anchors.mid);
+    expect(restored).toEqual({ anchor: "mid", position: anchors.mid });
+  });
 });
