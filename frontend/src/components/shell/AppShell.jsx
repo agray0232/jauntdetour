@@ -1,4 +1,5 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { makeStyles, tokens } from "@fluentui/react-components";
 import { Outlet, useLocation } from "react-router-dom";
 import AppHeader from "./AppHeader";
@@ -14,9 +15,18 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground2,
     "@media (max-width: 48.75rem), (max-height: 31.25rem) and (orientation: landscape)":
       {
+        minHeight: 0,
         overflow: "hidden",
         overscrollBehavior: "none",
       },
+  },
+  plannerFrame: {
+    position: "fixed",
+    right: 0,
+    top: 0,
+    left: 0,
+    minHeight: 0,
+    overflow: "hidden",
   },
   skipLink: {
     position: "fixed",
@@ -43,11 +53,17 @@ const useStyles = makeStyles({
   },
 });
 
-export default function AppShell() {
+const getWindowVisualViewport = () => window.visualViewport;
+
+export default function AppShell({
+  getVisualViewport = getWindowVisualViewport,
+}) {
   const styles = useStyles();
   const compactLayout = useCompactLayout();
   const location = useLocation();
   const mainRef = useRef(null);
+  const [plannerViewport, setPlannerViewport] = useState(null);
+  const plannerFrameActive = compactLayout && location.pathname === "/plan";
 
   useLayoutEffect(() => {
     if (!compactLayout) return;
@@ -55,8 +71,70 @@ export default function AppShell() {
     window.scrollTo(0, 0);
   }, [compactLayout, location.key, location.pathname]);
 
+  useLayoutEffect(() => {
+    if (!plannerFrameActive) return undefined;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const viewport = getVisualViewport();
+    const scrollPosition = { x: window.scrollX, y: window.scrollY };
+    const previousStyles = {
+      bodyInset: body.style.inset,
+      bodyOverflow: body.style.overflow,
+      bodyOverscrollBehavior: body.style.overscrollBehavior,
+      bodyPosition: body.style.position,
+      bodyWidth: body.style.width,
+      rootOverflow: root.style.overflow,
+      rootOverscrollBehavior: root.style.overscrollBehavior,
+    };
+    const updateViewport = () => {
+      setPlannerViewport(
+        viewport ? { height: viewport.height, top: viewport.offsetTop } : null
+      );
+    };
+
+    root.style.overflow = "hidden";
+    root.style.overscrollBehavior = "none";
+    body.style.position = "fixed";
+    body.style.inset = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+    window.scrollTo(0, 0);
+    updateViewport();
+    viewport?.addEventListener("resize", updateViewport);
+    viewport?.addEventListener("scroll", updateViewport);
+
+    return () => {
+      viewport?.removeEventListener("resize", updateViewport);
+      viewport?.removeEventListener("scroll", updateViewport);
+      root.style.overflow = previousStyles.rootOverflow;
+      root.style.overscrollBehavior = previousStyles.rootOverscrollBehavior;
+      body.style.position = previousStyles.bodyPosition;
+      body.style.inset = previousStyles.bodyInset;
+      body.style.width = previousStyles.bodyWidth;
+      body.style.overflow = previousStyles.bodyOverflow;
+      body.style.overscrollBehavior = previousStyles.bodyOverscrollBehavior;
+      window.scrollTo(scrollPosition.x, scrollPosition.y);
+    };
+  }, [getVisualViewport, plannerFrameActive]);
+
+  const plannerFrameStyle =
+    plannerFrameActive && plannerViewport
+      ? {
+          height: `${plannerViewport.height}px`,
+          top: `${plannerViewport.top}px`,
+        }
+      : undefined;
+
   return (
-    <div className={styles.root}>
+    <div
+      className={`${styles.root} ${
+        plannerFrameActive ? styles.plannerFrame : ""
+      }`}
+      data-testid="app-shell"
+      style={plannerFrameStyle}
+    >
       <a className={styles.skipLink} href="#main-content">
         Skip to main content
       </a>
@@ -64,8 +142,18 @@ export default function AppShell() {
       <main
         aria-label="Page content"
         className={styles.main}
+        data-scroll-locked={plannerFrameActive ? "true" : undefined}
         id="main-content"
         ref={mainRef}
+        style={
+          plannerFrameActive
+            ? {
+                overflowX: "hidden",
+                overflowY: "hidden",
+                overscrollBehavior: "none",
+              }
+            : undefined
+        }
         tabIndex={-1}
       >
         <Outlet />
@@ -73,3 +161,7 @@ export default function AppShell() {
     </div>
   );
 }
+
+AppShell.propTypes = {
+  getVisualViewport: PropTypes.func,
+};

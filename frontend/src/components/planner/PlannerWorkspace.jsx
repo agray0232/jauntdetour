@@ -611,7 +611,7 @@ export default function PlannerWorkspace(props) {
             </div>
           ) : null}
 
-          <div className={styles.panelScroll}>
+          <div className={styles.panelScroll} data-planner-scroll="true">
             <section
               className={styles.tabPanel}
               role="tabpanel"
