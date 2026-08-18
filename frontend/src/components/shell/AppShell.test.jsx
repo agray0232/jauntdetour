@@ -101,6 +101,9 @@ describe("AppShell", () => {
       expect(shell).toHaveStyle({ height: "620px", top: "48px" })
     );
     expect(main).toHaveAttribute("data-scroll-locked", "true");
+    expect(main.style.overflowX).toBe("hidden");
+    expect(main.style.overflowY).toBe("hidden");
+    expect(main.style.overscrollBehavior).toBe("none");
     expect(document.documentElement.style.overflow).toBe("hidden");
     expect(document.body.style.position).toBe("fixed");
     expect(viewport.addEventListener).toHaveBeenCalledWith(

@@ -51,10 +51,6 @@ const useStyles = makeStyles({
         overscrollBehaviorY: "contain",
       },
   },
-  plannerMain: {
-    overflow: "hidden",
-    overscrollBehavior: "none",
-  },
 });
 
 const getWindowVisualViewport = () => window.visualViewport;
@@ -145,12 +141,19 @@ export default function AppShell({
       <AppHeader />
       <main
         aria-label="Page content"
-        className={`${styles.main} ${
-          plannerFrameActive ? styles.plannerMain : ""
-        }`}
+        className={styles.main}
         data-scroll-locked={plannerFrameActive ? "true" : undefined}
         id="main-content"
         ref={mainRef}
+        style={
+          plannerFrameActive
+            ? {
+                overflowX: "hidden",
+                overflowY: "hidden",
+                overscrollBehavior: "none",
+              }
+            : undefined
+        }
         tabIndex={-1}
       >
         <Outlet />
