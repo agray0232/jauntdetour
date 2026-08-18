@@ -1,5 +1,11 @@
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
@@ -81,7 +87,7 @@ describe("AppShell", () => {
     expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
-  it("locks compact planner scrolling to the visual viewport and restores it", () => {
+  it("locks compact planner scrolling to the visual viewport and restores it", async () => {
     const listeners = {};
     const viewport = {
       height: 620,
@@ -102,7 +108,9 @@ describe("AppShell", () => {
 
     const shell = screen.getByTestId("app-shell");
     const main = screen.getByRole("main", { name: "Page content" });
-    expect(shell).toHaveStyle({ height: "620px", top: "48px" });
+    await waitFor(() =>
+      expect(shell).toHaveStyle({ height: "620px", top: "48px" })
+    );
     expect(main).toHaveAttribute("data-scroll-locked", "true");
     expect(document.documentElement.style.overflow).toBe("hidden");
     expect(document.body.style.position).toBe("fixed");
