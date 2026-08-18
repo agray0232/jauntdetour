@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { FluentProvider } from "@fluentui/react-components";
 import { jauntDetourTheme } from "../../design-system/jauntDetourTheme";
 import MobilePlannerSheet from "./MobilePlannerSheet";
@@ -21,6 +21,56 @@ function renderSheet() {
       </div>
     </FluentProvider>
   );
+}
+
+function createVisualViewport(height = 840) {
+  const listeners = {};
+  const viewport = {
+    height,
+    offsetTop: 0,
+    addEventListener: jest.fn((event, listener) => {
+      listeners[event] = listener;
+    }),
+    removeEventListener: jest.fn(),
+  };
+
+  return {
+    resize(nextHeight) {
+      viewport.height = nextHeight;
+      act(() => listeners.resize());
+    },
+    viewport,
+  };
+}
+
+function renderKeyboardSheet(viewport) {
+  render(
+    <FluentProvider theme={jauntDetourTheme}>
+      <div style={{ height: "840px", position: "relative" }}>
+        <MobilePlannerSheet active getVisualViewport={() => viewport}>
+          <div
+            aria-label="Planning tools content"
+            data-planner-scroll="true"
+            role="region"
+          >
+            <input aria-label="Route origin" />
+            <input aria-label="Route destination" />
+          </div>
+        </MobilePlannerSheet>
+      </div>
+    </FluentProvider>
+  );
+
+  return {
+    destination: screen.getByRole("textbox", { name: "Route destination" }),
+    handle: screen.getByRole("slider", {
+      name: "Resize planning tools",
+    }),
+    origin: screen.getByRole("textbox", { name: "Route origin" }),
+    scrollRegion: screen.getByRole("region", {
+      name: "Planning tools content",
+    }),
+  };
 }
 
 describe("MobilePlannerSheet", () => {
@@ -49,6 +99,8 @@ describe("MobilePlannerSheet", () => {
       configurable: true,
       value: originalVisualViewport,
     });
+    jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   it("starts at the balanced magnetic position", () => {
@@ -125,6 +177,116 @@ describe("MobilePlannerSheet", () => {
     expect(handle).toHaveAttribute("aria-valuetext", "peek position");
     fireEvent.focus(screen.getByRole("textbox", { name: "Route origin" }));
     expect(handle).toHaveAttribute("aria-valuetext", "peek position");
+  });
+
+  it("temporarily maximizes for the keyboard and restores the balanced position", () => {
+    jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((callback) => {
+        callback();
+        return 1;
+      });
+    const visualViewport = createVisualViewport();
+    const { handle, origin } = renderKeyboardSheet(visualViewport.viewport);
+
+    fireEvent.focus(origin);
+    expect(handle).toHaveAttribute("aria-valuetext", "mid position");
+
+    visualViewport.resize(520);
+    expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
+
+    visualViewport.resize(840);
+    expect(handle).toHaveAttribute("aria-valuetext", "mid position");
+  });
+
+  it("keeps the original peek position while focus switches between fields", () => {
+    jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((callback) => {
+        callback();
+        return 1;
+      });
+    const visualViewport = createVisualViewport();
+    const { destination, handle, origin } = renderKeyboardSheet(
+      visualViewport.viewport
+    );
+
+    fireEvent.keyDown(handle, { key: "Home" });
+    fireEvent.focus(origin);
+    visualViewport.resize(520);
+    expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
+
+    fireEvent.focus(destination);
+    visualViewport.resize(840);
+    expect(handle).toHaveAttribute("aria-valuetext", "peek position");
+  });
+
+  it("keeps an already expanded sheet at its top inset while the keyboard opens", () => {
+    jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((callback) => {
+        callback();
+        return 1;
+      });
+    const visualViewport = createVisualViewport();
+    const { handle, origin } = renderKeyboardSheet(visualViewport.viewport);
+    const sheet = screen.getByTestId("mobile-planner-sheet");
+
+    fireEvent.keyDown(handle, { key: "End" });
+    expect(sheet).toHaveStyle({ top: "8px" });
+    fireEvent.focus(origin);
+    visualViewport.resize(520);
+
+    expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
+    expect(sheet).toHaveStyle({ top: "8px" });
+  });
+
+  it("keeps a pending session when blur arrives just before viewport resize", () => {
+    jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((callback) => {
+        callback();
+        return 1;
+      });
+    const visualViewport = createVisualViewport();
+    const { handle, origin } = renderKeyboardSheet(visualViewport.viewport);
+
+    fireEvent.keyDown(handle, { key: "Home" });
+    fireEvent.focus(origin);
+    fireEvent.blur(origin, { relatedTarget: null });
+    visualViewport.resize(520);
+    expect(handle).toHaveAttribute("aria-valuetext", "expanded position");
+
+    visualViewport.resize(840);
+    expect(handle).toHaveAttribute("aria-valuetext", "peek position");
+  });
+
+  it("aligns the active field within panel scrolling while the keyboard is open", () => {
+    jest.spyOn(window, "scrollTo").mockImplementation(() => {});
+    jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation((callback) => {
+        callback();
+        return 1;
+      });
+    const visualViewport = createVisualViewport();
+    const { destination, scrollRegion } = renderKeyboardSheet(
+      visualViewport.viewport
+    );
+    destination.getBoundingClientRect = jest.fn(() => ({
+      bottom: 340,
+      top: 300,
+    }));
+    scrollRegion.getBoundingClientRect = jest.fn(() => ({
+      bottom: 400,
+      top: 100,
+    }));
+
+    fireEvent.focus(destination);
+    visualViewport.resize(520);
+
+    expect(scrollRegion.scrollTop).toBe(184);
+    expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
   it("keeps a focused field visible using only planner content scrolling", () => {

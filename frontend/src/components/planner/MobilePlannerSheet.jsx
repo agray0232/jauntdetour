@@ -16,12 +16,16 @@ import {
 } from "./mobileSheetGeometry";
 import {
   calculateViewportBounds,
+  hasViewportRecovered,
+  isKeyboardViewport,
   subscribeToViewport,
 } from "./mobileViewportGeometry";
 
 // Ignore drag velocity when the pointer has been held still for longer than
 // this before release, so a pause after a fast drag does not trigger a fling.
 const VELOCITY_IDLE_TIMEOUT = 80;
+const FOCUS_BLUR_GRACE_PERIOD = 300;
+const getWindowVisualViewport = () => window.visualViewport;
 
 const useStyles = makeStyles({
   sheet: {
@@ -95,12 +99,14 @@ const useStyles = makeStyles({
   },
 });
 
-function getViewportBounds(element) {
+function getViewportBounds(element, viewport) {
   const parent = element?.parentElement;
   const rect = parent?.getBoundingClientRect();
   const parentHeight = rect?.height || parent?.clientHeight || 0;
-  const viewport =
-    typeof window !== "undefined" ? window.visualViewport : undefined;
+
+  if (parentHeight) {
+    return { bottomInset: 0, height: parentHeight, top: 0 };
+  }
 
   return calculateViewportBounds({
     fallbackHeight: window.innerHeight,
@@ -124,20 +130,33 @@ function getAnchorInDirection(position, anchors, direction) {
   return direction < 0 ? candidates.at(-1) : candidates.at(0);
 }
 
-function MobilePlannerSheet({ active, children }) {
+function MobilePlannerSheet({
+  active,
+  children,
+  getVisualViewport = getWindowVisualViewport,
+}) {
   const styles = useStyles();
   const sheetRef = useRef(null);
   const dragRef = useRef(null);
   const frameRef = useRef(null);
   const measureFrameRef = useRef(null);
   const focusFrameRef = useRef(null);
+  const blurTimeoutRef = useRef(null);
   const focusedControlRef = useRef(null);
+  const focusWithinRef = useRef(false);
+  const keyboardSessionRef = useRef(null);
+  const restingViewportHeightRef = useRef(null);
   const suppressClickRef = useRef(false);
   const positionRef = useRef(0);
   const anchorsRef = useRef(calculateSheetAnchors(window.innerHeight));
   const stateRef = useRef({ anchor: "mid", position: anchorsRef.current.mid });
   const [sheetState, setSheetState] = useState(stateRef.current);
   const [dragging, setDragging] = useState(false);
+
+  if (restingViewportHeightRef.current == null) {
+    restingViewportHeightRef.current =
+      getVisualViewport()?.height || window.innerHeight;
+  }
 
   const revealFocusedControl = useCallback(() => {
     const control = focusedControlRef.current;
@@ -149,7 +168,10 @@ function MobilePlannerSheet({ active, children }) {
     const controlBounds = control.getBoundingClientRect();
     const scrollBounds = scrollRegion.getBoundingClientRect();
     const edgePadding = 16;
-    if (controlBounds.top < scrollBounds.top + edgePadding) {
+    if (keyboardSessionRef.current?.active) {
+      scrollRegion.scrollTop +=
+        controlBounds.top - (scrollBounds.top + edgePadding);
+    } else if (controlBounds.top < scrollBounds.top + edgePadding) {
       scrollRegion.scrollTop -=
         scrollBounds.top + edgePadding - controlBounds.top;
     } else if (controlBounds.bottom > scrollBounds.bottom - edgePadding) {
@@ -185,23 +207,67 @@ function MobilePlannerSheet({ active, children }) {
   );
 
   const measure = useCallback(() => {
-    const viewportBounds = getViewportBounds(sheetRef.current);
+    const viewport = getVisualViewport();
+    const currentViewportHeight = viewport?.height || window.innerHeight;
+    const viewportBounds = getViewportBounds(sheetRef.current, viewport);
     const nextAnchors = offsetAnchors(
       calculateSheetAnchors(viewportBounds.height),
       viewportBounds.top
     );
-    const nextState = remapSheetPosition({
+    let nextState = remapSheetPosition({
       ...stateRef.current,
       previousAnchors: anchorsRef.current,
       nextAnchors,
     });
+    const keyboardSession = keyboardSessionRef.current;
+
+    if (
+      keyboardSession?.active &&
+      hasViewportRecovered({
+        currentHeight: currentViewportHeight,
+        restingHeight: keyboardSession.restingHeight,
+      })
+    ) {
+      nextState = remapSheetPosition({
+        ...keyboardSession.savedState,
+        previousAnchors: keyboardSession.savedAnchors,
+        nextAnchors,
+      });
+      restingViewportHeightRef.current = currentViewportHeight;
+      keyboardSessionRef.current = focusWithinRef.current
+        ? {
+            active: false,
+            restingHeight: currentViewportHeight,
+            savedAnchors: nextAnchors,
+            savedState: nextState,
+          }
+        : null;
+      if (!focusWithinRef.current) focusedControlRef.current = null;
+    } else if (
+      keyboardSession &&
+      (keyboardSession.active ||
+        isKeyboardViewport({
+          currentHeight: currentViewportHeight,
+          restingHeight: keyboardSession.restingHeight,
+        }))
+    ) {
+      if (!keyboardSession.active) {
+        keyboardSession.active = true;
+        keyboardSession.savedAnchors = { ...anchorsRef.current };
+        keyboardSession.savedState = { ...stateRef.current };
+      }
+      nextState = { anchor: "expanded", position: nextAnchors.expanded };
+    } else if (!keyboardSession) {
+      restingViewportHeightRef.current = currentViewportHeight;
+    }
+
     anchorsRef.current = nextAnchors;
     if (sheetRef.current) {
       sheetRef.current.style.bottom = `${viewportBounds.bottomInset}px`;
     }
     commitState(nextState);
     scheduleFocusedControlReveal();
-  }, [commitState, scheduleFocusedControlReveal]);
+  }, [commitState, getVisualViewport, scheduleFocusedControlReveal]);
 
   const scheduleMeasure = useCallback(() => {
     if (measureFrameRef.current != null) {
@@ -215,14 +281,19 @@ function MobilePlannerSheet({ active, children }) {
 
   useLayoutEffect(() => {
     if (!active) {
+      if (blurTimeoutRef.current != null) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
       focusedControlRef.current = null;
+      focusWithinRef.current = false;
+      keyboardSessionRef.current = null;
       return undefined;
     }
 
     measure();
     const parent = sheetRef.current?.parentElement;
-    const viewport =
-      typeof window !== "undefined" ? window.visualViewport : undefined;
+    const viewport = getVisualViewport();
 
     let observer;
     if (parent && typeof ResizeObserver !== "undefined") {
@@ -242,8 +313,12 @@ function MobilePlannerSheet({ active, children }) {
         cancelAnimationFrame(focusFrameRef.current);
         focusFrameRef.current = null;
       }
+      if (blurTimeoutRef.current != null) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
     };
-  }, [active, measure, scheduleMeasure]);
+  }, [active, getVisualViewport, measure, scheduleMeasure]);
 
   useEffect(
     () => () => {
@@ -253,6 +328,9 @@ function MobilePlannerSheet({ active, children }) {
       }
       if (focusFrameRef.current != null) {
         cancelAnimationFrame(focusFrameRef.current);
+      }
+      if (blurTimeoutRef.current != null) {
+        clearTimeout(blurTimeoutRef.current);
       }
     },
     []
@@ -352,17 +430,41 @@ function MobilePlannerSheet({ active, children }) {
     )
       return;
 
+    focusWithinRef.current = true;
+    if (blurTimeoutRef.current != null) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
     focusedControlRef.current = event.target;
+    if (!keyboardSessionRef.current) {
+      const viewportHeight = getVisualViewport()?.height || window.innerHeight;
+      keyboardSessionRef.current = {
+        active: false,
+        restingHeight: viewportHeight,
+        savedAnchors: { ...anchorsRef.current },
+        savedState: { ...stateRef.current },
+      };
+    }
     scheduleFocusedControlReveal();
   };
 
   const handleBodyBlur = (event) => {
     if (event.currentTarget.contains(event.relatedTarget)) return;
-    focusedControlRef.current = null;
+    focusWithinRef.current = false;
     if (focusFrameRef.current != null) {
       cancelAnimationFrame(focusFrameRef.current);
       focusFrameRef.current = null;
     }
+    if (keyboardSessionRef.current?.active) return;
+    blurTimeoutRef.current = setTimeout(() => {
+      blurTimeoutRef.current = null;
+      if (!focusWithinRef.current && !keyboardSessionRef.current?.active) {
+        focusedControlRef.current = null;
+        keyboardSessionRef.current = null;
+        restingViewportHeightRef.current =
+          getVisualViewport()?.height || window.innerHeight;
+      }
+    }, FOCUS_BLUR_GRACE_PERIOD);
   };
 
   const positionPercent = Math.round(
@@ -418,6 +520,7 @@ function MobilePlannerSheet({ active, children }) {
 MobilePlannerSheet.propTypes = {
   active: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,
+  getVisualViewport: PropTypes.func,
 };
 
 export default MobilePlannerSheet;
