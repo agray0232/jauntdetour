@@ -2,6 +2,24 @@ function clamp(value, minimum, maximum) {
   return Math.min(maximum, Math.max(minimum, value));
 }
 
+const KEYBOARD_MINIMUM_HEIGHT_LOSS = 120;
+const KEYBOARD_MINIMUM_HEIGHT_LOSS_RATIO = 0.2;
+const KEYBOARD_RECOVERY_TOLERANCE = 48;
+
+export function isKeyboardViewport({ currentHeight, restingHeight }) {
+  if (!currentHeight || !restingHeight) return false;
+  const heightLoss = restingHeight - currentHeight;
+  return (
+    heightLoss >= KEYBOARD_MINIMUM_HEIGHT_LOSS &&
+    heightLoss / restingHeight >= KEYBOARD_MINIMUM_HEIGHT_LOSS_RATIO
+  );
+}
+
+export function hasViewportRecovered({ currentHeight, restingHeight }) {
+  if (!currentHeight || !restingHeight) return false;
+  return currentHeight >= restingHeight - KEYBOARD_RECOVERY_TOLERANCE;
+}
+
 export function calculateViewportBounds({
   fallbackHeight,
   parentHeight,
