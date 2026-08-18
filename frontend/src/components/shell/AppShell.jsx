@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { makeStyles, tokens } from "@fluentui/react-components";
 import { Outlet, useLocation } from "react-router-dom";
 import AppHeader from "./AppHeader";
@@ -56,7 +57,11 @@ const useStyles = makeStyles({
   },
 });
 
-export default function AppShell() {
+const getWindowVisualViewport = () => window.visualViewport;
+
+export default function AppShell({
+  getVisualViewport = getWindowVisualViewport,
+}) {
   const styles = useStyles();
   const compactLayout = useCompactLayout();
   const location = useLocation();
@@ -75,7 +80,7 @@ export default function AppShell() {
 
     const root = document.documentElement;
     const body = document.body;
-    const viewport = window.visualViewport;
+    const viewport = getVisualViewport();
     const scrollPosition = { x: window.scrollX, y: window.scrollY };
     const previousStyles = {
       bodyInset: body.style.inset,
@@ -116,7 +121,7 @@ export default function AppShell() {
       body.style.overscrollBehavior = previousStyles.bodyOverscrollBehavior;
       window.scrollTo(scrollPosition.x, scrollPosition.y);
     };
-  }, [plannerFrameActive]);
+  }, [getVisualViewport, plannerFrameActive]);
 
   const plannerFrameStyle =
     plannerFrameActive && plannerViewport
@@ -153,3 +158,7 @@ export default function AppShell() {
     </div>
   );
 }
+
+AppShell.propTypes = {
+  getVisualViewport: PropTypes.func,
+};

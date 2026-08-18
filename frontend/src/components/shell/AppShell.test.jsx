@@ -15,12 +15,12 @@ import AppShell from "./AppShell";
 jest.mock("../../hooks/useCompactLayout");
 jest.mock("./AppHeader", () => () => <header>Shared header</header>);
 
-function renderShell() {
+function renderShell(appShellProps) {
   return render(
     <FluentProvider theme={jauntDetourTheme}>
       <MemoryRouter initialEntries={["/"]}>
         <Routes>
-          <Route element={<AppShell />}>
+          <Route element={<AppShell {...appShellProps} />}>
             <Route
               index
               element={
@@ -47,19 +47,12 @@ function renderShell() {
 }
 
 describe("AppShell", () => {
-  let originalVisualViewport;
-
   beforeEach(() => {
-    originalVisualViewport = window.visualViewport;
     window.scrollTo = jest.fn();
     HTMLElement.prototype.scrollTo = jest.fn();
   });
 
   afterEach(() => {
-    Object.defineProperty(window, "visualViewport", {
-      configurable: true,
-      value: originalVisualViewport,
-    });
     jest.restoreAllMocks();
   });
 
@@ -97,12 +90,8 @@ describe("AppShell", () => {
       }),
       removeEventListener: jest.fn(),
     };
-    Object.defineProperty(window, "visualViewport", {
-      configurable: true,
-      value: viewport,
-    });
     useCompactLayout.mockReturnValue(true);
-    renderShell();
+    renderShell({ getVisualViewport: () => viewport });
 
     fireEvent.click(screen.getByRole("link", { name: "Open Plan" }));
 
